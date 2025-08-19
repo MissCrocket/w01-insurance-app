@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>CII W01 Tutor</title>
+
+    <link rel="icon" href="/public/favicon.ico" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                light: "#ECF4FF",
+                DEFAULT: "#3A78FF",
+                dark: "#0B1736",
+                accent: "#19C37D",
+              },
+            },
+            boxShadow: {
+              soft: "0 10px 30px rgba(0,0,0,0.08)",
+            },
+            borderRadius: {
+              xl: "1rem",
+              "2xl": "1.5rem",
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="stylesheet" href="/css/style.css" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style type="text/tailwindcss">
+      @layer components {
+        .screen { @apply w-full max-w-6xl mx-auto p-4 md:p-6 lg:p-8; }
+        .card { @apply bg-white dark:bg-neutral-900 rounded-2xl shadow-soft p-4 md:p-6; }
+        .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-brand text-white hover:opacity-90 active:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed; }
+        .btn-ghost { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition; }
+        .section-title { @apply text-xl md:text-2xl font-semibold text-neutral-900 dark:text-white; }
+        .muted { @apply text-neutral-600 dark:text-neutral-400; }
+        .row { @apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6; }
+
+        /* --- STYLES FOR QUIZ FEEDBACK --- */
+        .option-label {
+          @apply flex items-center gap-4 border border-neutral-300 dark:border-neutral-700 rounded-xl p-4 cursor-pointer transition hover:bg-neutral-100 dark:hover:bg-neutral-800;
+        }
+        .option-label.is-selected {
+          @apply border-brand ring-2 ring-brand;
+        }
+        .option-label.is-correct {
+          @apply border-green-500 bg-green-500/10 text-green-700 dark:text-green-400;
+        }
+        .option-label.is-incorrect {
+          @apply border-red-500 bg-red-500/10 text-red-700 dark:text-red-400;
+        }
+        .option-label.is-disabled {
+          @apply cursor-not-allowed opacity-70 hover:bg-transparent dark:hover:bg-transparent;
+        }
+        .explanation-card {
+          @apply mt-4 p-4 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700;
+        }
+         /* --- STYLES FOR RESULTS REVIEW --- */
+        .results-list {
+          @apply mt-6 space-y-8;
+        }
+        .result-item {
+          @apply p-4 border border-neutral-200 dark:border-neutral-700 rounded-xl;
+        }
+        .result-item__question {
+          @apply font-semibold text-neutral-800 dark:text-neutral-200;
+        }
+        .result-item__answer {
+          @apply mt-2 text-sm;
+        }
+
+        /* --- STYLES FOR THE TOPICS SCREEN --- */
+        .mode-switch {
+          @apply mt-4 flex items-center gap-2 rounded-xl bg-black/20 p-1 w-fit;
+        }
+        .mode-switch .btn {
+          @apply bg-transparent text-neutral-400 hover:text-white;
+        }
+        .mode-switch .btn[aria-pressed="true"] {
+          @apply bg-brand text-white;
+        }
+        .topics-grid {
+          @apply mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+        }
+        .topic-card {
+          @apply text-left p-6 rounded-2xl bg-white/5 border border-white/10 transition-colors hover:bg-white/10;
+        }
+        .topic-card__title {
+          @apply font-semibold text-lg text-white;
+        }
+        .topic-card__meta {
+          @apply mt-1 text-sm text-neutral-400;
+        }
+      }
+      @layer utilities {
+        .app-shell { @apply min-h-screen bg-gradient-to-b from-brand-dark to-neutral-900 text-white; }
+        .app-main { @apply screen; }
+      }
+    </style>
+  </head>
+
+  <body class="app-shell">
+    <header class="sticky top-0 z-30 backdrop-blur bg-black/20">
+      <div class="screen flex items-center justify-between">
+        <h1 class="text-lg md:text-2xl font-semibold">CII W01 Insurance Tutor</h1>
+        <nav class="flex items-center gap-2">
+          <button id="reset-progress" class="btn-ghost">Reset</button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="app" class="app-main">
+      <section class="card">
+        <h2 class="section-title">Loading…</h2>
+        <p class="muted">Please wait while the app initializes.</p>
+        <div id="aria-live" class="visually-hidden" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="mt-10 pb-10">
+      <div class="screen text-center text-sm muted">
+        © <span id="year"></span> CII Tutor
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+
+    <script type="module" src="/js/boot.js"></script>
+    <script type="module" src="/js/services/progressService.js"></script>
+    <script type="module" src="/js/main.js"></script>
+  </body>
+</html>

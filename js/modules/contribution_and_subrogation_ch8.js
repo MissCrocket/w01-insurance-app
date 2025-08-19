@@ -1,0 +1,151 @@
+// Chapter 8 — Contribution & Subrogation
+// Exports named `data` with questions & flashcards
+
+export const data = {
+  title: "Contribution & Subrogation",
+  questions: [
+    {
+      type: "mcq",
+      concept: "Dual insurance",
+      question: "Contribution arises where two or more policies:",
+      options: [
+        "Cover different interests in the same subject-matter",
+        "Cover the same interest, same subject-matter, and same peril",
+        "Cover unrelated perils",
+        "Are issued by the same insurer"
+      ],
+      correctAnswer: "Cover the same interest, same subject-matter, and same peril",
+      explanation: "The classic triad: common interest, subject-matter, and peril."
+    },
+    {
+      type: "mcq",
+      concept: "Rateable proportion",
+      question: "Under contribution, insurers typically share the loss:",
+      options: [
+        "Equally regardless of sum insured",
+        "In proportion to their respective sums insured",
+        "According to premium size",
+        "By who issued the earliest policy"
+      ],
+      correctAnswer: "In proportion to their respective sums insured",
+      explanation: "Rateable proportion is the standard approach unless modified by wording."
+    },
+    {
+      type: "mcq",
+      concept: "Non-contribution clause",
+      question: "A 'non-contribution' clause in one policy usually means:",
+      options: [
+        "That policy avoids any share where another policy exists",
+        "Both policies must pay equally",
+        "Contribution always applies",
+        "The clause is illegal and void"
+      ],
+      correctAnswer: "That policy avoids any share where another policy exists",
+      explanation: "Wording can disapply contribution for that policy."
+    },
+    // *** New addition: More specific insurance rule ***
+    {
+      type: "mcq",
+      concept: "More specific insurance",
+      question: "If a ring is covered by a specific jewellery policy and also under a general household policy, which policy normally responds first?",
+      options: [
+        "Household policy",
+        "Both equally",
+        "Jewellery (more specific) policy",
+        "Neither"
+      ],
+      correctAnswer: "Jewellery (more specific) policy",
+      explanation: "The more specific insurance usually pays first."
+    },
+    {
+      type: "mcq",
+      concept: "Subrogation basics",
+      question: "Subrogation in indemnity insurance most closely means:",
+      options: [
+        "The insured assigns all rights to any third party",
+        "The insurer steps into the policyholder’s shoes to recover from liable third parties after paying a claim",
+        "Contribution between insurers",
+        "A deductible"
+      ],
+      correctAnswer: "The insurer steps into the policyholder’s shoes to recover from liable third parties after paying a claim",
+      explanation: "Subrogation prevents double recovery and helps keep premiums lower."
+    },
+    {
+      type: "mcq",
+      concept: "Benefit policy",
+      question: "Which policy normally does NOT give subrogation rights?",
+      options: [
+        "Household contents",
+        "Personal accident",
+        "Commercial property",
+        "Motor own damage"
+      ],
+      correctAnswer: "Personal accident",
+      explanation: "Benefit policies are not contracts of indemnity; subrogation does not usually apply."
+    },
+    // *** New addition: Lister v Romford Ice ***
+    {
+      type: "mcq",
+      concept: "Case law",
+      question: "Which case confirmed an insurer could, in principle, recover from a negligent fellow employee under subrogation rights?",
+      options: [
+        "Lister v Romford Ice",
+        "Carter v Boehm",
+        "Hadley v Baxendale",
+        "Donoghue v Stevenson"
+      ],
+      correctAnswer: "Lister v Romford Ice",
+      explanation: "Insurers later often waive such rights by wording; many modern policies contain intra-employee waivers."
+    },
+    {
+      type: "mcq",
+      concept: "Waivers",
+      question: "A 'hold harmless' / waiver of subrogation clause agreed pre-loss will usually:",
+      options: [
+        "Have no effect on the insurer",
+        "Bind the insurer if permitted by policy terms or known to insurer",
+        "Be illegal",
+        "Automatically void the policy"
+      ],
+      correctAnswer: "Bind the insurer if permitted by policy terms or known to insurer",
+      explanation: "Policies often control or require insurer consent for waivers; otherwise, cover may be affected."
+    },
+    {
+      type: "mcq",
+      concept: "Specific vs general clauses",
+      question: "A 'more specific insurance' clause mainly affects:",
+      options: [
+        "Subrogation only",
+        "Contribution priority between policies",
+        "Excess calculation",
+        "Average application"
+      ],
+      correctAnswer: "Contribution priority between policies",
+      explanation: "It gives the specific policy primary liability before general cover responds."
+    },
+    {
+      type: "fill",
+      concept: "Term recall",
+      question: "The sharing of a loss between two insurers covering the same interest, subject-matter and peril is called ________.",
+      correctAnswer: ["contribution"],
+      explanation: "Core definition of contribution."
+    },
+    {
+      type: "fill",
+      concept: "Term recall",
+      question: "An insurer pursuing a negligent third party after paying the insured is exercising the right of ________.",
+      correctAnswer: ["subrogation"],
+      explanation: "Core definition of subrogation."
+    }
+  ],
+  flashcards: [
+    { term: "Contribution – Conditions", definition: "Requires common interest, common subject-matter, and common peril." },
+    { term: "Rateable Proportion", definition: "Insurers share losses in proportion to their sums insured, unless modified by wording." },
+    { term: "Non-Contribution Clause", definition: "A policy term that disapplies contribution for that policy." },
+    // New flashcards per gap list:
+    { term: "More Specific Insurance", definition: "Specific policy responds before general policy where both cover the same risk." },
+    { term: "Lister v Romford Ice", definition: "Authority that subrogation can (in principle) apply against a negligent co-employee; often waived by modern policies." },
+    { term: "Waiver / Hold Harmless", definition: "Agreement not to pursue recovery; may bind insurer if permitted by policy terms/consented." },
+    { term: "Benefit Policies & Subrogation", definition: "Subrogation typically does not apply to benefit policies (e.g., personal accident)." }
+  ]
+};
