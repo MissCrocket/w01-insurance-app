@@ -117,7 +117,7 @@
       <div class="screen flex items-center justify-between">
         <h1 class="text-lg md:text-2xl font-semibold">CII W01 Insurance Tutor</h1>
         <nav class="flex items-center gap-2">
-          <button id="reset-progress" class="btn-ghost">Reset</button>
+          <button id="reset-progress" class="btn-ghost" aria-label="Reset all progress">Reset</button>
         </nav>
       </div>
     </header>
@@ -140,6 +140,7 @@
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
 
+    <script type="module" src="/js/config.js"></script>
     <script type="module" src="/js/boot.js"></script>
     <script type="module" src="/js/services/progressService.js"></script>
     <script type="module" src="/js/main.js"></script>
