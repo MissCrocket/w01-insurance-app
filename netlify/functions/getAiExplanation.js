@@ -1,10 +1,7 @@
 // File: netlify/functions/getAiExplanation.js
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Using the official Google AI package for Node.js
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-// This is your serverless function handler
-exports.handler = async function(event, context) {
+export async function handler(event, context) {
   // Ensure the request is a POST request
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -41,7 +38,7 @@ exports.handler = async function(event, context) {
     console.error("Error calling Gemini API:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to get explanation." }),
+      body: JSON.stringify({ error: "Failed to get explanation from AI." }),
     };
   }
 };

@@ -1,5 +1,6 @@
 // js/main.js
 import * as progressService from './services/progressService.js';
+import { STORAGE_KEY } from './config.js';
 
 /* =============================
  * Enums
@@ -107,8 +108,12 @@ function sampleFromPool(pool, n) {
   }
   return arr.slice(0, n);
 }
-function buildMockExam(chapters, totalQuestions = 50) {
-    const allQuestions = [];
+
+function buildQuiz(config) {
+  const { chapters, type, chapterId, totalQuestions } = config;
+  const allQuestions = [];
+
+  if (type === 'mock') {
     const withLOs = chapters.filter((c) => Array.isArray(c.los) && c.los.length);
     if (withLOs.length) {
         const flatLOs = [];
@@ -120,8 +125,8 @@ function buildMockExam(chapters, totalQuestions = 50) {
         });
         const counts = allocateByWeights(flatLOs, totalQuestions);
         counts.forEach((count, compositeId) => {
-            const [chapterId, loId] = compositeId.split("::");
-            const chapter = chapters.find((c) => c.id === chapterId);
+            const [chapId, loId] = compositeId.split("::");
+            const chapter = chapters.find((c) => c.id === chapId);
             if (!chapter) return;
             const pool = mcqOnly(chapter.questions).filter((q) => q.loId === loId);
             allQuestions.push(...sampleFromPool(pool, count));
@@ -134,46 +139,38 @@ function buildMockExam(chapters, totalQuestions = 50) {
             const want = Math.floor((pool.length / totalPool) * totalQuestions);
             allQuestions.push(...sampleFromPool(pool, want));
         });
-        if (allQuestions.length < totalQuestions) {
-            const need = totalQuestions - allQuestions.length;
-            const flat = chapters.flatMap((c) => mcqOnly(c.questions));
-            const unused = flat.filter((q) => !allQuestions.includes(q));
-            allQuestions.push(...sampleFromPool(unused, Math.min(need, unused.length)));
-        }
     }
-    const uniq = new Map();
-    allQuestions.forEach((q) => {
-        const key = q.id || `${q.text}::${JSON.stringify(q.options)}`;
-        if (!uniq.has(key)) uniq.set(key, q);
-    });
-    const uniqueList = Array.from(uniq.values());
-    if (uniqueList.length > totalQuestions) return uniqueList.slice(0, totalQuestions);
-    if (uniqueList.length < totalQuestions) {
-        const flat = chapters.flatMap((c) => mcqOnly(c.questions));
-        const spare = flat.filter((q) => !uniqueList.includes(q));
-        uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
+  } else { // module quiz
+    const chapter = chapters.find(c => c.id === chapterId);
+    const poolAll = mcqOnly(chapter?.questions);
+    if (poolAll.length) {
+      if (Array.isArray(chapter.los) && chapter.los.length) {
+        const losMeta = chapter.los.map((lo) => ({ id: lo.id, weight: lo.weight || 0, poolSize: poolAll.filter((q) => q.loId === lo.id).length }));
+        const counts = allocateByWeights(losMeta, Math.min(totalQuestions, poolAll.length));
+        counts.forEach((n, loId) => {
+          const loPool = poolAll.filter((q) => q.loId === loId);
+          allQuestions.push(...sampleFromPool(loPool, n));
+        });
+      } else {
+        allQuestions.push(...sampleFromPool(poolAll, Math.min(totalQuestions, poolAll.length)));
+      }
     }
-    return uniqueList.slice(0, totalQuestions);
-}
-function buildModuleQuiz(chapter, totalQuestions = 15) {
-  const poolAll = mcqOnly(chapter?.questions);
-  if (!poolAll.length) return [];
-  if (Array.isArray(chapter.los) && chapter.los.length) {
-    const losMeta = chapter.los.map((lo) => ({ id: lo.id, weight: lo.weight || 0, poolSize: poolAll.filter((q) => q.loId === lo.id).length }));
-    const counts = allocateByWeights(losMeta, Math.min(totalQuestions, poolAll.length));
-    const selected = [];
-    counts.forEach((n, loId) => {
-      const loPool = poolAll.filter((q) => q.loId === loId);
-      selected.push(...sampleFromPool(loPool, n));
-    });
-    if (selected.length < totalQuestions) {
-      const need = Math.min(totalQuestions, poolAll.length) - selected.length;
-      const leftovers = poolAll.filter((q) => !selected.includes(q));
-      selected.push(...sampleFromPool(leftovers, need));
-    }
-    return selected.slice(0, Math.min(totalQuestions, poolAll.length));
   }
-  return sampleFromPool(poolAll, Math.min(totalQuestions, poolAll.length));
+  
+  const uniq = new Map();
+  allQuestions.forEach((q) => {
+      const key = q.id || `${q.text}::${JSON.stringify(q.options)}`;
+      if (!uniq.has(key)) uniq.set(key, q);
+  });
+  let uniqueList = Array.from(uniq.values());
+
+  if (uniqueList.length < totalQuestions) {
+      const flat = chapters.flatMap((c) => mcqOnly(c.questions));
+      const spare = flat.filter((q) => !uniqueList.includes(q));
+      uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
+  }
+
+  return uniqueList.slice(0, totalQuestions);
 }
 
 /* =============================
@@ -185,18 +182,37 @@ function render() {
   root.innerHTML = "";
 
   let screenEl;
+  let pageTitle = "CII W01 Tutor";
+  const chapters = getChaptersFromGlobal();
+  const chapter = chapters.find(c => c.id === state.selectedChapterId);
+
   switch (state.screen) {
-    case SCREEN.TOPICS:   screenEl = renderTopics();  break;
-    case SCREEN.LEARNING: screenEl = renderLearning(); break;
-    case SCREEN.QUIZ:     screenEl = renderQuiz();     break;
-    case SCREEN.RESULTS:  screenEl = renderResults();  break;
-    case SCREEN.PROGRESS: screenEl = renderProgress(); break;
+    case SCREEN.TOPICS:
+      screenEl = renderTopics();
+      break;
+    case SCREEN.LEARNING:
+      screenEl = renderLearning();
+      pageTitle = `Learning - ${chapter.title}`;
+      break;
+    case SCREEN.QUIZ:
+      screenEl = renderQuiz();
+      pageTitle = `Quiz - ${state.quizType === 'mock' ? 'Mock Exam' : chapter.title}`;
+      break;
+    case SCREEN.RESULTS:
+      screenEl = renderResults();
+      pageTitle = `Results - ${state.quizType === 'mock' ? 'Mock Exam' : chapter.title}`;
+      break;
+    case SCREEN.PROGRESS:
+      screenEl = renderProgress();
+      pageTitle = "My Progress";
+      break;
     default:
       screenEl = document.createElement("div");
       screenEl.innerHTML = `<p>Unknown screen.</p>`;
   }
 
   root.appendChild(screenEl);
+  document.title = pageTitle;
   announce(`Screen changed to ${state.screen}`);
   focusFirst(screenEl);
   
@@ -227,18 +243,6 @@ function renderTopics() {
     <div class="topics-grid" role="list"></div>
   `;
 
-  qs("#my-progress-btn", wrap).addEventListener("click", () => {
-      state.screen = SCREEN.PROGRESS;
-      render();
-  });
-
-  qsa(".mode-switch .btn", wrap).forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.mode = btn.getAttribute("data-mode");
-      render();
-    });
-  });
-
   const grid = qs(".topics-grid", wrap);
   const chapters = getChaptersFromGlobal();
 
@@ -251,24 +255,17 @@ function renderTopics() {
       <div class="topic-card__title">Start Mock Exam</div>
       <div class="topic-card__meta">50 questions • MCQ • LO-weighted where available</div>
     `;
-    card.addEventListener("click", () => {
-      const qs = buildMockExam(chapters, 50);
-      startQuiz(qs, { type: 'mock', config: { totalQuestions: 50 } });
-    });
     qs(".mode-switch", wrap).after(card);
   } else {
     chapters.forEach((ch) => {
         const card = document.createElement("button");
         card.className = "topic-card";
         card.setAttribute("role", "listitem");
+        card.dataset.chapterId = ch.id;
         card.innerHTML = `
           <div class="topic-card__title">${ch.title || ch.id}</div>
           <div class="topic-card__meta">Flashcards & Quizzes</div>
         `;
-        card.addEventListener("click", () => {
-          state.selectedChapterId = ch.id;
-          startFlashcardSession(ch);
-        });
         grid.appendChild(card);
     });
   }
@@ -306,11 +303,6 @@ function renderProgress() {
             </div>
         </div>
     `;
-
-    qs('#back-btn', wrap).addEventListener('click', () => {
-        state.screen = SCREEN.TOPICS;
-        render();
-    });
 
     const activityLog = qs('#activity-log', wrap);
     if (progress.recentActivity.length > 0) {
@@ -398,13 +390,6 @@ function renderLearning() {
             <button id="quiz-btn" class="btn btn-primary ml-4">Take Chapter Quiz</button>
         </div>
         `;
-        qs('#back-btn', wrap).addEventListener('click', () => { state.screen = SCREEN.TOPICS; render(); });
-        qs('#quiz-btn', wrap).addEventListener('click', () => {
-            const chapters = getChaptersFromGlobal();
-            const chapter = chapters.find(c => c.id === state.selectedChapterId);
-            const qsList = buildModuleQuiz(chapter, 15);
-            startQuiz(qsList, { type: 'module', config: { chapterId: chapter.id, totalQuestions: 15 } });
-        });
         return wrap;
     }
 
@@ -448,28 +433,6 @@ function renderLearning() {
         controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
     }
     
-    qs('#back-btn', wrap).addEventListener('click', () => { state.screen = SCREEN.TOPICS; render(); });
-    qs('#back-to-topics-secondary', wrap)?.addEventListener('click', () => { state.screen = SCREEN.TOPICS; render(); });
-    qs('#reveal-btn', wrap)?.addEventListener('click', () => { state.flashcardSession.isFlipped = true; render(); });
-    qsa('[data-prompt]', wrap).forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const promptType = e.currentTarget.dataset.prompt;
-            const responseContainer = qs('#ai-response', wrap);
-            qsa('[data-prompt]', wrap).forEach(b => b.disabled = true);
-            getAiExplanation(card.term, card.definition, promptType, responseContainer);
-        });
-    });
-    qsa('.confidence-btn', wrap).forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const confidence = parseInt(e.currentTarget.dataset.confidence, 10);
-            const chapters = getChaptersFromGlobal();
-            const chapter = chapters.find(c => c.id === state.selectedChapterId);
-            progressService.updateFlashcardConfidence(chapter.id, chapter.title, card.id, confidence);
-            state.flashcardSession.currentIndex++;
-            state.flashcardSession.isFlipped = false;
-            render();
-        });
-    });
     return wrap;
 }
 
@@ -531,19 +494,7 @@ function renderQuiz() {
       nextBtn.hidden = false;
     }
   }
-  optionsEl.addEventListener('click', (e) => {
-    if (state.questionState === Q_STATE.ANSWERED) return;
-    const label = e.target.closest('.option-label');
-    if (!label) return;
-    const chosenIndex = parseInt(label.dataset.index, 10);
-    const isCorrect = chosenIndex === q.correctIndex;
-    state.answers[state.currentIndex] = { qid: q.id, selectedIndex: chosenIndex, correct: isCorrect };
-    state.questionState = Q_STATE.ANSWERED;
-    render();
-  });
-  nextBtn.addEventListener('click', () => { state.currentIndex++; state.questionState = Q_STATE.UNANSWERED; render(); });
-  finishBtn.addEventListener('click', () => { state.screen = SCREEN.RESULTS; render(); });
-  qs("#quit-quiz", wrap).addEventListener("click", () => { Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} }); render(); });
+
   if (state.questionState === Q_STATE.UNANSWERED) { announce("New question loaded."); } else { const resultText = state.answers[state.currentIndex].correct ? 'Correct.' : 'Incorrect.'; announce(resultText); }
   return wrap;
 }
@@ -598,19 +549,93 @@ function renderResults() {
     `;
     listEl.appendChild(item);
   });
-  qs("#retry", wrap)?.addEventListener("click", () => {
-    const chapters = getChaptersFromGlobal();
-    let newQuestions = [];
-    if (state.quizType === 'module' && state.quizConfig.chapterId) {
-      const chapter = chapters.find(c => c.id === state.quizConfig.chapterId);
-      newQuestions = buildModuleQuiz(chapter, state.quizConfig.totalQuestions);
-    } else if (state.quizType === 'mock') {
-      newQuestions = buildMockExam(chapters, state.quizConfig.totalQuestions);
-    }
-    startQuiz(newQuestions, { type: state.quizType, config: state.quizConfig });
-  });
-  qs("#back", wrap)?.addEventListener("click", () => { Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} }); render(); });
   return wrap;
+}
+
+/* =============================
+ * Event Handlers
+ * ============================= */
+
+function handleAppClick(event) {
+  const { target } = event;
+  const chapters = getChaptersFromGlobal();
+
+  // Topics Screen
+  const topicCard = target.closest('.topic-card');
+  if (topicCard) {
+    if (state.mode === MODE.MOCK) {
+      const questions = buildQuiz({ chapters, type: 'mock', totalQuestions: 50 });
+      startQuiz(questions, { type: 'mock', config: { totalQuestions: 50 } });
+    } else {
+      state.selectedChapterId = topicCard.dataset.chapterId;
+      const chapter = chapters.find(c => c.id === state.selectedChapterId);
+      startFlashcardSession(chapter);
+    }
+  }
+
+  if (target.id === 'my-progress-btn' || target.id === 'back-btn') {
+    state.screen = (target.id === 'my-progress-btn') ? SCREEN.PROGRESS : SCREEN.TOPICS;
+    render();
+  } else if (target.closest('.mode-switch .btn')) {
+    state.mode = target.dataset.mode;
+    render();
+  }
+
+  // Learning Screen
+  if (target.id === 'reveal-btn') {
+    state.flashcardSession.isFlipped = true;
+    render();
+  } else if (target.closest('[data-prompt]')) {
+    const btn = target.closest('[data-prompt]');
+    const promptType = btn.dataset.prompt;
+    const { term, definition } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+    const responseContainer = qs('#ai-response');
+    qsa('[data-prompt]').forEach(b => b.disabled = true);
+    getAiExplanation(term, definition, promptType, responseContainer);
+  } else if (target.closest('.confidence-btn')) {
+    const btn = target.closest('.confidence-btn');
+    const confidence = parseInt(btn.dataset.confidence, 10);
+    const { id: cardId } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+    const chapter = chapters.find(c => c.id === state.selectedChapterId);
+    progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
+    state.flashcardSession.currentIndex++;
+    state.flashcardSession.isFlipped = false;
+    render();
+  } else if (target.id === 'quiz-btn') {
+      const chapter = chapters.find(c => c.id === state.selectedChapterId);
+      const qsList = buildQuiz({ chapters, type: 'module', chapterId: chapter.id, totalQuestions: 15 });
+      startQuiz(qsList, { type: 'module', config: { chapterId: chapter.id, totalQuestions: 15 } });
+  }
+
+  // Quiz Screen
+  if (target.closest('.option-label') && state.questionState === Q_STATE.UNANSWERED) {
+    const label = target.closest('.option-label');
+    const chosenIndex = parseInt(label.dataset.index, 10);
+    const q = state.questions[state.currentIndex];
+    const isCorrect = chosenIndex === q.correctIndex;
+    state.answers[state.currentIndex] = { qid: q.id, selectedIndex: chosenIndex, correct: isCorrect };
+    state.questionState = Q_STATE.ANSWERED;
+    render();
+  } else if (target.id === 'next-btn') {
+    state.currentIndex++;
+    state.questionState = Q_STATE.UNANSWERED;
+    render();
+  } else if (target.id === 'finish-btn') {
+    state.screen = SCREEN.RESULTS;
+    render();
+  } else if (target.id === 'quit-quiz') {
+    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} });
+    render();
+  }
+
+  // Results Screen
+  if (target.id === 'retry') {
+    const newQuestions = buildQuiz({ chapters, ...state.quizConfig });
+    startQuiz(newQuestions, { type: state.quizType, config: state.quizConfig });
+  } else if (target.id === 'back' && state.screen === SCREEN.RESULTS) {
+    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} });
+    render();
+  }
 }
 
 /* =============================
@@ -642,6 +667,7 @@ function startFlashcardSession(chapter) {
 
 window.addEventListener("DOMContentLoaded", () => {
   state.root = qs("#app");
+  state.root.addEventListener('click', handleAppClick);
   qs('#reset-progress').addEventListener('click', () => {
     if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
         progressService.resetProgress();

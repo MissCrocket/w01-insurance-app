@@ -1,6 +1,6 @@
 // js/services/progressService.js
 
-const STORAGE_KEY = 'cii_w01_tutor_progress';
+import { STORAGE_KEY } from '../config.js';
 
 // Initializes the data structure for a new user
 const getInitialData = () => ({

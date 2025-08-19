@@ -2,10 +2,6 @@
    Use Tailwind utilities (or the @layer components in index.html) for components. */
 
 :root {
-  --brand: #3a78ff;
-  --brand-dark: #0b1736;
-  --brand-accent: #19c37d;
-
   color-scheme: light dark;
 }
 
