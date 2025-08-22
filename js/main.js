@@ -8,6 +8,7 @@ export const SCREEN = {
   QUIZ: "quiz",
   RESULTS: "results",
   PROGRESS: "progress",
+  MANAGE: "manage",
 };
 
 export const MODE = {
@@ -164,6 +165,16 @@ function buildQuiz(config) {
   return uniqueList.slice(0, totalQuestions);
 }
 
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed bottom-5 right-5 bg-neutral-800 text-white py-2 px-4 rounded-lg shadow-lg';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
 function render() {
   const root = state.root || qs("#app");
   root.innerHTML = "";
@@ -193,6 +204,10 @@ function render() {
       screenEl = renderProgress();
       pageTitle = "My Progress";
       break;
+    case SCREEN.MANAGE:
+        screenEl = renderManageCards();
+        pageTitle = `Manage Cards - ${chapter.title}`;
+        break;
     default:
       screenEl = document.createElement("div");
       screenEl.innerHTML = `<p>Unknown screen.</p>`;
@@ -402,13 +417,34 @@ function renderLearning() {
         </div>
         <div id="ai-response" class="mt-4 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
     `;
+    
+    const progress = progressService.getProgress();
+    const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
+    const chapterProgress = progress.chapters[chapter.id] || { flashcards: {} };
+    const cardProgress = chapterProgress.flashcards[card.id];
+    let cardStatus = 'new';
+    if (cardProgress) {
+        if (cardProgress.confidence >= 4) cardStatus = 'mastered';
+        else if (cardProgress.confidence >= 2) cardStatus = 'learning';
+        else cardStatus = 'new';
+    }
+
+    const statusClasses = {
+        new: 'border-blue-500',
+        learning: 'border-orange-500',
+        mastered: 'border-green-500'
+    };
+
 
     wrap.innerHTML = `
         <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
             <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
-            <p>Cards remaining in this session: ${session.cards.length - session.currentIndex}</p>
+            <div>
+                <button id="manage-cards-btn" class="btn-ghost !p-2">Manage Cards</button>
+                <span class="ml-4">Cards remaining in this session: ${session.cards.length - session.currentIndex}</span>
+            </div>
         </div>
-        <div id="flashcard" class="card bg-white/5 min-h-[300px] flex flex-col items-center justify-center p-8">
+        <div id="flashcard" class="card bg-white/5 min-h-[300px] flex flex-col items-center justify-center p-8 border-2 ${statusClasses[cardStatus]}">
             ${session.isFlipped ? definitionSide : termSide}
         </div>
         <div id="controls" class="mt-6"></div>
@@ -418,11 +454,11 @@ function renderLearning() {
     if (session.isFlipped) {
         controls.innerHTML = `
         <div class="grid grid-cols-5 gap-3">
-            <button data-confidence="1" class="confidence-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl transition">1<br/><span class="text-xs">Forgot</span></button>
-            <button data-confidence="2" class="confidence-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl transition">2<br/><span class="text-xs">Hard</span></button>
-            <button data-confidence="3" class="confidence-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-xl transition">3<br/><span class="text-xs">Good</span></button>
-            <button data-confidence="4" class="confidence-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition">4<br/><span class="text-xs">Easy</span></button>
-            <button data-confidence="5" class="confidence-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition">5<br/><span class="text-xs">Perfect</span></button>
+            <button data-confidence="1" class="confidence-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl transition" title="Forgot">1<br/><span class="text-xs">Forgot</span></button>
+            <button data-confidence="2" class="confidence-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl transition" title="Hard">2<br/><span class="text-xs">Hard</span></button>
+            <button data-confidence="3" class="confidence-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-xl transition" title="Good">3<br/><span class="text-xs">Good</span></button>
+            <button data-confidence="4" class="confidence-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition" title="Easy">4<br/><span class="text-xs">Easy</span></button>
+            <button data-confidence="5" class="confidence-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition" title="Perfect">5<br/><span class="text-xs">Perfect</span></button>
         </div>
         `;
     } else {
@@ -445,6 +481,10 @@ function renderQuiz() {
     </div>
     <div class="w-full bg-neutral-700 rounded-full h-2.5 mt-4">
         <div class="bg-brand h-2.5 rounded-full" style="width: ${progressPercent}%"></div>
+    </div>
+    <div class="flex justify-between items-center text-sm text-neutral-400 mt-2">
+        <span>Progress</span>
+        <span>${Math.round(progressPercent)}%</span>
     </div>
     <article class="question-card card mt-6" aria-live="polite">
       <h2 class="question-text text-lg md:text-xl font-semibold text-neutral-800 dark:text-white">${q?.text || q?.question || "Question text missing"}</h2>
@@ -553,6 +593,54 @@ function renderResults() {
   return wrap;
 }
 
+function renderManageCards() {
+    const wrap = document.createElement('section');
+    wrap.className = 'screen screen-manage';
+    const progress = progressService.getProgress();
+    const chapters = getChaptersFromGlobal();
+    const chapter = chapters.find(c => c.id === state.selectedChapterId);
+
+    wrap.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-white">Manage Cards: ${chapter.title}</h1>
+            <button id="back-to-learning" class="btn-ghost">Back to Learning</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="manage-board">
+            <div class="p-4 bg-white/5 rounded-lg" data-status="new">
+                <h2 class="font-bold text-lg text-blue-400 mb-4">New</h2>
+                <div class="space-y-2 card-list"></div>
+            </div>
+            <div class="p-4 bg-white/5 rounded-lg" data-status="learning">
+                <h2 class="font-bold text-lg text-orange-400 mb-4">Learning</h2>
+                <div class="space-y-2 card-list"></div>
+            </div>
+            <div class="p-4 bg-white/5 rounded-lg" data-status="mastered">
+                <h2 class="font-bold text-lg text-green-400 mb-4">Mastered</h2>
+                <div class="space-y-2 card-list"></div>
+            </div>
+        </div>
+    `;
+
+    const board = qs('#manage-board', wrap);
+    const chapterProgress = progress.chapters[chapter.id] || { flashcards: {} };
+
+    chapter.flashcards.forEach(card => {
+        const cardProgress = chapterProgress.flashcards[card.id];
+        const status = cardProgress?.status || 'new';
+
+        const cardEl = document.createElement('div');
+        cardEl.className = 'p-3 bg-neutral-800 rounded cursor-pointer';
+        cardEl.textContent = card.term;
+        cardEl.dataset.cardId = card.id;
+        cardEl.draggable = true;
+
+        board.querySelector(`[data-status="${status}"] .card-list`).appendChild(cardEl);
+    });
+
+    return wrap;
+}
+
+
 function handleAppClick(event) {
   const { target } = event;
   const chapters = getChaptersFromGlobal();
@@ -601,6 +689,8 @@ function handleAppClick(event) {
     progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
     state.flashcardSession.currentIndex++;
     state.flashcardSession.isFlipped = false;
+    const confidenceMap = {1: 'Forgot', 2: 'Hard', 3: 'Good', 4: 'Easy', 5: 'Perfect'};
+    showToast(`Card marked as '${confidenceMap[confidence]}'`);
     render();
   } else if (target.id === 'quiz-btn') {
       const chapter = chapters.find(c => c.id === state.selectedChapterId);
@@ -635,6 +725,15 @@ function handleAppClick(event) {
     Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} });
     render();
   }
+  
+  if (target.id === 'manage-cards-btn') {
+    state.screen = SCREEN.MANAGE;
+    render();
+  } else if (target.id === 'back-to-learning') {
+      state.screen = SCREEN.LEARNING;
+      render();
+  }
+
 
   if (target.id === 'open-reset-modal') {
     qs('#reset-modal').classList.remove('hidden');
@@ -698,6 +797,34 @@ document.addEventListener('keydown', (e) => {
             state.flashcardSession.currentIndex++;
             state.flashcardSession.isFlipped = false;
             render();
+        }
+    }
+});
+
+let draggedCard = null;
+
+document.addEventListener('dragstart', (e) => {
+    if (e.target.dataset.cardId) {
+        draggedCard = e.target;
+    }
+});
+
+document.addEventListener('dragover', (e) => {
+    e.preventDefault();
+});
+
+document.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (draggedCard) {
+        const dropZone = e.target.closest('[data-status]');
+        if (dropZone) {
+            const newStatus = dropZone.dataset.status;
+            const cardId = draggedCard.dataset.cardId;
+            const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
+
+            progressService.updateCardStatus(chapter.id, cardId, newStatus);
+            dropZone.querySelector('.card-list').appendChild(draggedCard);
+            draggedCard = null;
         }
     }
 });

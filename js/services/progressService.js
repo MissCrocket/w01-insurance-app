@@ -1,5 +1,5 @@
 // js/services/progressService.js
-
+import { calculateNextReview } from '../utils/spacedRepetition.js';
 import { STORAGE_KEY } from '../config.js';
 
 const getInitialData = () => ({
@@ -23,36 +23,25 @@ export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, ratin
     progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: chapterTitle };
   }
 
-  const card = progress.chapters[chapterId].flashcards[cardId] || {
+  let card = progress.chapters[chapterId].flashcards[cardId] || {
     confidence: 0,
     lastReviewed: new Date().toISOString(),
     interval: 0,
     easeFactor: 2.5,
     consecutiveCorrect: 0,
+    status: 'new'
   };
 
-  if (rating < 3) {
-    card.interval = 1;
-    card.consecutiveCorrect = 0;
-  } else {
-    card.consecutiveCorrect += 1;
-    if (card.consecutiveCorrect === 1) {
-      card.interval = 1;
-    } else if (card.consecutiveCorrect === 2) {
-      card.interval = 6;
-    } else {
-      card.interval = Math.ceil(card.interval * card.easeFactor);
-    }
-  }
-
-  card.easeFactor = card.easeFactor + (0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.02));
-  if (card.easeFactor < 1.3) card.easeFactor = 1.3;
-
-  const now = new Date();
-  const nextReviewDate = new Date(now.getTime() + card.interval * 24 * 60 * 60 * 1000);
-  card.nextReviewDate = nextReviewDate.toISOString();
+  card = calculateNextReview(card, rating);
   card.confidence = rating;
-  card.lastReviewed = now.toISOString();
+  
+  if (rating >= 4) {
+    card.status = 'mastered';
+  } else if (rating >= 2) {
+    card.status = 'learning';
+  } else {
+    card.status = 'new';
+  }
 
   progress.chapters[chapterId].flashcards[cardId] = card;
 
@@ -63,6 +52,14 @@ export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, ratin
   progress.chapters[chapterId].mastery = maxScore > 0 ? totalScore / maxScore : 0;
 
   saveProgress(progress);
+}
+
+export function updateCardStatus(chapterId, cardId, newStatus) {
+    const progress = getProgress();
+    if (progress.chapters[chapterId] && progress.chapters[chapterId].flashcards[cardId]) {
+        progress.chapters[chapterId].flashcards[cardId].status = newStatus;
+        saveProgress(progress);
+    }
 }
 
 export function logActivity(activityItem) {

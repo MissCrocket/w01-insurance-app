@@ -50,7 +50,6 @@ function normalizeChapter(id, mod) {
     id,
     title: raw.title || moduleManifest[id]?.title || id,
     questions: mcqs,
-    // **NEW LINE**: Pass the flashcards data through from the raw module.
     flashcards: Array.isArray(raw.flashcards) ? raw.flashcards : [],
     los: Array.isArray(raw.los) ? raw.los : undefined
   };
@@ -62,8 +61,9 @@ async function loadAll() {
 
   for (const [id, meta] of entries) {
     if (!meta?.loader) continue;
-    const mod = await meta.loader();
-    chapters.push(normalizeChapter(id, mod));
+    const response = await fetch(`/data/${id}.json`);
+    const mod = await response.json();
+    chapters.push(normalizeChapter(id, { data: mod }));
   }
 
   // Expose globally for main.js

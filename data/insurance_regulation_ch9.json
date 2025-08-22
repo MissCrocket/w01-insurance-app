@@ -1,0 +1,137 @@
+{
+  "title": "Insurance Regulation",
+  "questions": [
+    {
+      "type": "mcq",
+      "concept": "Why regulate?",
+      "question": "A core purpose of insurance regulation is to:",
+      "options": [
+        "Maximise insurer profits",
+        "Protect consumers and maintain confidence in the financial system",
+        "Eliminate competition",
+        "Set uniform premium rates"
+      ],
+      "correctAnswer": "Protect consumers and maintain confidence in the financial system",
+      "explanation": "Consumer protection and market confidence are central aims of regulation."
+    },
+    {
+      "type": "mcq",
+      "concept": "Prudential vs conduct",
+      "question": "Prudential regulation focuses primarily on:",
+      "options": [
+        "How firms treat customers day-to-day",
+        "The safety and financial soundness of insurers",
+        "Sales practices",
+        "Complaints handling"
+      ],
+      "correctAnswer": "The safety and financial soundness of insurers",
+      "explanation": "Market conduct regulation focuses on fair dealing with customers."
+    },
+    {
+      "type": "mcq",
+      "concept": "Regulator functions",
+      "question": "Typical oversight functions of a regulator include regulation, authorisation, supervision, surveillance and:",
+      "options": [
+        "Claims adjusting",
+        "Enforcement",
+        "Underwriting",
+        "Distribution"
+      ],
+      "correctAnswer": "Enforcement",
+      "explanation": "Regulators can sanction or refer breaches for prosecution."
+    },
+    {
+      "type": "mcq",
+      "concept": "IAIS role",
+      "question": "The International Association of Insurance Supervisors (IAIS) primarily:",
+      "options": [
+        "Sets legally binding rules for all countries",
+        "Develops principles, standards and guidance for supervision",
+        "Handles consumer complaints",
+        "Pays policyholder compensation"
+      ],
+      "correctAnswer": "Develops principles, standards and guidance for supervision",
+      "explanation": "IAIS provides international supervisory standards, not binding law."
+    },
+    {
+      "type": "mcq",
+      "concept": "Capital adequacy",
+      "question": "Capital adequacy frameworks are intended to:",
+      "options": [
+        "Ensure every claim is paid within 24 hours",
+        "Ensure insurers can meet obligations even under stress",
+        "Guarantee zero failures",
+        "Set universal premium levels"
+      ],
+      "correctAnswer": "Ensure insurers can meet obligations even under stress",
+      "explanation": "Capital buffers and solvency control levels underpin financial resilience."
+    },
+    {
+      "type": "mcq",
+      "concept": "CDD basics",
+      "question": "Customer Due Diligence (CDD) measures generally include:",
+      "options": [
+        "Only obtaining a phone number",
+        "Identifying and verifying customers and beneficial owners, and ongoing monitoring",
+        "Selling only through brokers",
+        "Storing data indefinitely"
+      ],
+      "correctAnswer": "Identifying and verifying customers and beneficial owners, and ongoing monitoring",
+      "explanation": "CDD is a core AML/CTF control."
+    },
+    {
+      "type": "mcq",
+      "concept": "Money laundering stages",
+      "question": "Which is the correct order of the three stages of money laundering?",
+      "options": [
+        "Integration – Placement – Layering",
+        "Placement – Layering – Integration",
+        "Layering – Placement – Integration",
+        "Placement – Integration – Layering"
+      ],
+      "correctAnswer": "Placement – Layering – Integration",
+      "explanation": "Funds enter the system (placement), are obscured (layering), then returned as 'clean' (integration)."
+    },
+    {
+      "type": "mcq",
+      "concept": "Fraud types",
+      "question": "Examples of insurance fraud can include:",
+      "options": [
+        "Only policyholder fraud",
+        "Policyholder, intermediary and internal (staff) fraud",
+        "Regulatory fraud only",
+        "Only staged motor accidents"
+      ],
+      "correctAnswer": "Policyholder, intermediary and internal (staff) fraud",
+      "explanation": "Fraud categories are broad; controls include detection, investigation, and prevention frameworks."
+    },
+    {
+      "type": "mcq",
+      "concept": "Market conduct tools",
+      "question": "From a market conduct perspective, regulators may require:",
+      "options": [
+        "No disclosure to customers",
+        "Adequate disclosure, dispute resolution schemes, and fair treatment of customers",
+        "Only prudential returns",
+        "Uniform policy wordings"
+      ],
+      "correctAnswer": "Adequate disclosure, dispute resolution schemes, and fair treatment of customers",
+      "explanation": "These tools promote fair dealing and informed choices."
+    },
+    {
+      "type": "fill",
+      "concept": "Term recall",
+      "question": "The global AML/CTF standard-setting body is the ________.",
+      "correctAnswer": ["fatf", "financial action task force"],
+      "explanation": "FATF issues recommendations and mutual evaluations through a global network."
+    }
+  ],
+  "flashcards": [
+    { "term": "Prudential vs Conduct", "definition": "Prudential = financial soundness; Conduct = fair treatment of customers." },
+    { "term": "IAIS", "definition": "International standard-setter for insurance supervision (principles, standards, guidance)." },
+    { "term": "Solvency Control Levels", "definition": "Thresholds triggering supervisory intervention to protect policyholders." },
+    { "term": "CDD", "definition": "Identify/verify customers & beneficial owners; monitor relationships on a risk basis." },
+    { "term": "Fraud Types", "definition": "Policyholder, intermediary, and internal; managed via prevention, detection, response." },
+    { "term": "Money Laundering Stages", "definition": "Placement → Layering → Integration." }
+  ]
+}
