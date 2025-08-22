@@ -357,6 +357,7 @@ function activateChart() {
 
 async function getAiExplanation(term, definition, promptType, container) {
     container.innerHTML = '<p class="text-neutral-400 animate-pulse">🤖 Gemini is thinking...</p>';
+    qsa('[data-prompt]').forEach(b => b.disabled = true);
     try {
         const response = await fetch('/.netlify/functions/getAiExplanation', {
             method: 'POST',
@@ -372,6 +373,8 @@ async function getAiExplanation(term, definition, promptType, container) {
     } catch (error) {
         console.error('Failed to fetch AI explanation:', error);
         container.innerHTML = '<p class="text-red-400">Sorry, there was an error connecting to the AI.</p>';
+    } finally {
+        qsa('[data-prompt]').forEach(b => b.disabled = false);
     }
 }
 
@@ -440,10 +443,15 @@ function renderQuiz() {
   const wrap = document.createElement("section");
   wrap.className = "screen screen-quiz";
   const q = state.questions[state.currentIndex];
+  const progressPercent = ((state.currentIndex + 1) / state.questions.length) * 100;
+
   wrap.innerHTML = `
     <div class="toolbar">
       <button class="btn btn-ghost" id="quit-quiz">&larr; Exit</button>
       <h1 class="screen-title" tabindex="-1">Question ${state.currentIndex + 1} of ${state.questions.length}</h1>
+    </div>
+    <div class="w-full bg-neutral-700 rounded-full h-2.5 mt-4">
+        <div class="bg-brand h-2.5 rounded-full" style="width: ${progressPercent}%"></div>
     </div>
     <article class="question-card card mt-6" aria-live="polite">
       <h2 class="question-text text-lg md:text-xl font-semibold text-neutral-800 dark:text-white">${q?.text || q?.question || "Question text missing"}</h2>
@@ -590,7 +598,6 @@ function handleAppClick(event) {
     const promptType = btn.dataset.prompt;
     const { term, definition } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
     const responseContainer = qs('#ai-response');
-    qsa('[data-prompt]').forEach(b => b.disabled = true);
     getAiExplanation(term, definition, promptType, responseContainer);
   } else if (target.closest('.confidence-btn')) {
     const btn = target.closest('.confidence-btn');
