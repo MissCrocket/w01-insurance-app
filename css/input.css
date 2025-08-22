@@ -34,12 +34,3 @@
   .app-main { @apply screen; }
   .center-screen-content { @apply flex flex-col items-center justify-center min-h-[calc(100vh-200px)]; }
 }
-
-/* Example placement in your top-right nav */
-.mascot {
-  width: 72px;
-  height: 72px;
-  display: inline-block;
-  vertical-align: middle;
-  margin-left: 8px;
-}

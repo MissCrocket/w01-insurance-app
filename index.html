@@ -16,7 +16,11 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
 
     <link rel="stylesheet" href="./css/style.css" />
-    
+
+    <link rel="stylesheet" href="css/mascot.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script defer src="js/mascot.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     </head>
@@ -28,90 +32,11 @@
         <nav class="flex items-center gap-4">
           <button class="nav-link" data-screen="topics">Home</button>
           <button class="nav-link" data-screen="progress">My Progress</button>
+    <a href="./" class="mascot mascot-link" aria-label="Home">
+      <div id="mascot-lottie" class="mascot__anim" aria-hidden="true"></div>
+      <img src="public/dog-static.png" class="mascot__fallback" alt="" aria-hidden="true">
+    </a>
         </nav>
-        <svg class="mascot" width="180" height="180" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Waving dog mascot">
-          <title>Waving dog mascot</title>
-          <style>
-            :root {
-              --fur: #F6E3C8;
-              --fur2:#E8D6BC;
-              --outline:#0F2341;      /* deep navy to match your UI */
-              --accent:#19B6FF;        /* cyan accent like your toggles */
-            }
-            .o { stroke: var(--outline); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
-            .fur { fill: var(--fur); }
-            .fur2{ fill: var(--fur2); }
-            .bandana { fill: var(--accent); }
-            .eye { fill: #0F2341; }
-            .nose { fill: #1B2A41; }
-            .tongue { fill: #FF6B6B; }
-            .shadow { fill: rgba(0,0,0,0.12); }
-
-            /* subtle cyan glow so it pops on dark backgrounds */
-            .glow { filter: url(#glow); }
-
-            /* animation */
-            #pawWave {
-              transform-box: fill-box;
-              transform-origin: 30% 20%;
-              animation: wave 0.9s ease-in-out infinite;
-            }
-            #tail {
-              transform-box: fill-box;
-              transform-origin: 0% 50%;
-              animation: wag 0.5s ease-in-out infinite;
-            }
-            @keyframes wave {
-              0%,100% { transform: rotate(0deg); }
-              50%      { transform: rotate(18deg) translateY(-1px); }
-            }
-            @keyframes wag {
-              0%,100% { transform: rotate(0deg); }
-              50%      { transform: rotate(12deg); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              #pawWave, #tail { animation: none; }
-            }
-          </style>
-
-          <defs>
-            <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-              <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#19B6FF" flood-opacity="0.35"/>
-            </filter>
-          </defs>
-
-          <ellipse cx="128" cy="214" rx="62" ry="12" class="shadow"/>
-
-          <g class="glow">
-            <ellipse cx="140" cy="160" rx="70" ry="56" class="fur o"/>
-            <g id="tail">
-              <path d="M198 146c16 10 16 26 0 34" class="fur o"/>
-            </g>
-
-            <path d="M98 142c22-10 60-10 82 0l-14 10c-18 4-36 4-54 0l-14-10z" class="bandana o"/>
-
-            <g>
-              <path d="M92 170c-10 18-2 28 12 26 10-2 12-10 8-20" class="fur o"/>
-              <ellipse cx="108" cy="196" rx="10" ry="8" class="fur2 o"/>
-            </g>
-
-            <g id="pawWave">
-              <path d="M178 162c18-6 28 6 22 18-6 12-20 8-30-4" class="fur o"/>
-              <ellipse cx="202" cy="176" rx="10" ry="8" class="fur2 o"/>
-            </g>
-
-            <g>
-              <ellipse cx="118" cy="94" rx="52" ry="46" class="fur o"/>
-              <path d="M80 73l-12-18 18 4" class="fur o"/>
-              <path d="M156 73l12-18-18 4" class="fur o"/>
-              <circle cx="100" cy="94" r="6" class="eye"/>
-              <circle cx="136" cy="94" r="6" class="eye"/>
-              <ellipse cx="118" cy="110" rx="7" ry="5" class="nose"/>
-              <path d="M106 122c8 6 16 6 24 0" class="o" />
-              <path d="M119 124c0 6 10 6 10 0" class="tongue o"/>
-            </g>
-          </g>
-        </svg>
       </div>
     </header>
 
