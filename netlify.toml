@@ -1,0 +1,3 @@
+[build]
+  # This tells Netlify which folder to publish. 'publish' is the default.
+  publish = "."
