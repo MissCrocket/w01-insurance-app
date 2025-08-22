@@ -210,7 +210,7 @@ function render() {
 
 function renderTopics() {
   const wrap = document.createElement("section");
-  wrap.className = "screen screen-topics";
+  wrap.className = "screen screen-topics center-screen-content";
   wrap.innerHTML = `
     <div class="text-center py-8 md:py-12">
         <h1 class="text-3xl md:text-4xl font-bold text-white" tabindex="-1">CII W01 Insurance Tutor</h1>
@@ -268,7 +268,6 @@ function renderProgress() {
     wrap.innerHTML = `
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-white">My Progress</h1>
-            <button id="back-btn" class="btn-ghost">Back</button>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-1 card text-center bg-white/5 border border-white/10">
@@ -373,64 +372,64 @@ async function getAiExplanation(term, definition, promptType, container) {
 }
 
 function renderLearning() {
-  const wrap = document.createElement("section");
-  wrap.className = "screen screen-learning";
-  const session = state.flashcardSession;
-  const card = session.cards[session.currentIndex];
+    const wrap = document.createElement("section");
+    wrap.className = "screen screen-learning";
+    const session = state.flashcardSession;
+    const card = session.cards[session.currentIndex];
 
-  if (!card) {
-      wrap.innerHTML = `
-      <div class="text-center">
-          <h1 class="text-2xl font-bold text-white mb-4">Session Complete!</h1>
-          <p class="text-neutral-300 mb-8">You've reviewed all due cards for this chapter.</p>
-          <button id="back-btn" class="btn-ghost">Back to Topics</button>
-          <button id="quiz-btn" class="btn btn-primary ml-4">Take Chapter Quiz</button>
-      </div>
-      `;
-      return wrap;
-  }
+    if (!card) {
+        wrap.innerHTML = `
+        <div class="text-center">
+            <h1 class="text-2xl font-bold text-white mb-4">Session Complete!</h1>
+            <p class="text-neutral-300 mb-8">You've reviewed all the cards for this chapter.</p>
+            <button id="back-btn" class="btn-ghost">Back to Topics</button>
+            <button id="quiz-btn" class="btn btn-primary ml-4">Take Chapter Quiz</button>
+        </div>
+        `;
+        return wrap;
+    }
 
-  const termSide = `
-      <div class="text-center text-3xl font-bold text-white">${card.term}</div>
-      <button class="btn mt-8 bg-amber-500 hover:bg-amber-600" id="reveal-btn">Reveal Answer</button>
-  `;
-  const definitionSide = `
-      <div class="text-lg text-neutral-200 text-center">${card.definition}</div>
-      <div class="my-6 border-t border-white/10"></div>
-      <div class="flex justify-center gap-3">
-          <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
-          <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
-      </div>
-      <div id="ai-response" class="mt-4 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
-  `;
+    const termSide = `
+        <div class="text-center text-3xl font-bold text-white">${card.term}</div>
+        <button class="btn mt-8 bg-amber-500 hover:bg-amber-600" id="reveal-btn">Reveal Answer</button>
+    `;
+    const definitionSide = `
+        <div class="text-lg text-neutral-200 text-center">${card.definition}</div>
+        <div class="my-6 border-t border-white/10"></div>
+        <div class="flex justify-center gap-3">
+            <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
+            <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
+        </div>
+        <div id="ai-response" class="mt-4 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
+    `;
 
-  wrap.innerHTML = `
-      <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
-          <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
-          <p>Cards remaining in this session: ${session.cards.length - session.currentIndex}</p>
-      </div>
-      <div id="flashcard" class="card bg-white/5 min-h-[300px] flex flex-col items-center justify-center p-8">
-          ${session.isFlipped ? definitionSide : termSide}
-      </div>
-      <div id="controls" class="mt-6"></div>
-  `;
+    wrap.innerHTML = `
+        <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
+            <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
+            <p>Cards remaining in this session: ${session.cards.length - session.currentIndex}</p>
+        </div>
+        <div id="flashcard" class="card bg-white/5 min-h-[300px] flex flex-col items-center justify-center p-8">
+            ${session.isFlipped ? definitionSide : termSide}
+        </div>
+        <div id="controls" class="mt-6"></div>
+    `;
 
-  const controls = qs('#controls', wrap);
-  if (session.isFlipped) {
-      controls.innerHTML = `
-      <div class="grid grid-cols-5 gap-3">
-          <button data-confidence="1" class="confidence-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl transition">1<br/><span class="text-xs">Forgot</span></button>
-          <button data-confidence="2" class="confidence-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl transition">2<br/><span class="text-xs">Hard</span></button>
-          <button data-confidence="3" class="confidence-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-xl transition">3<br/><span class="text-xs">Good</span></button>
-          <button data-confidence="4" class="confidence-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition">4<br/><span class="text-xs">Easy</span></button>
-          <button data-confidence="5" class="confidence-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition">5<br/><span class="text-xs">Perfect</span></button>
-      </div>
-      `;
-  } else {
-      controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
-  }
-  
-  return wrap;
+    const controls = qs('#controls', wrap);
+    if (session.isFlipped) {
+        controls.innerHTML = `
+        <div class="grid grid-cols-5 gap-3">
+            <button data-confidence="1" class="confidence-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl transition">1<br/><span class="text-xs">Forgot</span></button>
+            <button data-confidence="2" class="confidence-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl transition">2<br/><span class="text-xs">Hard</span></button>
+            <button data-confidence="3" class="confidence-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-xl transition">3<br/><span class="text-xs">Good</span></button>
+            <button data-confidence="4" class="confidence-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition">4<br/><span class="text-xs">Easy</span></button>
+            <button data-confidence="5" class="confidence-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition">5<br/><span class="text-xs">Perfect</span></button>
+        </div>
+        `;
+    } else {
+        controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
+    }
+    
+    return wrap;
 }
 
 function renderQuiz() {
