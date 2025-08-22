@@ -1,4 +1,4 @@
-<!-- js/mascot.js -->
+// js/mascot.js
 (function () {
   function initMascot() {
     const container = document.getElementById('mascot-lottie');
