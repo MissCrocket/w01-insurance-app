@@ -1,26 +1,54 @@
-/* Keep it small, crisp, and not gimmicky */
+/* A fresh new style for your mascot! */
+
+/* Main container for the mascot */
 .mascot {
   position: absolute;
-  top: 12px;
-  right: 16px;
-  width: 56px; height: 56px;
-  display: grid; place-items: center;
-  border-radius: 9999px;
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(2px);
+  bottom: 20px; /* Position from the bottom */
+  right: 20px;  /* Position from the right */
+  width: 110px;   /* Increased width */
+  height: 110px;  /* Increased height */
+  z-index: 1000;  /* Ensures it stays on top of other content */
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth hover effect */
+  animation: float-and-spin 8s ease-in-out infinite; /* New animation */
 }
+
+/* Make it interactive on hover */
+.mascot:hover {
+  transform: scale(1.15); /* Grow slightly on hover */
+}
+
+/* Keyframes for the new floating and spinning animation */
+@keyframes float-and-spin {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-8px) rotate(5deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* Styles for the Lottie animation and the fallback image */
 .mascot__anim, .mascot__fallback {
-  width: 100%; height: 100%; display: block;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-/* Gentle bob so even the PNG feels alive */
+/* Fallback animation is no longer needed with the new one on the parent */
 .mascot__fallback {
-  animation: bob 3s ease-in-out infinite;
-}
-@keyframes bob {
-  0%,100% { transform: translateY(0); }
-  50%     { transform: translateY(-2px); }
+  animation: none;
 }
 
-/* Optional: show pointer, make it a Home link */
-.mascot-link { cursor: pointer; }
+/* Style for the link to make it clear it's clickable */
+.mascot-link {
+  cursor: pointer;
+}
