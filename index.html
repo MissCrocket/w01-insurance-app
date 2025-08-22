@@ -13,7 +13,7 @@
     <link rel="icon" href="./public/favicon.ico" />
     <link rel="manifest" href="./manifest.json" />
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
 
     <link rel="stylesheet" href="./css/style.css" />
     
@@ -24,7 +24,7 @@
   <body class="app-shell">
     <header class="sticky top-0 z-30 backdrop-blur bg-black/20">
       <div class="screen flex items-center justify-between">
-        <h1 class="text-lg md:text-2xl font-semibold">CII W01 Insurance Tutor</h1>
+        <h1 class="text-lg md:text-2xl font-bold">CII W01 Tutor</h1>
         <nav class="flex items-center gap-4">
           <button class="nav-link" data-screen="topics">Home</button>
           <button class="nav-link" data-screen="progress">My Progress</button>

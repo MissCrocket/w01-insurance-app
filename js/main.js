@@ -408,14 +408,19 @@ function renderLearning() {
         <div class="text-center text-3xl font-bold text-white">${card.term}</div>
         <button class="btn mt-8 bg-amber-500 hover:bg-amber-600" id="reveal-btn">Reveal Answer</button>
     `;
+    
     const definitionSide = `
-        <div class="text-lg text-neutral-200 text-center">${card.definition}</div>
-        <div class="my-6 border-t border-white/10"></div>
-        <div class="flex justify-center gap-3">
-            <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
-            <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
+        <div class="text-xl font-medium text-neutral-200 text-center">${card.definition}</div>
+        
+        <div class="w-full max-w-md mx-auto mt-8">
+            <div class="text-center text-sm text-amber-400 mb-2">Need a hint?</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
+                <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
+            </div>
         </div>
-        <div id="ai-response" class="mt-4 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
+
+        <div id="ai-response" class="w-full max-w-md mx-auto mt-3 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
     `;
     
     const progress = progressService.getProgress();
@@ -435,7 +440,6 @@ function renderLearning() {
         mastered: 'border-green-500'
     };
 
-
     wrap.innerHTML = `
         <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
             <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
@@ -444,21 +448,22 @@ function renderLearning() {
                 <span class="ml-4">Cards remaining in this session: ${session.cards.length - session.currentIndex}</span>
             </div>
         </div>
-        <div id="flashcard" class="card bg-white/5 min-h-[300px] flex flex-col items-center justify-center p-8 border-2 ${statusClasses[cardStatus]}">
+        <div id="flashcard" class="card max-w-3xl mx-auto bg-brand-dark border border-white/10 min-h-[300px] flex flex-col items-center justify-center p-8 border-2 ${statusClasses[cardStatus]}">
             ${session.isFlipped ? definitionSide : termSide}
         </div>
-        <div id="controls" class="mt-6"></div>
+        <div id="controls" class="mt-6 max-w-3xl mx-auto"></div>
     `;
 
     const controls = qs('#controls', wrap);
     if (session.isFlipped) {
         controls.innerHTML = `
+        <div class="text-center text-neutral-400 mb-4">How well did you know this?</div>
         <div class="grid grid-cols-5 gap-3">
-            <button data-confidence="1" class="confidence-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl transition" title="Forgot">1<br/><span class="text-xs">Forgot</span></button>
-            <button data-confidence="2" class="confidence-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl transition" title="Hard">2<br/><span class="text-xs">Hard</span></button>
-            <button data-confidence="3" class="confidence-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-xl transition" title="Good">3<br/><span class="text-xs">Good</span></button>
-            <button data-confidence="4" class="confidence-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition" title="Easy">4<br/><span class="text-xs">Easy</span></button>
-            <button data-confidence="5" class="confidence-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition" title="Perfect">5<br/><span class="text-xs">Perfect</span></button>
+            <button data-confidence="1" class="confidence-btn bg-gradient-to-br from-red-500 to-red-700 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Forgot">Forgot</button>
+            <button data-confidence="2" class="confidence-btn bg-gradient-to-br from-orange-400 to-orange-600 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Hard">Hard</button>
+            <button data-confidence="3" class="confidence-btn bg-gradient-to-br from-yellow-400 to-yellow-600 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Good">Good</button>
+            <button data-confidence="4" class="confidence-btn bg-gradient-to-br from-green-400 to-green-600 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Easy">Easy</button>
+            <button data-confidence="5" class="confidence-btn bg-gradient-to-br from-blue-500 to-blue-700 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Perfect">Perfect</button>
         </div>
         `;
     } else {
