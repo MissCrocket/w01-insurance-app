@@ -92,7 +92,7 @@ async function loadAll() {
 
   for (const [id, meta] of entries) {
     try {
-      const response = await fetch(`/data/${id}.json`);
+      const response = await fetch(`data/${id}.json`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
