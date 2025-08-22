@@ -2,9 +2,6 @@
 import * as progressService from './services/progressService.js';
 import { STORAGE_KEY } from './config.js';
 
-/* =============================
- * Enums
- * ============================= */
 export const SCREEN = {
   TOPICS: "topics",
   LEARNING: "learning",
@@ -23,9 +20,6 @@ const Q_STATE = {
   ANSWERED: "answered",
 };
 
-/* =============================
- * App State
- * ============================= */
 const state = {
   screen: SCREEN.TOPICS,
   mode: MODE.MODULE,
@@ -42,12 +36,9 @@ const state = {
       cards: [],
       currentIndex: 0,
       isFlipped: false,
+      dueCards: 0,
   }
 };
-
-/* =============================
- * Helper Functions
- * ============================= */
 
 function getChaptersFromGlobal() {
   const central = window.CII_W01_TUTOR_DATA?.chapters;
@@ -173,10 +164,6 @@ function buildQuiz(config) {
   return uniqueList.slice(0, totalQuestions);
 }
 
-/* =============================
- * Rendering Engine
- * ============================= */
-
 function render() {
   const root = state.root || qs("#app");
   root.innerHTML = "";
@@ -232,10 +219,6 @@ function renderTopics() {
         </p>
     </div>
     
-    <div class="text-center mb-8">
-        <button class="btn btn-primary text-lg px-8 py-3" id="my-progress-btn">My Progress</button>
-    </div>
-
     <div class="mode-switch mx-auto">
       <button class="btn" data-mode="${MODE.MODULE}" aria-pressed="${state.mode === MODE.MODULE}">Study by Chapter</button>
       <button class="btn" data-mode="${MODE.MOCK}" aria-pressed="${state.mode === MODE.MOCK}">Mock Exam</button>
@@ -300,6 +283,7 @@ function renderProgress() {
             <div class="lg:col-span-3 card bg-white/5 border border-white/10">
                 <h2 class="text-lg font-semibold text-neutral-300 mb-4">Recent Activity</h2>
                 <div id="activity-log" class="space-y-3"></div>
+                 <button id="open-reset-modal" class="btn bg-red-600 hover:bg-red-700 mt-6">Reset All Progress</button>
             </div>
         </div>
     `;
@@ -356,6 +340,15 @@ function activateChart() {
 }
 
 async function getAiExplanation(term, definition, promptType, container) {
+    const progress = progressService.getProgress();
+    const cardId = state.flashcardSession.cards[state.flashcardSession.currentIndex].id;
+    const cached = progress.chapters[state.selectedChapterId]?.flashcards[cardId]?.aiExplanations?.[promptType];
+
+    if (cached) {
+        container.innerHTML = `<p class="text-amber-300">${cached}</p>`;
+        return;
+    }
+
     container.innerHTML = '<p class="text-neutral-400 animate-pulse">🤖 Gemini is thinking...</p>';
     qsa('[data-prompt]').forEach(b => b.disabled = true);
     try {
@@ -370,6 +363,7 @@ async function getAiExplanation(term, definition, promptType, container) {
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
         container.innerHTML = `<p class="text-amber-300">${formattedText}</p>`;
+        progressService.cacheAiExplanation(state.selectedChapterId, cardId, promptType, formattedText);
     } catch (error) {
         console.error('Failed to fetch AI explanation:', error);
         container.innerHTML = '<p class="text-red-400">Sorry, there was an error connecting to the AI.</p>';
@@ -379,64 +373,64 @@ async function getAiExplanation(term, definition, promptType, container) {
 }
 
 function renderLearning() {
-    const wrap = document.createElement("section");
-    wrap.className = "screen screen-learning";
-    const session = state.flashcardSession;
-    const card = session.cards[session.currentIndex];
+  const wrap = document.createElement("section");
+  wrap.className = "screen screen-learning";
+  const session = state.flashcardSession;
+  const card = session.cards[session.currentIndex];
 
-    if (!card) {
-        wrap.innerHTML = `
-        <div class="text-center">
-            <h1 class="text-2xl font-bold text-white mb-4">Session Complete!</h1>
-            <p class="text-neutral-300 mb-8">You've reviewed all the cards for this chapter.</p>
-            <button id="back-btn" class="btn-ghost">Back to Topics</button>
-            <button id="quiz-btn" class="btn btn-primary ml-4">Take Chapter Quiz</button>
-        </div>
-        `;
-        return wrap;
-    }
+  if (!card) {
+      wrap.innerHTML = `
+      <div class="text-center">
+          <h1 class="text-2xl font-bold text-white mb-4">Session Complete!</h1>
+          <p class="text-neutral-300 mb-8">You've reviewed all due cards for this chapter.</p>
+          <button id="back-btn" class="btn-ghost">Back to Topics</button>
+          <button id="quiz-btn" class="btn btn-primary ml-4">Take Chapter Quiz</button>
+      </div>
+      `;
+      return wrap;
+  }
 
-    const termSide = `
-        <div class="text-center text-3xl font-bold text-white">${card.term}</div>
-        <button class="btn mt-8 bg-amber-500 hover:bg-amber-600" id="reveal-btn">Reveal Answer</button>
-    `;
-    const definitionSide = `
-        <div class="text-lg text-neutral-200 text-center">${card.definition}</div>
-        <div class="my-6 border-t border-white/10"></div>
-        <div class="flex justify-center gap-3">
-            <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
-            <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
-        </div>
-        <div id="ai-response" class="mt-4 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
-    `;
+  const termSide = `
+      <div class="text-center text-3xl font-bold text-white">${card.term}</div>
+      <button class="btn mt-8 bg-amber-500 hover:bg-amber-600" id="reveal-btn">Reveal Answer</button>
+  `;
+  const definitionSide = `
+      <div class="text-lg text-neutral-200 text-center">${card.definition}</div>
+      <div class="my-6 border-t border-white/10"></div>
+      <div class="flex justify-center gap-3">
+          <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
+          <button class="btn-ghost text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
+      </div>
+      <div id="ai-response" class="mt-4 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
+  `;
 
-    wrap.innerHTML = `
-        <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
-            <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
-            <p>Cards remaining in this session: ${session.cards.length - session.currentIndex}</p>
-        </div>
-        <div id="flashcard" class="card bg-white/5 min-h-[300px] flex flex-col items-center justify-center p-8">
-            ${session.isFlipped ? definitionSide : termSide}
-        </div>
-        <div id="controls" class="mt-6"></div>
-    `;
+  wrap.innerHTML = `
+      <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
+          <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
+          <p>Cards remaining in this session: ${session.cards.length - session.currentIndex}</p>
+      </div>
+      <div id="flashcard" class="card bg-white/5 min-h-[300px] flex flex-col items-center justify-center p-8">
+          ${session.isFlipped ? definitionSide : termSide}
+      </div>
+      <div id="controls" class="mt-6"></div>
+  `;
 
-    const controls = qs('#controls', wrap);
-    if (session.isFlipped) {
-        controls.innerHTML = `
-        <div class="grid grid-cols-5 gap-3">
-            <button data-confidence="1" class="confidence-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl transition">1<br/><span class="text-xs">Forgot</span></button>
-            <button data-confidence="2" class="confidence-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl transition">2<br/><span class="text-xs">Hard</span></button>
-            <button data-confidence="3" class="confidence-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-xl transition">3<br/><span class="text-xs">Good</span></button>
-            <button data-confidence="4" class="confidence-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition">4<br/><span class="text-xs">Easy</span></button>
-            <button data-confidence="5" class="confidence-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition">5<br/><span class="text-xs">Perfect</span></button>
-        </div>
-        `;
-    } else {
-        controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
-    }
-    
-    return wrap;
+  const controls = qs('#controls', wrap);
+  if (session.isFlipped) {
+      controls.innerHTML = `
+      <div class="grid grid-cols-5 gap-3">
+          <button data-confidence="1" class="confidence-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl transition">1<br/><span class="text-xs">Forgot</span></button>
+          <button data-confidence="2" class="confidence-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl transition">2<br/><span class="text-xs">Hard</span></button>
+          <button data-confidence="3" class="confidence-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-xl transition">3<br/><span class="text-xs">Good</span></button>
+          <button data-confidence="4" class="confidence-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition">4<br/><span class="text-xs">Easy</span></button>
+          <button data-confidence="5" class="confidence-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition">5<br/><span class="text-xs">Perfect</span></button>
+      </div>
+      `;
+  } else {
+      controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
+  }
+  
+  return wrap;
 }
 
 function renderQuiz() {
@@ -560,15 +554,17 @@ function renderResults() {
   return wrap;
 }
 
-/* =============================
- * Event Handlers
- * ============================= */
-
 function handleAppClick(event) {
   const { target } = event;
   const chapters = getChaptersFromGlobal();
 
-  // Topics Screen
+  if (target.closest('.nav-link')) {
+    const screen = target.closest('.nav-link').dataset.screen;
+    state.screen = screen;
+    render();
+    return;
+  }
+
   const topicCard = target.closest('.topic-card');
   if (topicCard) {
     if (state.mode === MODE.MOCK) {
@@ -581,15 +577,14 @@ function handleAppClick(event) {
     }
   }
 
-  if (target.id === 'my-progress-btn' || target.id === 'back-btn') {
-    state.screen = (target.id === 'my-progress-btn') ? SCREEN.PROGRESS : SCREEN.TOPICS;
+  if (target.id === 'back-btn' || target.id === 'back-to-topics-secondary') {
+    state.screen = SCREEN.TOPICS;
     render();
   } else if (target.closest('.mode-switch .btn')) {
     state.mode = target.dataset.mode;
     render();
   }
 
-  // Learning Screen
   if (target.id === 'reveal-btn') {
     state.flashcardSession.isFlipped = true;
     render();
@@ -614,7 +609,6 @@ function handleAppClick(event) {
       startQuiz(qsList, { type: 'module', config: { chapterId: chapter.id, totalQuestions: 15 } });
   }
 
-  // Quiz Screen
   if (target.closest('.option-label') && state.questionState === Q_STATE.UNANSWERED) {
     const label = target.closest('.option-label');
     const chosenIndex = parseInt(label.dataset.index, 10);
@@ -635,7 +629,6 @@ function handleAppClick(event) {
     render();
   }
 
-  // Results Screen
   if (target.id === 'retry') {
     const newQuestions = buildQuiz({ chapters, ...state.quizConfig });
     startQuiz(newQuestions, { type: state.quizType, config: state.quizConfig });
@@ -643,11 +636,20 @@ function handleAppClick(event) {
     Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} });
     render();
   }
-}
 
-/* =============================
- * Session & App Start
- * ============================= */
+  if (target.id === 'open-reset-modal') {
+    qs('#reset-modal').classList.remove('hidden');
+    qs('#reset-modal').classList.add('flex');
+  } else if (target.id === 'cancel-reset') {
+    qs('#reset-modal').classList.add('hidden');
+    qs('#reset-modal').classList.remove('flex');
+  } else if (target.id === 'confirm-reset') {
+    progressService.resetProgress();
+    qs('#reset-modal').classList.add('hidden');
+    qs('#reset-modal').classList.remove('flex');
+    render();
+  }
+}
 
 function startQuiz(questionList, quizDetails) {
   state.questions = questionList || [];
@@ -662,9 +664,17 @@ function startQuiz(questionList, quizDetails) {
 }
 
 function startFlashcardSession(chapter) {
-    const shuffled = sampleFromPool(chapter.flashcards, chapter.flashcards.length);
+    const progress = progressService.getProgress();
+    const chapterProgress = progress.chapters[chapter.id] || { flashcards: {} };
+    const now = new Date().toISOString();
+
+    const dueCards = chapter.flashcards.filter(card => {
+        const cardProgress = chapterProgress.flashcards[card.id];
+        return !cardProgress || !cardProgress.nextReviewDate || cardProgress.nextReviewDate <= now;
+    });
+
     state.flashcardSession = {
-        cards: shuffled,
+        cards: sampleFromPool(dueCards, dueCards.length),
         currentIndex: 0,
         isFlipped: false,
     };
@@ -675,15 +685,20 @@ function startFlashcardSession(chapter) {
 window.addEventListener("DOMContentLoaded", () => {
   state.root = qs("#app");
   state.root.addEventListener('click', handleAppClick);
-  qs('#reset-progress').addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
-        progressService.resetProgress();
-        if(state.screen === SCREEN.PROGRESS) {
+  document.body.addEventListener('click', handleAppClick);
+  render();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (state.screen === SCREEN.LEARNING && state.flashcardSession.isFlipped) {
+        const confidence = parseInt(e.key, 10);
+        if (confidence >= 1 && confidence <= 5) {
+            const { id: cardId } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+            const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
+            progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
+            state.flashcardSession.currentIndex++;
+            state.flashcardSession.isFlipped = false;
             render();
-        } else {
-            alert('Progress has been reset.');
         }
     }
-  });
-  render();
 });
