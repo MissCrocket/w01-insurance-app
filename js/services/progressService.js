@@ -8,12 +8,21 @@ const getInitialData = () => ({
 });
 
 export function getProgress() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : getInitialData();
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : getInitialData();
+  } catch (error) {
+    console.error('Failed to get progress from localStorage:', error);
+    return getInitialData();
+  }
 }
 
 function saveProgress(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('Failed to save progress to localStorage:', error);
+  }
 }
 
 export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, rating) {
@@ -73,7 +82,11 @@ export function logActivity(activityItem) {
 }
 
 export function resetProgress() {
-  localStorage.removeItem(STORAGE_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to reset progress in localStorage:', error);
+  }
 }
 
 export function cacheAiExplanation(chapterId, cardId, promptType, explanation) {

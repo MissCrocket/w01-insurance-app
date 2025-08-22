@@ -9,6 +9,9 @@
     <title>CII W01 Tutor</title>
 
     <link rel="icon" href="/public/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline';">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -130,13 +133,10 @@
       </div>
     </footer>
 
-    <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
-
-    <script type="module" src="/js/config.js"></script>
-    <script type="module" src="/js/boot.js"></script>
-    <script type="module" src="/js/services/progressService.js"></script>
-    <script type="module" src="/js/main.js"></script>
+    <script type="module" src="/js/config.js" defer></script>
+    <script type="module" src="/js/boot.js" defer></script>
+    <script type="module" src="/js/services/progressService.js" defer></script>
+    <script type="module" src="/js/main.js" defer></script>
+    <script src="/js/ui.js" defer></script>
   </body>
 </html>

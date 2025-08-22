@@ -1,0 +1,20 @@
+{
+  "name": "CII W01 Tutor",
+  "short_name": "W01 Tutor",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "A study tool for the CII W01 Insurance exam.",
+  "icons": [
+    {
+      "src": "public/favicon.ico",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "public/favicon.ico",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
