@@ -554,6 +554,16 @@ video {
   display: none;
 }
 
+body {
+  -webkit-user-select: none;
+  /* Safari */
+  -moz-user-select: none;
+  /* Firefox */
+  /* IE/Edge */
+  user-select: none;
+  /* Standard */
+}
+
 .\!container {
   width: 100% !important;
 }
@@ -1052,6 +1062,10 @@ video {
   position: fixed;
 }
 
+.relative {
+  position: relative;
+}
+
 .sticky {
   position: sticky;
 }
@@ -1230,6 +1244,10 @@ video {
 
 .justify-between {
   justify-content: space-between;
+}
+
+.gap-2 {
+  gap: 0.5rem;
 }
 
 .gap-3 {
