@@ -63,6 +63,18 @@
       </div>
     </div>
 
+    <div id="flag-submit-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="flag-submit-modal-title">
+      <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
+        <h2 id="flag-submit-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Flagged questions</h2>
+        <p class="muted mt-2" id="flag-submit-modal-body">
+          You have {count} flagged questions. Review them before submitting?
+        </p>
+        <div class="mt-6 flex justify-end gap-3">
+          <button id="review-flagged-btn" class="btn-ghost">Review flagged</button>
+          <button id="submit-anyway-btn" class="btn btn-primary">Submit anyway</button>
+        </div>
+      </div>
+    </div>
     <footer class="mt-10 pb-10">
       <div class="screen text-center text-sm muted">
         © <span id="year"></span> CII Tutor

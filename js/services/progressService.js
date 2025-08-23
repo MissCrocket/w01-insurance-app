@@ -5,6 +5,9 @@ import { STORAGE_KEY } from '../config.js';
 const getInitialData = () => ({
   chapters: {},
   recentActivity: [],
+  // --- NEW ---
+  quizAttempts: {}, // Store quiz attempt data, including flags
+  // --- END NEW ---
 });
 
 export function getProgress() {
@@ -24,6 +27,63 @@ function saveProgress(data) {
     console.error('Failed to save progress to localStorage:', error);
   }
 }
+
+// --- NEW ---
+/**
+ * Creates or retrieves a quiz attempt session.
+ * @param {string} attemptId - A unique identifier for the quiz attempt.
+ * @param {Array} questions - The list of questions for this attempt.
+ * @returns {object} The quiz attempt object.
+ */
+export function getOrCreateQuizAttempt(attemptId, questions = []) {
+  const progress = getProgress();
+  if (!progress.quizAttempts) {
+    progress.quizAttempts = {};
+  }
+  if (!progress.quizAttempts[attemptId]) {
+    progress.quizAttempts[attemptId] = {
+      id: attemptId,
+      questions: questions.map(q => ({ id: q.id, flagged: false })),
+      startTime: new Date().toISOString(),
+      completed: false,
+    };
+    saveProgress(progress);
+  }
+  return progress.quizAttempts[attemptId];
+}
+
+/**
+ * Updates the flagged status of a question within a quiz attempt.
+ * @param {string} attemptId - The ID of the quiz attempt.
+ * @param {string} questionId - The ID of the question to update.
+ * @param {boolean} isFlagged - The new flagged status.
+ */
+export function updateFlagStatus(attemptId, questionId, isFlagged) {
+  const progress = getProgress();
+  const attempt = progress.quizAttempts?.[attemptId];
+  if (attempt) {
+    const question = attempt.questions.find(q => q.id === questionId);
+    if (question) {
+      question.flagged = isFlagged;
+      saveProgress(progress);
+    }
+  }
+}
+
+/**
+ * Marks a quiz attempt as complete.
+ * @param {string} attemptId - The ID of the quiz attempt.
+ */
+export function completeQuizAttempt(attemptId) {
+    const progress = getProgress();
+    const attempt = progress.quizAttempts?.[attemptId];
+    if (attempt) {
+        attempt.completed = true;
+        saveProgress(progress);
+    }
+}
+// --- END NEW ---
+
 
 export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, rating) {
   const progress = getProgress();

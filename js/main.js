@@ -1,6 +1,6 @@
 // js/main.js
 import * as progressService from './services/progressService.js';
-import { STORAGE_KEY } from './config.js';
+import { STORAGE_KEY, FEATURE_FLAG_QUESTION_FLAGGING, FLAGGING_CONFIG } from './config.js';
 
 export const SCREEN = {
   TOPICS: "topics",
@@ -14,6 +14,7 @@ export const SCREEN = {
 export const MODE = {
   MODULE: "module",
   MOCK: "mock",
+  SPECIMEN: "specimen",
 };
 
 const Q_STATE = {
@@ -38,7 +39,11 @@ const state = {
       currentIndex: 0,
       isFlipped: false,
       dueCards: 0,
-  }
+  },
+  // --- NEW for Flagging Feature ---
+  quizAttemptId: null, // Unique ID for the current quiz attempt
+  flaggedQuestions: new Set(), // Holds IDs of flagged questions for the current attempt
+  // --- END NEW ---
 };
 
 function getChaptersFromGlobal() {
@@ -162,12 +167,12 @@ function buildQuiz(config) {
       uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
   }
 
-  return uniqueList.slice(0, totalQuestions);
+  return sampleFromPool(uniqueList, totalQuestions); // Randomize the final list
 }
 
 function showToast(message) {
   const toast = document.createElement('div');
-  toast.className = 'fixed bottom-5 right-5 bg-neutral-800 text-white py-2 px-4 rounded-lg shadow-lg';
+  toast.className = 'fixed bottom-5 right-5 bg-neutral-800 text-white py-2 px-4 rounded-lg shadow-lg z-50';
   toast.textContent = message;
   document.body.appendChild(toast);
   setTimeout(() => {
@@ -194,11 +199,11 @@ function render() {
       break;
     case SCREEN.QUIZ:
       screenEl = renderQuiz();
-      pageTitle = `Quiz - ${state.quizType === 'mock' ? 'Mock Exam' : chapter.title}`;
+      pageTitle = `Quiz - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapter.title}`;
       break;
     case SCREEN.RESULTS:
       screenEl = renderResults();
-      pageTitle = `Results - ${state.quizType === 'mock' ? 'Mock Exam' : chapter.title}`;
+      pageTitle = `Results - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapter.title}`;
       break;
     case SCREEN.PROGRESS:
       screenEl = renderProgress();
@@ -237,12 +242,13 @@ function renderTopics() {
     <div class="mode-switch mx-auto">
       <button class="btn" data-mode="${MODE.MODULE}" aria-pressed="${state.mode === MODE.MODULE}">Study by Chapter</button>
       <button class="btn" data-mode="${MODE.MOCK}" aria-pressed="${state.mode === MODE.MOCK}">Mock Exam</button>
+      <button class="btn" data-mode="${MODE.SPECIMEN}" aria-pressed="${state.mode === MODE.SPECIMEN}">Specimen Exam</button>
     </div>
     <div class="topics-grid" role="list"></div>
   `;
 
   const grid = qs(".topics-grid", wrap);
-  const chapters = getChaptersFromGlobal();
+  const chapters = getChaptersFromGlobal().filter(ch => ch.id !== 'specimen_exam');
 
   if (state.mode === MODE.MOCK) {
     grid.style.display = 'none';
@@ -252,6 +258,16 @@ function renderTopics() {
     card.innerHTML = `
       <div class="topic-card__title">Start Mock Exam</div>
       <div class="topic-card__meta">50 questions • MCQ • LO-weighted where available</div>
+    `;
+    qs(".mode-switch", wrap).after(card);
+  } else if (state.mode === MODE.SPECIMEN) {
+    grid.style.display = 'none';
+    const card = document.createElement("button");
+    card.className = "topic-card max-w-md mx-auto mt-8 block w-full";
+    card.setAttribute("role", "listitem");
+    card.innerHTML = `
+      <div class="topic-card__title">Start Official Specimen Exam</div>
+      <div class="topic-card__meta">100 questions • Official Specimen</div>
     `;
     qs(".mode-switch", wrap).after(card);
   } else {
@@ -478,11 +494,14 @@ function renderQuiz() {
   wrap.className = "screen screen-quiz";
   const q = state.questions[state.currentIndex];
   const progressPercent = ((state.currentIndex + 1) / state.questions.length) * 100;
+  
+  const quizNavHTML = FEATURE_FLAG_QUESTION_FLAGGING ? renderQuizNavigation() : '';
 
   wrap.innerHTML = `
-    <div class="toolbar">
+    <div class="toolbar flex justify-between items-center">
       <button class="btn btn-ghost" id="quit-quiz">&larr; Exit</button>
-      <h1 class="screen-title" tabindex="-1">Question ${state.currentIndex + 1} of ${state.questions.length}</h1>
+      <h1 class="screen-title text-xl font-bold text-white" tabindex="-1">Question ${state.currentIndex + 1} of ${state.questions.length}</h1>
+      <div></div>
     </div>
     <div class="w-full bg-neutral-700 rounded-full h-2.5 mt-4">
         <div class="bg-brand h-2.5 rounded-full" style="width: ${progressPercent}%"></div>
@@ -491,21 +510,33 @@ function renderQuiz() {
         <span>Progress</span>
         <span>${Math.round(progressPercent)}%</span>
     </div>
-    <article class="question-card card mt-6" aria-live="polite">
-      <h2 class="question-text text-lg md:text-xl font-semibold text-neutral-800 dark:text-white">${q?.text || q?.question || "Question text missing"}</h2>
-      <div class="options mt-6 space-y-3" role="radiogroup" aria-label="Answer options"></div>
-      <div id="explanation-container" class="explanation-card" hidden></div>
-    </article>
-    <div class="quiz-actions mt-6 text-right">
-      <button class="btn" id="next-btn" hidden>Next Question &rarr;</button>
-      <button class="btn btn-primary" id="finish-btn" hidden>Finish Quiz</button>
+
+    <div class="quiz-layout mt-6">
+        <div class="question-container">
+            <article class="question-card card" aria-live="polite">
+              <div class="flex justify-between items-start">
+                <h2 class="question-text text-lg md:text-xl font-semibold text-neutral-800 dark:text-white">${q?.text || q?.question || "Question text missing"}</h2>
+                ${FEATURE_FLAG_QUESTION_FLAGGING ? renderFlagButton(q.id) : ''}
+              </div>
+              <div class="options mt-6 space-y-3" role="radiogroup" aria-label="Answer options"></div>
+              <div id="explanation-container" class="explanation-card" hidden></div>
+            </article>
+            <div class="quiz-actions mt-6 text-right">
+              <button class="btn" id="next-btn" hidden>Next Question &rarr;</button>
+              <button class="btn btn-primary" id="finish-btn" hidden>Finish Quiz</button>
+            </div>
+        </div>
+        
+        ${quizNavHTML}
     </div>
   `;
+
   const optionsEl = qs(".options", wrap);
   const explanationEl = qs("#explanation-container", wrap);
   const nextBtn = qs("#next-btn", wrap);
   const finishBtn = qs("#finish-btn", wrap);
   const isLastQuestion = state.currentIndex === state.questions.length - 1;
+
   (q?.options || []).forEach((optText, idx) => {
     const label = document.createElement("label");
     label.className = "option-label";
@@ -525,12 +556,13 @@ function renderQuiz() {
       label.classList.add('is-disabled');
       if (idx === q.correctIndex) {
         label.classList.add('is-correct');
-      } else if (idx === userAnswer.selectedIndex) {
+      } else if (idx === userAnswer?.selectedIndex) {
         label.classList.add('is-incorrect');
       }
     }
     optionsEl.appendChild(label);
   });
+
   if (state.questionState === Q_STATE.ANSWERED) {
     explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${q.explanation || 'No explanation provided.'}</p>`;
     explanationEl.hidden = false;
@@ -541,8 +573,46 @@ function renderQuiz() {
     }
   }
 
-  if (state.questionState === Q_STATE.UNANSWERED) { announce("New question loaded."); } else { const resultText = state.answers[state.currentIndex].correct ? 'Correct.' : 'Incorrect.'; announce(resultText); }
+  if (state.questionState === Q_STATE.UNANSWERED) { announce("New question loaded."); } else { const resultText = state.answers[state.currentIndex]?.correct ? 'Correct.' : 'Incorrect.'; announce(resultText); }
   return wrap;
+}
+
+function renderFlagButton(questionId) {
+    const isFlagged = state.flaggedQuestions.has(questionId);
+    return `
+        <button class="flag-btn" id="flag-btn" data-question-id="${questionId}" aria-pressed="${isFlagged}" title="${isFlagged ? 'Remove flag (F)' : 'Mark for review (F)'}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+            <span>${isFlagged ? 'Flagged' : 'Flag'}</span>
+        </button>
+    `;
+}
+
+function renderQuizNavigation() {
+    const navItems = state.questions.map((q, idx) => {
+        const isCurrent = idx === state.currentIndex;
+        const isFlagged = state.flaggedQuestions.has(q.id);
+        const isAnswered = state.answers[idx] !== null;
+        let itemClass = 'quiz-nav-item';
+        if (isCurrent) itemClass += ' is-current';
+        if (isFlagged) itemClass += ' is-flagged';
+        if (isAnswered) itemClass += ' is-answered';
+        
+        return `
+            <button class="${itemClass}" data-index="${idx}" aria-label="Question ${idx + 1}">
+                ${idx + 1}
+                ${isFlagged ? '<svg class="flag-marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>' : ''}
+            </button>
+        `;
+    }).join('');
+
+    return `
+        <aside class="quiz-nav-panel">
+            <h3 class="quiz-nav-header">Questions (${state.flaggedQuestions.size} Flagged)</h3>
+            <div class="quiz-nav-grid" id="quiz-nav-grid">
+                ${navItems}
+            </div>
+        </aside>
+    `;
 }
 
 function renderResults() {
@@ -581,8 +651,16 @@ function renderResults() {
     const userChoice = (answer && answer.selectedIndex !== undefined) ? q.options[answer.selectedIndex] : 'Not answered';
     const correctChoice = q.options[q.correctIndex];
     const isCorrect = answer?.correct;
+    
+    // --- NEW: Add flag indicator in review ---
+    const isFlagged = state.flaggedQuestions.has(q.id);
+    const flagIndicator = FEATURE_FLAG_QUESTION_FLAGGING && isFlagged 
+      ? `<svg class="inline-block w-5 h-5 ml-2 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>`
+      : '';
+    // --- END NEW ---
+
     item.innerHTML = `
-      <p class="result-item__question text-neutral-800 dark:text-white">${idx + 1}. ${q.question}</p>
+      <p class="result-item__question text-neutral-800 dark:text-white">${idx + 1}. ${q.question} ${flagIndicator}</p>
       <div class="result-item__answer mt-3 space-y-2">
         <p class="${isCorrect ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}">
           <strong>Your answer:</strong> ${userChoice} ${isCorrect ? '✔' : '❌'}
@@ -662,11 +740,46 @@ function handleAppClick(event) {
     if (state.mode === MODE.MOCK) {
       const questions = buildQuiz({ chapters, type: 'mock', totalQuestions: 50 });
       startQuiz(questions, { type: 'mock', config: { totalQuestions: 50 } });
+    } else if (state.mode === MODE.SPECIMEN) {
+        const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
+        const questions = specimenChapter ? specimenChapter.questions : [];
+        startQuiz(questions, { type: 'specimen', config: { chapterId: 'specimen_exam', totalQuestions: questions.length } });
     } else {
       state.selectedChapterId = topicCard.dataset.chapterId;
       const chapter = chapters.find(c => c.id === state.selectedChapterId);
       startFlashcardSession(chapter);
     }
+  }
+  
+  // --- NEW: Flag Button Handler ---
+  if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('#flag-btn')) {
+    const btn = target.closest('#flag-btn');
+    const questionId = btn.dataset.questionId;
+    const isCurrentlyFlagged = state.flaggedQuestions.has(questionId);
+    
+    if (isCurrentlyFlagged) {
+        state.flaggedQuestions.delete(questionId);
+        announce("Flag removed.");
+    } else {
+        state.flaggedQuestions.add(questionId);
+        announce("Flag added.");
+    }
+    
+    progressService.updateFlagStatus(state.quizAttemptId, questionId, !isCurrentlyFlagged);
+    render(); // Re-render to update UI
+    return;
+  }
+  
+  // --- NEW: Quiz Navigation Jumps ---
+  if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('.quiz-nav-item')) {
+      const navItem = target.closest('.quiz-nav-item');
+      const index = parseInt(navItem.dataset.index, 10);
+      if (index !== state.currentIndex) {
+          state.currentIndex = index;
+          state.questionState = state.answers[index] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
+          render();
+      }
+      return;
   }
 
   if (target.id === 'back-btn' || target.id === 'back-to-topics-secondary') {
@@ -716,18 +829,55 @@ function handleAppClick(event) {
     state.questionState = Q_STATE.UNANSWERED;
     render();
   } else if (target.id === 'finish-btn') {
-    state.screen = SCREEN.RESULTS;
-    render();
+    if (FEATURE_FLAG_QUESTION_FLAGGING && FLAGGING_CONFIG.enableWarningOnSubmit && state.flaggedQuestions.size > 0) {
+        const modal = qs('#flag-submit-modal');
+        const body = qs('#flag-submit-modal-body');
+        body.textContent = `You have ${state.flaggedQuestions.size} flagged question(s). Are you sure you want to submit?`;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    } else {
+        progressService.completeQuizAttempt(state.quizAttemptId);
+        state.screen = SCREEN.RESULTS;
+        render();
+    }
+    return;
   } else if (target.id === 'quit-quiz') {
-    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} });
+    progressService.completeQuizAttempt(state.quizAttemptId); // Mark as abandoned
+    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {}, quizAttemptId: null, flaggedQuestions: new Set() });
     render();
   }
+  
+  // --- NEW: Submit Anyway and Review Flagged ---
+  if (target.id === 'submit-anyway-btn') {
+      progressService.completeQuizAttempt(state.quizAttemptId);
+      qs('#flag-submit-modal').classList.add('hidden');
+      state.screen = SCREEN.RESULTS;
+      render();
+      return;
+  }
+  if (target.id === 'review-flagged-btn') {
+      qs('#flag-submit-modal').classList.add('hidden');
+      const firstFlaggedIndex = state.questions.findIndex(q => state.flaggedQuestions.has(q.id));
+      if (firstFlaggedIndex !== -1) {
+          state.currentIndex = firstFlaggedIndex;
+          state.questionState = state.answers[firstFlaggedIndex] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
+          render();
+      }
+      return;
+  }
+
 
   if (target.id === 'retry') {
-    const newQuestions = buildQuiz({ chapters, ...state.quizConfig });
+    let newQuestions;
+    if (state.quizType === 'specimen') {
+        const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
+        newQuestions = specimenChapter ? specimenChapter.questions : [];
+    } else {
+        newQuestions = buildQuiz({ chapters, ...state.quizConfig });
+    }
     startQuiz(newQuestions, { type: state.quizType, config: state.quizConfig });
   } else if (target.id === 'back' && state.screen === SCREEN.RESULTS) {
-    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {} });
+    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {}, quizAttemptId: null, flaggedQuestions: new Set() });
     render();
   }
   
@@ -763,6 +913,16 @@ function startQuiz(questionList, quizDetails) {
   state.questionState = Q_STATE.UNANSWERED;
   state.quizType = quizDetails.type;
   state.quizConfig = quizDetails.config;
+
+  // --- NEW: Initialize attempt for flagging ---
+  if (FEATURE_FLAG_QUESTION_FLAGGING) {
+    state.quizAttemptId = `${quizDetails.type}-${quizDetails.config.chapterId || 'mock'}-${new Date().getTime()}`;
+    const attempt = progressService.getOrCreateQuizAttempt(state.quizAttemptId, state.questions);
+    const flaggedIds = attempt.questions.filter(q => q.flagged).map(q => q.id);
+    state.flaggedQuestions = new Set(flaggedIds);
+  }
+  // --- END NEW ---
+  
   render();
 }
 
@@ -802,6 +962,17 @@ document.addEventListener('keydown', (e) => {
             state.flashcardSession.currentIndex++;
             state.flashcardSession.isFlipped = false;
             render();
+        }
+    }
+
+    if (FEATURE_FLAG_QUESTION_FLAGGING && state.screen === SCREEN.QUIZ && e.key.toLowerCase() === 'f') {
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+            return;
+        }
+        e.preventDefault();
+        const flagBtn = qs('#flag-btn');
+        if (flagBtn) {
+            flagBtn.click();
         }
     }
 });
