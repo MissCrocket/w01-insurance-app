@@ -4,7 +4,7 @@
 
 /* Custom component and utility layers from index.html */
 @layer components {
-  .screen { @apply w-full max-w-6xl mx-auto p-4 md:p-6 lg:p-8; }
+  .screen { @apply w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8; }
   .card { @apply bg-white dark:bg-neutral-900 rounded-2xl shadow-soft p-4 md:p-6; }
   .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-brand text-white hover:opacity-90 active:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed; }
   .btn-ghost { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition; }
@@ -21,6 +21,7 @@
   .result-item { @apply p-4 border border-neutral-200 dark:border-neutral-700 rounded-xl; }
   .result-item__question { @apply font-semibold text-neutral-800 dark:text-neutral-200; }
   .result-item__answer { @apply mt-2 text-sm; }
+  .question-text { @apply pr-16; }
   .mode-switch { @apply mt-4 flex items-center gap-2 rounded-xl bg-black/20 p-1 w-fit; }
   .mode-switch .btn { @apply bg-transparent text-neutral-400 hover:text-white; }
   .mode-switch .btn[aria-pressed="true"] { @apply bg-brand text-white; }
@@ -29,22 +30,27 @@
   .topic-card__title { @apply font-semibold text-lg text-white; }
   .topic-card__meta { @apply mt-1 text-sm text-neutral-400; }
   
-  /* --- NEW STYLES for Flagging Feature --- */
-  .quiz-layout { @apply grid grid-cols-1 lg:grid-cols-3 gap-6; }
-  .question-container { @apply lg:col-span-2; }
+  /* --- STYLES for Flagging Feature & Quiz Nav --- */
+  .quiz-layout { @apply grid grid-cols-1 lg:grid-cols-4 gap-6; }
+  .question-container { @apply lg:col-span-3; }
   .quiz-nav-panel { @apply lg:col-span-1 bg-white/5 border border-white/10 rounded-2xl p-4 order-first lg:order-last; }
   .quiz-nav-header { @apply text-lg font-semibold mb-4 pb-3 border-b border-white/10; }
   .quiz-nav-grid { @apply grid gap-2; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); }
   .quiz-nav-item { @apply relative w-11 h-11 flex items-center justify-center rounded-full border-2 border-neutral-700 text-neutral-300 font-semibold cursor-pointer transition-colors duration-200; }
   .quiz-nav-item:hover { @apply bg-brand border-brand text-white; }
-  .quiz-nav-item.is-current { @apply bg-brand border-brand text-white scale-110; }
-  .quiz-nav-item.is-answered { @apply bg-green-500/20 border-green-500/50; }
+  .quiz-nav-item.is-current { @apply bg-brand border-brand text-white; }
+  .quiz-nav-item.is-answered-correct { @apply bg-green-500/20 border-green-500/50; }
+  .quiz-nav-item.is-answered-incorrect { @apply bg-red-500/20 border-red-500/50; }
   .quiz-nav-item .flag-marker { @apply absolute -top-1 -right-1 w-5 h-5 text-amber-400; }
-  .flag-btn { @apply flex-shrink-0 ml-4 text-sm inline-flex items-center gap-2 border border-neutral-700 text-neutral-300 px-3 py-1.5 rounded-full transition-colors hover:border-amber-400 hover:text-amber-400; }
-  .flag-btn svg { @apply w-4 h-4 transition-colors; }
+  .flag-btn { 
+    @apply absolute top-3 right-3 z-10 flex-shrink-0 inline-flex items-center justify-center border border-neutral-700 text-neutral-300 rounded-full transition-colors hover:border-amber-400 hover:text-amber-400 w-11 h-11;
+    pointer-events: auto;
+  }
+  .flag-btn svg { @apply w-5 h-5; }
   .flag-btn[aria-pressed="true"] { @apply border-amber-400 text-amber-400; }
   .flag-btn[aria-pressed="true"] svg { @apply fill-current; }
-  /* --- END NEW STYLES --- */
+  .question-card { @apply relative; }
+  /* --- END STYLES --- */
 }
 
 @layer utilities {

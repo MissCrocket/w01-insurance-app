@@ -575,14 +575,15 @@ function renderQuiz() {
 
   if (state.questionState === Q_STATE.UNANSWERED) { announce("New question loaded."); } else { const resultText = state.answers[state.currentIndex]?.correct ? 'Correct.' : 'Incorrect.'; announce(resultText); }
   return wrap;
+
 }
 
 function renderFlagButton(questionId) {
     const isFlagged = state.flaggedQuestions.has(questionId);
+    // The <span> with the text has been removed from here
     return `
-        <button class="flag-btn" id="flag-btn" data-question-id="${questionId}" aria-pressed="${isFlagged}" title="${isFlagged ? 'Remove flag (F)' : 'Mark for review (F)'}">
+        <button type="button" class="flag-btn" id="flag-btn" data-question-id="${questionId}" aria-pressed="${isFlagged}" title="${isFlagged ? 'Remove flag (F)' : 'Mark for review (F)'}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-            <span>${isFlagged ? 'Flagged' : 'Flag'}</span>
         </button>
     `;
 }
@@ -591,16 +592,29 @@ function renderQuizNavigation() {
     const navItems = state.questions.map((q, idx) => {
         const isCurrent = idx === state.currentIndex;
         const isFlagged = state.flaggedQuestions.has(q.id);
-        const isAnswered = state.answers[idx] !== null;
+        const answerInfo = state.answers[idx]; // Get answer details
+
         let itemClass = 'quiz-nav-item';
         if (isCurrent) itemClass += ' is-current';
-        if (isFlagged) itemClass += ' is-flagged';
-        if (isAnswered) itemClass += ' is-answered';
         
+        // Logic to add correct/incorrect classes
+        if (answerInfo) { 
+            if (answerInfo.correct) {
+                itemClass += ' is-answered-correct';
+            } else {
+                itemClass += ' is-answered-incorrect';
+            }
+        }
+        
+        // The is-flagged class is now separate for the marker
+        const flagMarker = isFlagged 
+            ? '<svg class="flag-marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>' 
+            : '';
+
         return `
             <button class="${itemClass}" data-index="${idx}" aria-label="Question ${idx + 1}">
                 ${idx + 1}
-                ${isFlagged ? '<svg class="flag-marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>' : ''}
+                ${flagMarker}
             </button>
         `;
     }).join('');
@@ -945,12 +959,44 @@ function startFlashcardSession(chapter) {
     render();
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  state.root = qs("#app");
-  state.root.addEventListener('click', handleAppClick);
-  document.body.addEventListener('click', handleAppClick);
-  render();
+document.addEventListener('DOMContentLoaded', () => {
+    state.root = qs("#app");
+    
+    // Use event delegation on a parent element that is always present
+    document.body.addEventListener('click', (event) => {
+        const { target } = event;
+
+        if (target.closest('[data-screen]')) {
+            const screen = target.closest('[data-screen]').dataset.screen;
+            state.screen = screen;
+            render();
+            return;
+        }
+        
+        if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('#flag-btn')) {
+            const btn = target.closest('#flag-btn');
+            const questionId = btn.dataset.questionId;
+            const isCurrentlyFlagged = state.flaggedQuestions.has(questionId);
+            
+            if (isCurrentlyFlagged) {
+                state.flaggedQuestions.delete(questionId);
+                announce("Flag removed.");
+            } else {
+                state.flaggedQuestions.add(questionId);
+                announce("Flag added.");
+            }
+            
+            progressService.updateFlagStatus(state.quizAttemptId, questionId, !isCurrentlyFlagged);
+            render(); // Re-render to update UI
+            return;
+        }
+
+        handleAppClick(event);
+    }, { capture: true }); // Use capture phase to handle events before they are stopped by other listeners
+
+    render();
 });
+
 
 document.addEventListener('keydown', (e) => {
     if (state.screen === SCREEN.LEARNING && state.flashcardSession.isFlipped) {
