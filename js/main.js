@@ -137,30 +137,34 @@ function buildQuiz(config) {
   } = config;
   const allQuestions = [];
 
+  // Helper to add chapterId to questions
+  const tagQuestionsWithChapter = (questions, chapterId) => {
+      return questions.map(q => ({...q, chapterId}));
+  };
+
   if (type === 'custom' && Array.isArray(customChapters)) {
     const customPool = chapters
       .filter(c => customChapters.includes(c.id))
-      .flatMap(c => mcqOnly(c.questions));
+      .flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
     allQuestions.push(...sampleFromPool(customPool, Math.min(totalQuestions, customPool.length)));
-  } else if (type === 'mock' || type === 'specimen') {
-    const examWeights = {
-      '1': 20,
-      '2': 22,
-      '3': 42,
-      '4': 14,
-      '5': 2
-    };
+  } else if (type === 'mock') {
+    const examWeights = { '1': 20, '2': 22, '3': 42, '4': 14, '5': 2 };
 
-    const allMcqs = chapters.flatMap(c => mcqOnly(c.questions));
+    const allMcqs = chapters.flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
 
     Object.entries(examWeights).forEach(([loGroup, count]) => {
       const groupPool = allMcqs.filter(q => q.loId && q.loId.startsWith(`${loGroup}.`));
       allQuestions.push(...sampleFromPool(groupPool, Math.min(count, groupPool.length)));
     });
-
+  } else if (type === 'specimen') {
+      const specimenChapter = chapters.find(c => c.id === 'specimen_exam');
+      if (specimenChapter) {
+        allQuestions.push(...tagQuestionsWithChapter(mcqOnly(specimenChapter.questions), 'specimen_exam'));
+      }
   } else { // module quiz
     const chapter = chapters.find(c => c.id === chapterId);
-    const poolAll = mcqOnly(chapter?.questions);
+    const poolAll = tagQuestionsWithChapter(mcqOnly(chapter?.questions), chapter.id);
+
     if (poolAll.length) {
       if (Array.isArray(chapter.los) && chapter.los.length) {
         const losMeta = chapter.los.map((lo) => ({
@@ -185,14 +189,14 @@ function buildQuiz(config) {
     if (!uniq.has(key)) uniq.set(key, q);
   });
   let uniqueList = Array.from(uniq.values());
-
+  
   if (uniqueList.length < totalQuestions && type !== 'mock' && type !== 'specimen') {
-    const flat = chapters.flatMap((c) => mcqOnly(c.questions));
+    const flat = chapters.flatMap((c) => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
     const spare = flat.filter((q) => !uniqueList.find(uq => uq.question === q.question));
     uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
   }
-
-  return sampleFromPool(uniqueList, totalQuestions);
+  
+  return sampleFromPool(uniqueList, Math.min(totalQuestions, uniqueList.length));
 }
 
 function showToast(message) {
@@ -224,11 +228,11 @@ function render() {
       break;
     case SCREEN.QUIZ:
       screenEl = renderQuiz();
-      pageTitle = `Quiz - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapter.title}`;
+      pageTitle = `Quiz - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : (chapter?.title || 'Quiz')}`;
       break;
     case SCREEN.RESULTS:
       screenEl = renderResults();
-      pageTitle = `Results - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapter.title}`;
+      pageTitle = `Results - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : (chapter?.title || 'Quiz')}`;
       break;
     case SCREEN.PROGRESS:
       screenEl = renderProgress();
@@ -258,9 +262,9 @@ function renderTopics() {
   wrap.className = "screen screen-topics center-screen-content";
   wrap.innerHTML = `
     <div class="text-center py-8 md:py-12">
-        <h1 class="text-3xl md:text-4xl font-bold text-white" tabindex="-1">CII W01 Insurance Tutor</h1>
-        <p class="mt-4 max-w-2xl mx-auto text-lg text-neutral-300">
-            Select a chapter to review key concepts, or challenge yourself with a full mock exam to prepare for success.
+        <h1 class="text-3xl md:text-4xl font-bold text-white" tabindex="-1">Your All-in-One CII W01 Exam Prep</h1>
+        <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
+            Master key concepts with smart flashcards, test your knowledge with chapter quizzes, and simulate the real exam with a full mock test.
         </p>
     </div>
     
@@ -274,6 +278,7 @@ function renderTopics() {
 
   const grid = qs(".topics-grid", wrap);
   const chapters = getChaptersFromGlobal().filter(ch => ch.id !== 'specimen_exam');
+  const progress = progressService.getProgress();
 
   if (state.mode === MODE.MOCK) {
     grid.style.display = 'none';
@@ -297,13 +302,21 @@ function renderTopics() {
     qs(".mode-switch", wrap).after(card);
   } else {
     chapters.forEach((ch) => {
+      const chapterProgress = progress.chapters[ch.id];
+      const mastery = chapterProgress ? Math.round(chapterProgress.mastery * 100) : 0;
       const card = document.createElement("button");
       card.className = "topic-card";
       card.setAttribute("role", "listitem");
       card.dataset.chapterId = ch.id;
       card.innerHTML = `
-          <div class="topic-card__title">${ch.title || ch.id}</div>
-          <div class="topic-card__meta">Flashcards & Quizzes</div>
+          <div class="flex justify-between items-start">
+            <div class="topic-card__title">${ch.title || ch.id}</div>
+            <div class="text-sm font-bold text-amber-400">${mastery}%</div>
+          </div>
+          <div class="w-full bg-neutral-700 rounded-full h-2.5 mt-2">
+            <div class="bg-amber-400 h-2.5 rounded-full" style="width: ${mastery}%"></div>
+          </div>
+          <div class="topic-card__meta mt-2">Flashcards & Quizzes</div>
         `;
       grid.appendChild(card);
     });
@@ -315,43 +328,84 @@ function renderProgress() {
   const wrap = document.createElement('section');
   wrap.className = 'screen screen-progress';
   const progress = progressService.getProgress();
+  const { strengths, weaknesses } = progressService.analyzePerformance();
+  const allChaptersData = getChaptersFromGlobal();
+
+  const chapterTitleMap = allChaptersData.reduce((acc, ch) => {
+    acc[ch.id] = ch.title.replace(/Chapter \d+: /g, '');
+    return acc;
+  }, {});
 
   const chapterMasteries = Object.values(progress.chapters).map(ch => ch.mastery);
   const overallMastery = chapterMasteries.length > 0 ?
     (chapterMasteries.reduce((a, b) => a + b, 0) / chapterMasteries.length) * 100 :
     0;
 
+  const streak = progress.studyStreak || { current: 0, longest: 0 };
+
+  const renderPerfList = (items, type) => {
+    if (items.length === 0) {
+        return `<p class="text-neutral-500 text-sm">Not enough quiz data to determine your ${type}. Complete some more quizzes!</p>`;
+    }
+    return `<ul class="space-y-2">` + items.map(item => `
+        <li class="flex justify-between items-center text-sm">
+            <span class="text-neutral-300">${chapterTitleMap[item.chapterId] || item.chapterId}</span>
+            <span class="font-semibold ${type === 'strengths' ? 'text-green-400' : 'text-red-400'}">${Math.round(item.percentage)}%</span>
+        </li>
+    `).join('') + `</ul>`;
+  };
+
   wrap.innerHTML = `
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-white">My Progress</h1>
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">My Progress</h1>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-6">
+            <div class="card text-center bg-white/5 border border-white/10">
+                <h2 class="text-lg font-semibold text-neutral-300">Mastery</h2>
+                <p class="text-5xl font-bold text-amber-400 my-2">${Math.round(overallMastery)}%</p>
+                <p class="text-xs text-neutral-400">Based on Flashcards</p>
+            </div>
+            <div class="card text-center bg-white/5 border border-white/10">
+                <h2 class="text-lg font-semibold text-neutral-300">Study Streak</h2>
+                <p class="text-5xl font-bold text-amber-400 my-2">${streak.current} ${streak.current === 1 ? 'day' : 'days'}</p>
+                <p class="text-xs text-neutral-400">Longest: ${streak.longest}</p>
+            </div>
+            <div class="col-span-2 lg:col-span-1 card bg-white/5 border border-white/10">
+                <h3 class="text-lg font-semibold text-neutral-300 mb-3">Strengths</h3>
+                ${renderPerfList(strengths, 'strengths')}
+            </div>
+             <div class="col-span-2 lg:col-span-1 card bg-white/5 border border-white/10">
+                <h3 class="text-lg font-semibold text-neutral-300 mb-3">Chapters to Review</h3>
+                ${renderPerfList(weaknesses, 'weaknesses')}
+            </div>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-1 card text-center bg-white/5 border border-white/10">
-                <h2 class="text-lg font-semibold text-neutral-300">Overall Mastery</h2>
-                <p class="text-6xl font-bold text-amber-400 my-4">${Math.round(overallMastery)}%</p>
-                <p class="text-sm text-neutral-400">Based on flashcard confidence</p>
-            </div>
-            <div class="lg:col-span-2 card bg-white/5 border border-white/10">
-                <h2 class="text-lg font-semibold text-neutral-300 mb-4">Mastery by Chapter</h2>
-                <canvas id="mastery-chart"></canvas>
-            </div>
-            <div class="lg:col-span-3 card bg-white/5 border border-white/10">
-                <h2 class="text-lg font-semibold text-neutral-300 mb-4">Recent Activity</h2>
-                <div id="activity-log" class="space-y-3"></div>
-                 <button id="open-reset-modal" class="btn bg-red-600 hover:bg-red-700 mt-6">Reset All Progress</button>
-            </div>
+        <div class="lg:col-span-2 card bg-white/5 border border-white/10">
+            <h2 class="text-lg font-semibold text-neutral-300 mb-4">Mastery by Chapter</h2>
+            <div class="min-h-[300px]"><canvas id="mastery-chart"></canvas></div>
         </div>
-    `;
+        <div class="lg:col-span-3 card bg-white/5 border border-white/10">
+            <h2 class="text-lg font-semibold text-neutral-300 mb-4">Recent Activity</h2>
+            <div id="activity-log" class="space-y-3"></div>
+             <button id="open-reset-modal" class="btn bg-red-600 hover:bg-red-700 mt-6">Reset All Progress</button>
+        </div>
+    </div>
+  `;
 
   const activityLog = qs('#activity-log', wrap);
   if (progress.recentActivity.length > 0) {
     progress.recentActivity.forEach(act => {
       const actEl = document.createElement('div');
-      actEl.className = 'text-neutral-300 text-sm flex justify-between';
+      actEl.className = 'text-neutral-300 text-sm flex justify-between items-center';
+      const activityText = act.type === 'quiz' ? `Completed Quiz: ${act.chapter}` : `Studied Flashcards: ${act.chapter}`;
+      const scoreText = act.score ? `Score: ${act.score}` : '';
       actEl.innerHTML = `
-                <p>${act.type === 'quiz' ? `Completed Quiz: ${act.chapter}` : 'Studied Flashcards'}</p>
-                <p>${act.score ? `Score: ${act.score}` : ''} <span class="text-neutral-500 ml-4">${new Date(act.date).toLocaleDateString()}</span></p>
-            `;
+          <p>${activityText}</p>
+          <div class="text-right">
+              <p>${scoreText}</p>
+              <p class="text-neutral-500 text-xs">${new Date(act.date).toLocaleDateString()}</p>
+          </div>
+      `;
       activityLog.appendChild(actEl);
     });
   } else {
@@ -365,7 +419,7 @@ function activateChart() {
   const ctx = document.getElementById('mastery-chart')?.getContext('2d');
   if (!ctx) return;
   const progress = progressService.getProgress();
-  const allChapters = getChaptersFromGlobal();
+  const allChapters = getChaptersFromGlobal().filter(c => c.id !== 'specimen_exam');
   const labels = allChapters.map(ch => ch.title.replace(/Chapter \d+: /g, ''));
   const data = allChapters.map(ch => {
     const chapterProgress = progress.chapters[ch.id];
@@ -385,32 +439,23 @@ function activateChart() {
       }]
     },
     options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          grid: {
-            color: 'rgba(255,255,255,0.1)'
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+       scales: {
+          y: {
+              beginAtZero: true,
+              grid: { display: false },
+              ticks: { color: '#e9ecef', font: { size: 10 } }
           },
-          ticks: {
-            color: '#9ca3af'
+          x: {
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              ticks: { color: '#9ca3af' }
           }
-        },
-        x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            color: '#9ca3af',
-            maxRotation: 60,
-            minRotation: 60
-          }
-        }
       },
       plugins: {
-        legend: {
-          display: false
-        }
+          legend: { display: false }
       }
     }
   });
@@ -526,7 +571,7 @@ function renderLearning() {
                 <span class="ml-4">Cards remaining in this session: ${session.cards.length - session.currentIndex}</span>
             </div>
         </div>
-        <div id="flashcard" class="card max-w-3xl mx-auto bg-brand-dark border border-white/10 min-h-[300px] flex flex-col items-center justify-center p-8 border-2 ${statusClasses[cardStatus]}">
+        <div id="flashcard" class="card max-w-3xl mx-auto bg-brand-dark border-white/10 min-h-[300px] flex flex-col items-center justify-center p-8 border-2 ${statusClasses[cardStatus]}">
             ${session.isFlipped ? definitionSide : termSide}
         </div>
         <div id="controls" class="mt-6 max-w-3xl mx-auto"></div>
@@ -714,16 +759,6 @@ function renderResults() {
   const correct = state.answers.filter((a) => a?.correct).length;
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-  const chapters = getChaptersFromGlobal();
-  const chapter = chapters.find(c => c.id === state.quizConfig.chapterId);
-  if (chapter) {
-    progressService.logActivity({
-      type: 'quiz',
-      chapter: chapter.title,
-      score: `${correct}/${total}`
-    });
-  }
-
   wrap.innerHTML = `
     <div class="card text-center">
       <h1 class="screen-title text-3xl text-neutral-800 dark:text-white" tabindex="-1">Quiz Complete!</h1>
@@ -833,6 +868,12 @@ function handleAppClick(event) {
     const screen = target.closest('.nav-link').dataset.screen;
     state.screen = screen;
     render();
+    return;
+  }
+  
+  if (target.id === 'start-studying') {
+    qs('#welcome-modal').classList.add('hidden');
+    progressService.setHasSeenWelcome();
     return;
   }
 
@@ -979,13 +1020,15 @@ function handleAppClick(event) {
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     } else {
-      progressService.completeQuizAttempt(state.quizAttemptId);
+      progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
+      const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapters.find(c => c.id === state.quizConfig.chapterId)?.title;
+      progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
       state.screen = SCREEN.RESULTS;
       render();
     }
     return;
   } else if (target.id === 'quit-quiz') {
-    progressService.completeQuizAttempt(state.quizAttemptId); // Mark as abandoned
+    // progressService.completeQuizAttempt(state.quizAttemptId); // Mark as abandoned - decided against saving incomplete
     Object.assign(state, {
       screen: SCREEN.TOPICS,
       questions: [],
@@ -1001,7 +1044,9 @@ function handleAppClick(event) {
   }
 
   if (target.id === 'submit-anyway-btn') {
-    progressService.completeQuizAttempt(state.quizAttemptId);
+    progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
+    const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapters.find(c => c.id === state.quizConfig.chapterId)?.title;
+    progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
     qs('#flag-submit-modal').classList.add('hidden');
     state.screen = SCREEN.RESULTS;
     render();
@@ -1022,8 +1067,8 @@ function handleAppClick(event) {
   if (target.id === 'retry') {
     let newQuestions;
     if (state.quizType === 'specimen') {
-      const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
-      newQuestions = specimenChapter ? mcqOnly(specimenChapter.questions) : [];
+       const chapters = getChaptersFromGlobal();
+       newQuestions = buildQuiz({ chapters, type: 'specimen', totalQuestions: 100 });
     } else {
       newQuestions = buildQuiz({
         chapters,
@@ -1090,7 +1135,8 @@ function startQuiz(questionList, quizDetails) {
     const flaggedIds = attempt.questions.filter(q => q.flagged).map(q => q.id);
     state.flaggedQuestions = new Set(flaggedIds);
   }
-
+  
+  progressService.logActivity({ type: 'quiz-start', chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title });
   render();
 }
 
@@ -1107,11 +1153,14 @@ function startFlashcardSession(chapter) {
   });
 
   state.flashcardSession = {
-    cards: sampleFromPool(dueCards, dueCards.length),
+    cards: sampleFromPool(dueCards.length > 0 ? dueCards : chapter.flashcards, 20),
     currentIndex: 0,
     isFlipped: false,
   };
   state.screen = SCREEN.LEARNING;
+  
+  progressService.logActivity({ type: 'flashcards', chapter: chapter.title });
+  
   render();
 }
 
@@ -1123,6 +1172,12 @@ document.addEventListener('DOMContentLoaded', () => {
       handleAppClick(event);
     }
   });
+  
+  const progress = progressService.getProgress();
+  if (!progress.hasSeenWelcome) {
+      qs('#welcome-modal').classList.remove('hidden');
+      qs('#welcome-modal').classList.add('flex');
+  }
 
   render();
 });

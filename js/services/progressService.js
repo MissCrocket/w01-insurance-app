@@ -9,13 +9,27 @@ import {
 const getInitialData = () => ({
   chapters: {},
   recentActivity: [],
-  quizAttempts: {}, // Store quiz attempt data, including flags
+  quizAttempts: {}, // Store quiz attempt data, including flags and results
+  hasSeenWelcome: false, // For onboarding
+  studyStreak: { // For gamification
+    current: 0,
+    longest: 0,
+    lastActivityDate: null,
+  },
 });
 
 export function getProgress() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : getInitialData();
+    const parsed = data ? JSON.parse(data) : getInitialData();
+    // Ensure new properties exist for users with old data
+    if (!parsed.hasOwnProperty('hasSeenWelcome')) {
+      parsed.hasSeenWelcome = false;
+    }
+    if (!parsed.hasOwnProperty('studyStreak')) {
+      parsed.studyStreak = { current: 0, longest: 0, lastActivityDate: null };
+    }
+    return parsed;
   } catch (error) {
     console.error('Failed to get progress from localStorage:', error);
     return getInitialData();
@@ -30,6 +44,12 @@ function saveProgress(data) {
   }
 }
 
+export function setHasSeenWelcome() {
+    const progress = getProgress();
+    progress.hasSeenWelcome = true;
+    saveProgress(progress);
+}
+
 export function getOrCreateQuizAttempt(attemptId, questions = []) {
   const progress = getProgress();
   if (!progress.quizAttempts) {
@@ -40,6 +60,7 @@ export function getOrCreateQuizAttempt(attemptId, questions = []) {
       id: attemptId,
       questions: questions.map(q => ({
         id: q.id,
+        chapterId: q.chapterId, // Store chapterId for analysis
         flagged: false
       })),
       startTime: new Date().toISOString(),
@@ -62,13 +83,106 @@ export function updateFlagStatus(attemptId, questionId, isFlagged) {
   }
 }
 
-export function completeQuizAttempt(attemptId) {
+export function completeQuizAttempt(attemptId, questions, answers) {
   const progress = getProgress();
   const attempt = progress.quizAttempts?.[attemptId];
-  if (attempt) {
+  if (attempt && !attempt.completed) {
     attempt.completed = true;
+    attempt.endTime = new Date().toISOString();
+    
+    const correct = answers.filter(a => a?.correct).length;
+    const total = questions.length;
+    attempt.results = {
+      score: correct,
+      total: total,
+      percentage: total > 0 ? Math.round((correct / total) * 100) : 0,
+      answers: answers.map((ans, idx) => ({
+        questionId: questions[idx].id,
+        chapterId: questions[idx].chapterId,
+        correct: ans?.correct || false,
+      })),
+    };
     saveProgress(progress);
   }
+}
+
+function updateStudyStreak() {
+    const progress = getProgress();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const lastDate = progress.studyStreak.lastActivityDate ? new Date(progress.studyStreak.lastActivityDate) : null;
+    if (lastDate) {
+        lastDate.setHours(0, 0, 0, 0);
+    }
+    
+    if (!lastDate || today.getTime() > lastDate.getTime()) {
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        if (lastDate && lastDate.getTime() === yesterday.getTime()) {
+            progress.studyStreak.current += 1;
+        } else {
+            progress.studyStreak.current = 1;
+        }
+
+        if (progress.studyStreak.current > progress.studyStreak.longest) {
+            progress.studyStreak.longest = progress.studyStreak.current;
+        }
+        progress.studyStreak.lastActivityDate = today.toISOString();
+    }
+    // No change if activity is on the same day
+    return progress;
+}
+
+export function logActivity(activityItem) {
+  let progress = getProgress();
+  progress = updateStudyStreak(); // Update streak before saving
+
+  progress.recentActivity.unshift({
+    ...activityItem,
+    date: new Date().toISOString(),
+  });
+  progress.recentActivity = progress.recentActivity.slice(0, 10);
+  saveProgress(progress);
+}
+
+export function analyzePerformance() {
+    const progress = getProgress();
+    const completedAttempts = Object.values(progress.quizAttempts).filter(a => a.completed && a.results);
+    if (completedAttempts.length === 0) {
+        return { strengths: [], weaknesses: [] };
+    }
+
+    const chapterStats = {};
+
+    completedAttempts.forEach(attempt => {
+        attempt.results.answers.forEach(answer => {
+            const { chapterId, correct } = answer;
+            if (!chapterId) return;
+
+            if (!chapterStats[chapterId]) {
+                chapterStats[chapterId] = { correct: 0, total: 0, chapterId };
+            }
+            chapterStats[chapterId].total++;
+            if (correct) {
+                chapterStats[chapterId].correct++;
+            }
+        });
+    });
+
+    const performance = Object.values(chapterStats)
+        .filter(stat => stat.total > 5) // Only consider chapters with enough data
+        .map(stat => ({
+            ...stat,
+            percentage: (stat.correct / stat.total) * 100,
+        }))
+        .sort((a, b) => b.percentage - a.percentage);
+
+    const strengths = performance.slice(0, 3).filter(p => p.percentage >= 70);
+    const weaknesses = performance.slice().reverse().slice(0, 3).filter(p => p.percentage < 70);
+    
+    return { strengths, weaknesses };
 }
 
 export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, rating) {
@@ -121,16 +235,6 @@ export function updateCardStatus(chapterId, cardId, newStatus) {
   }
 }
 
-export function logActivity(activityItem) {
-  const progress = getProgress();
-  progress.recentActivity.unshift({
-    ...activityItem,
-    date: new Date().toISOString(),
-  });
-  progress.recentActivity = progress.recentActivity.slice(0, 10);
-  saveProgress(progress);
-}
-
 export function resetProgress() {
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -179,3 +283,4 @@ export function saveFlashcardNote(chapterId, cardId, noteText) {
   progress.chapters[chapterId].flashcards[cardId].note = noteText;
   saveProgress(progress);
 }
+

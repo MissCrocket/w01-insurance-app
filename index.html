@@ -18,8 +18,8 @@
     <link rel="stylesheet" href="./css/style.css" />
 
     <link rel="stylesheet" href="css/mascot.css">
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script defer src="js/mascot.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="js/mascot.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -49,6 +49,24 @@
         <div id="aria-live" class="visually-hidden" aria-live="polite"></div>
       </section>
     </main>
+
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+      <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
+        <h2 id="welcome-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Welcome to the CII W01 Tutor!</h2>
+        <p class="muted mt-2">
+          This app is designed to help you master the key concepts for your exam. You can:
+        </p>
+        <ul class="list-disc list-inside muted mt-4 space-y-1">
+            <li>Study key terms with smart flashcards.</li>
+            <li>Test your knowledge with chapter quizzes.</li>
+            <li>Simulate the real exam with a full mock test.</li>
+        </ul>
+        <div class="mt-6 flex justify-end gap-3">
+          <button id="start-studying" class="btn">Start Studying</button>
+        </div>
+      </div>
+    </div>
 
     <div id="reset-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
       <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
