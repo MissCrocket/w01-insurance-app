@@ -47,7 +47,8 @@ const state = {
   // --- NEW for Flagging Feature ---
   quizAttemptId: null, // Unique ID for the current quiz attempt
   flaggedQuestions: new Set(), // Holds IDs of flagged questions for the current attempt
-  // --- END NEW ---
+  // --- NEW for Results Filtering ---
+  resultsFilter: 'all', // 'all', 'incorrect', 'flagged'
 };
 
 function getChaptersFromGlobal() {
@@ -135,7 +136,7 @@ function buildQuiz(config) {
     totalQuestions,
     customChapters
   } = config;
-  const allQuestions = [];
+  let allQuestions = [];
 
   // Helper to add chapterId to questions
   const tagQuestionsWithChapter = (questions, chapterId) => {
@@ -147,15 +148,9 @@ function buildQuiz(config) {
       .filter(c => customChapters.includes(c.id))
       .flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
     allQuestions.push(...sampleFromPool(customPool, Math.min(totalQuestions, customPool.length)));
-  } else if (type === 'mock') {
-    const examWeights = { '1': 20, '2': 22, '3': 42, '4': 14, '5': 2 };
-
-    const allMcqs = chapters.flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
-
-    Object.entries(examWeights).forEach(([loGroup, count]) => {
-      const groupPool = allMcqs.filter(q => q.loId && q.loId.startsWith(`${loGroup}.`));
-      allQuestions.push(...sampleFromPool(groupPool, Math.min(count, groupPool.length)));
-    });
+  } else if (type === 'mock' || type === 'quick_quiz') {
+    const allMcqs = chapters.filter(c => c.id !== 'specimen_exam').flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
+    allQuestions.push(...sampleFromPool(allMcqs, totalQuestions));
   } else if (type === 'specimen') {
       const specimenChapter = chapters.find(c => c.id === 'specimen_exam');
       if (specimenChapter) {
@@ -163,23 +158,9 @@ function buildQuiz(config) {
       }
   } else { // module quiz
     const chapter = chapters.find(c => c.id === chapterId);
-    const poolAll = tagQuestionsWithChapter(mcqOnly(chapter?.questions), chapter.id);
-
-    if (poolAll.length) {
-      if (Array.isArray(chapter.los) && chapter.los.length) {
-        const losMeta = chapter.los.map((lo) => ({
-          id: lo.id,
-          weight: lo.weight || 0,
-          poolSize: poolAll.filter((q) => q.loId === lo.id).length
-        }));
-        const counts = allocateByWeights(losMeta, Math.min(totalQuestions, poolAll.length));
-        counts.forEach((n, loId) => {
-          const loPool = poolAll.filter((q) => q.loId === loId);
-          allQuestions.push(...sampleFromPool(loPool, n));
-        });
-      } else {
-        allQuestions.push(...sampleFromPool(poolAll, Math.min(totalQuestions, poolAll.length)));
-      }
+    if (chapter) {
+      const poolAll = tagQuestionsWithChapter(mcqOnly(chapter?.questions), chapter.id);
+      allQuestions.push(...sampleFromPool(poolAll, Math.min(totalQuestions, poolAll.length)));
     }
   }
 
@@ -188,30 +169,31 @@ function buildQuiz(config) {
     const key = q.id || `${q.question}::${JSON.stringify(q.options)}`;
     if (!uniq.has(key)) uniq.set(key, q);
   });
-  let uniqueList = Array.from(uniq.values());
   
-  if (uniqueList.length < totalQuestions && type !== 'mock' && type !== 'specimen') {
-    const flat = chapters.flatMap((c) => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
-    const spare = flat.filter((q) => !uniqueList.find(uq => uq.question === q.question));
-    uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
-  }
-  
-  return sampleFromPool(uniqueList, Math.min(totalQuestions, uniqueList.length));
+  return sampleFromPool(Array.from(uniq.values()), totalQuestions);
 }
 
-function showToast(message) {
+function showToast(message, duration = 3000) {
   const toast = document.createElement('div');
-  toast.className = 'fixed bottom-5 right-5 bg-neutral-800 text-white py-2 px-4 rounded-lg shadow-lg z-50';
+  toast.className = 'fixed bottom-5 right-5 bg-neutral-800 text-white py-2 px-4 rounded-lg shadow-lg z-50 animate-pulse';
   toast.textContent = message;
   document.body.appendChild(toast);
+  
+  setTimeout(() => {
+      toast.classList.remove('animate-pulse');
+  }, 100);
+
   setTimeout(() => {
     toast.remove();
-  }, 3000);
+  }, duration);
 }
 
 function render() {
   const root = state.root || qs("#app");
   root.innerHTML = "";
+
+  // Render resume button outside the main app container so it persists
+  renderResumeButton();
 
   let screenEl;
   let pageTitle = "CII W01 Tutor";
@@ -224,15 +206,15 @@ function render() {
       break;
     case SCREEN.LEARNING:
       screenEl = renderLearning();
-      pageTitle = `Learning - ${chapter.title}`;
+      pageTitle = `Learning - ${state.flashcardSession.isCrossChapter ? 'All Due Cards' : chapter.title}`;
       break;
     case SCREEN.QUIZ:
       screenEl = renderQuiz();
-      pageTitle = `Quiz - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : (chapter?.title || 'Quiz')}`;
+      pageTitle = `Quiz - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : state.quizType === 'quick_quiz' ? 'Quick Quiz' : (chapter?.title || 'Quiz')}`;
       break;
     case SCREEN.RESULTS:
       screenEl = renderResults();
-      pageTitle = `Results - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : (chapter?.title || 'Quiz')}`;
+      pageTitle = `Results - ${state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : state.quizType === 'quick_quiz' ? 'Quick Quiz' : (chapter?.title || 'Quiz')}`;
       break;
     case SCREEN.PROGRESS:
       screenEl = renderProgress();
@@ -257,15 +239,48 @@ function render() {
   }
 }
 
+function renderResumeButton() {
+    const container = qs('#resume-container');
+    const progress = progressService.getProgress();
+    const lastActivity = progress.lastActivity;
+
+    if (!lastActivity || !container) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let text = 'Resume Last Activity';
+    if (lastActivity.type === 'quiz') {
+        text = `Resume Quiz: ${lastActivity.chapter}`;
+    } else if (lastActivity.type === 'flashcards') {
+        text = `Resume Flashcards: ${lastActivity.chapter}`;
+    }
+
+    container.innerHTML = `
+        <button id="resume-activity-btn" class="btn bg-amber-500 hover:bg-amber-600 w-full md:w-auto my-4">
+            ↩️ ${text}
+        </button>
+    `;
+}
+
 function renderTopics() {
   const wrap = document.createElement("section");
   wrap.className = "screen screen-topics center-screen-content";
+  const dueCardsCount = progressService.getAllDueCards().length;
+
   wrap.innerHTML = `
     <div class="text-center py-8 md:py-12">
         <h1 class="text-3xl md:text-4xl font-bold text-white" tabindex="-1">Your All-in-One CII W01 Exam Prep</h1>
         <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
             Master key concepts with smart flashcards, test your knowledge with chapter quizzes, and simulate the real exam with a full mock test.
         </p>
+    </div>
+    
+    <!-- [FEATURE] Central "Due Today" Queue Button -->
+    <div class="mb-8">
+        <button id="study-due-cards" class="btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg !px-8 !py-4" ${dueCardsCount === 0 ? 'disabled' : ''}>
+            📚 Study All Due Flashcards (${dueCardsCount})
+        </button>
     </div>
     
     <div class="mode-switch mx-auto">
@@ -287,7 +302,7 @@ function renderTopics() {
     card.setAttribute("role", "listitem");
     card.innerHTML = `
       <div class="topic-card__title">Start Mock Exam</div>
-      <div class="topic-card__meta">100 questions • MCQ • LO-weighted</div>
+      <div class="topic-card__meta">100 questions • 2 hours • Weighted</div>
     `;
     qs(".mode-switch", wrap).after(card);
   } else if (state.mode === MODE.SPECIMEN) {
@@ -347,10 +362,11 @@ function renderProgress() {
     if (items.length === 0) {
         return `<p class="text-neutral-500 text-sm">Not enough quiz data to determine your ${type}. Complete some more quizzes!</p>`;
     }
+    const isWeakness = type === 'weaknesses';
     return `<ul class="space-y-2">` + items.map(item => `
-        <li class="flex justify-between items-center text-sm">
+        <li class="${isWeakness ? 'actionable-weakness' : ''} flex justify-between items-center text-sm p-2 rounded-lg ${isWeakness ? 'cursor-pointer hover:bg-white/10' : ''}" ${isWeakness ? `data-chapter-id="${item.chapterId}"` : ''}>
             <span class="text-neutral-300">${chapterTitleMap[item.chapterId] || item.chapterId}</span>
-            <span class="font-semibold ${type === 'strengths' ? 'text-green-400' : 'text-red-400'}">${Math.round(item.percentage)}%</span>
+            <span class="font-semibold ${type === 'strengths' ? 'text-green-400' : 'text-red-400'}">${Math.round(item.percentage)}% ${isWeakness ? '➔' : ''}</span>
         </li>
     `).join('') + `</ul>`;
   };
@@ -446,12 +462,13 @@ function activateChart() {
           y: {
               beginAtZero: true,
               grid: { display: false },
-              ticks: { color: '#e9ecef', font: { size: 10 } }
+              // [UI] Increased font size for readability
+              ticks: { color: '#e9ecef', font: { size: 12 } }
           },
           x: {
               max: 100,
               grid: { color: 'rgba(255,255,255,0.1)' },
-              ticks: { color: '#9ca3af' }
+              ticks: { color: '#9ca3af', font: { size: 12 } }
           }
       },
       plugins: {
@@ -463,8 +480,11 @@ function activateChart() {
 
 async function getAiExplanation(term, definition, promptType, container) {
   const progress = progressService.getProgress();
-  const cardId = state.flashcardSession.cards[state.flashcardSession.currentIndex].id;
-  const cached = progress.chapters[state.selectedChapterId]?.flashcards[cardId]?.aiExplanations?.[promptType];
+  const card = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+  const cardId = card.id;
+  const chapterId = card.chapterId || state.selectedChapterId;
+
+  const cached = progress.chapters[chapterId]?.flashcards[cardId]?.aiExplanations?.[promptType];
 
   if (cached) {
     container.innerHTML = `<p class="text-amber-300">${cached}</p>`;
@@ -491,7 +511,7 @@ async function getAiExplanation(term, definition, promptType, container) {
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br>');
     container.innerHTML = `<p class="text-amber-300">${formattedText}</p>`;
-    progressService.cacheAiExplanation(state.selectedChapterId, cardId, promptType, formattedText);
+    progressService.cacheAiExplanation(chapterId, cardId, promptType, formattedText);
   } catch (error) {
     console.error('Failed to fetch AI explanation:', error);
     container.innerHTML = '<p class="text-red-400">Sorry, there was an error connecting to the AI.</p>';
@@ -510,7 +530,7 @@ function renderLearning() {
     wrap.innerHTML = `
         <div class="text-center">
             <h1 class="text-2xl font-bold text-white mb-4">Session Complete!</h1>
-            <p class="text-neutral-300 mb-8">You've reviewed all the cards for this chapter.</p>
+            <p class="text-neutral-300 mb-8">You've reviewed all the cards for this session.</p>
             <button id="back-btn" class="btn-ghost">Back to Topics</button>
             <button id="quiz-btn" class="btn btn-primary ml-4">Take Chapter Quiz</button>
         </div>
@@ -519,7 +539,8 @@ function renderLearning() {
   }
 
   const progress = progressService.getProgress();
-  const chapterProgress = progress.chapters[state.selectedChapterId] || {
+  const chapterId = card.chapterId || state.selectedChapterId;
+  const chapterProgress = progress.chapters[chapterId] || {
     flashcards: {}
   };
   const cardProgress = chapterProgress.flashcards[card.id] || {};
@@ -549,7 +570,6 @@ function renderLearning() {
         </div>
     `;
 
-  const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
   let cardStatus = 'new';
   if (cardProgress) {
     if (cardProgress.confidence >= 4) cardStatus = 'mastered';
@@ -563,6 +583,8 @@ function renderLearning() {
     mastered: 'border-green-500'
   };
 
+  const chapterTitle = card.chapterTitle ? `<div class="text-xs text-amber-400">${card.chapterTitle.replace('Chapter X: ','')}</div>` : '';
+
   wrap.innerHTML = `
         <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
             <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
@@ -572,6 +594,7 @@ function renderLearning() {
             </div>
         </div>
         <div id="flashcard" class="card max-w-3xl mx-auto bg-brand-dark border-white/10 min-h-[300px] flex flex-col items-center justify-center p-8 border-2 ${statusClasses[cardStatus]}">
+            ${session.isFlipped ? chapterTitle : ''}
             ${session.isFlipped ? definitionSide : termSide}
         </div>
         <div id="controls" class="mt-6 max-w-3xl mx-auto"></div>
@@ -592,7 +615,7 @@ function renderLearning() {
 
     const notesInput = qs('#flashcard-notes', wrap);
     notesInput.addEventListener('blur', () => {
-      progressService.saveFlashcardNote(state.selectedChapterId, card.id, notesInput.value);
+      progressService.saveFlashcardNote(chapterId, card.id, notesInput.value);
       showToast('Note saved!');
     });
 
@@ -650,7 +673,7 @@ function renderQuiz() {
   const nextBtn = qs("#next-btn", wrap);
   const finishBtn = qs("#finish-btn", wrap);
   const isLastQuestion = state.currentIndex === state.questions.length - 1;
-  const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
+  const chapter = getChaptersFromGlobal().find(c => c.id === q.chapterId);
 
   (q?.options || []).forEach((optText, idx) => {
     const label = document.createElement("label");
@@ -706,9 +729,10 @@ function renderQuiz() {
 
 function renderFlagButton(questionId) {
   const isFlagged = state.flaggedQuestions.has(questionId);
+  // [ACCESSIBILITY] aria-pressed is correctly toggled here via re-render
   return `
         <button type="button" class="flag-btn" id="flag-btn" data-question-id="${questionId}" aria-pressed="${isFlagged}" title="${isFlagged ? 'Remove flag (F)' : 'Mark for review (F)'}">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
         </button>
     `;
 }
@@ -758,6 +782,9 @@ function renderResults() {
   const total = state.questions.length || 0;
   const correct = state.answers.filter((a) => a?.correct).length;
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+  
+  const incorrectCount = total - correct;
+  const flaggedCount = state.flaggedQuestions.size;
 
   wrap.innerHTML = `
     <div class="card text-center">
@@ -770,13 +797,44 @@ function renderResults() {
       </div>
     </div>
     <div class="mt-8">
-      <h2 class="section-title text-white">Review Your Answers</h2>
+      <div class="flex items-center justify-between">
+        <h2 class="section-title text-white">Review Your Answers</h2>
+        <!-- [FEATURE] Filter buttons for results -->
+        <div class="flex items-center gap-2 rounded-xl bg-black/20 p-1">
+          <button class="btn !min-h-0 text-sm" data-filter="all" aria-pressed="${state.resultsFilter === 'all'}">All (${total})</button>
+          <button class="btn !min-h-0 text-sm" data-filter="incorrect" aria-pressed="${state.resultsFilter === 'incorrect'}">Incorrect (${incorrectCount})</button>
+          <button class="btn !min-h-0 text-sm" data-filter="flagged" aria-pressed="${state.resultsFilter === 'flagged'}">Flagged (${flaggedCount})</button>
+        </div>
+      </div>
       <div class="results-list mt-4 space-y-6"></div>
     </div>
   `;
+
+  // Apply active style to the current filter button
+  const filterButtons = qsa('[data-filter]', wrap);
+  filterButtons.forEach(btn => {
+    if(btn.dataset.filter !== state.resultsFilter) {
+      btn.classList.remove('bg-brand');
+      btn.classList.add('bg-transparent', 'text-neutral-400');
+    }
+  });
+
   const listEl = qs('.results-list', wrap);
-  state.questions.forEach((q, idx) => {
-    const answer = state.answers[idx];
+  let questionsToRender = state.questions;
+
+  if (state.resultsFilter === 'incorrect') {
+    questionsToRender = state.questions.filter((q, idx) => !state.answers[idx]?.correct);
+  } else if (state.resultsFilter === 'flagged') {
+    questionsToRender = state.questions.filter(q => state.flaggedQuestions.has(q.id));
+  }
+  
+  if (questionsToRender.length === 0) {
+    listEl.innerHTML = `<p class="text-neutral-400 text-center py-8">No questions to show for this filter.</p>`;
+  }
+
+  questionsToRender.forEach((q) => {
+    const originalIndex = state.questions.findIndex(origQ => origQ.id === q.id);
+    const answer = state.answers[originalIndex];
     const item = document.createElement('div');
     item.className = 'result-item card';
     const userChoice = (answer && answer.selectedIndex !== undefined) ? q.options[answer.selectedIndex] : 'Not answered';
@@ -791,7 +849,7 @@ function renderResults() {
     const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
 
     item.innerHTML = `
-      <p class="result-item__question text-neutral-800 dark:text-white">${idx + 1}. ${q.question} ${flagIndicator}</p>
+      <p class="result-item__question text-neutral-800 dark:text-white">${originalIndex + 1}. ${q.question} ${flagIndicator}</p>
       <div class="result-item__answer mt-3 space-y-2">
         <p class="${isCorrect ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}">
           <strong>Your answer:</strong> ${userChoice} ${isCorrect ? '✔' : '❌'}
@@ -871,10 +929,54 @@ function handleAppClick(event) {
     return;
   }
   
-  if (target.id === 'start-studying') {
+  // --- [FEATURE] Quick Start Modal Logic ---
+  if (target.closest('#close-welcome-modal')) {
     qs('#welcome-modal').classList.add('hidden');
     progressService.setHasSeenWelcome();
     return;
+  }
+  if (target.closest('#quick-start-due')) {
+    qs('#welcome-modal').classList.add('hidden');
+    progressService.setHasSeenWelcome();
+    startDueFlashcardsSession();
+    return;
+  }
+  if (target.closest('#quick-start-quiz')) {
+    qs('#welcome-modal').classList.add('hidden');
+    progressService.setHasSeenWelcome();
+    const questions = buildQuiz({ chapters, type: 'quick_quiz', totalQuestions: 10 });
+    startQuiz(questions, { type: 'quick_quiz', config: { totalQuestions: 10 } });
+    return;
+  }
+  if (target.closest('#quick-start-mock')) {
+    qs('#welcome-modal').classList.add('hidden');
+    progressService.setHasSeenWelcome();
+    const questions = buildQuiz({ chapters, type: 'mock', totalQuestions: 100 });
+    startQuiz(questions, { type: 'mock', config: { totalQuestions: 100 } });
+    return;
+  }
+  // --- End Quick Start Logic ---
+
+  // --- [FEATURE] Resume Activity ---
+  if (target.closest('#resume-activity-btn')) {
+    const lastActivity = progressService.getProgress().lastActivity;
+    if (lastActivity) {
+      if (lastActivity.type === 'quiz') {
+        const questions = buildQuiz({ chapters, ...lastActivity.config });
+        startQuiz(questions, lastActivity);
+      } else if (lastActivity.type === 'flashcards') {
+        const chapter = chapters.find(c => c.id === lastActivity.chapterId);
+        if (chapter) startFlashcardSession(chapter);
+      } else if (lastActivity.type === 'due-flashcards') {
+        startDueFlashcardsSession();
+      }
+    }
+  }
+
+  // --- [FEATURE] Study All Due Cards Button ---
+  if (target.closest('#study-due-cards')) {
+      startDueFlashcardsSession();
+      return;
   }
 
   const topicCard = target.closest('.topic-card');
@@ -939,6 +1041,17 @@ function handleAppClick(event) {
     return;
   }
 
+  // --- [FEATURE] Actionable Progress Screen ---
+  if (target.closest('.actionable-weakness')) {
+    const chapterId = target.closest('.actionable-weakness').dataset.chapterId;
+    const chapter = chapters.find(c => c.id === chapterId);
+    if (chapter) {
+      const qsList = buildQuiz({ chapters, type: 'module', chapterId: chapter.id, totalQuestions: 10 });
+      startQuiz(qsList, { type: 'module', config: { chapterId: chapter.id, totalQuestions: 10 } });
+    }
+    return;
+  }
+
   if (target.id === 'back-btn' || target.id === 'back-to-topics-secondary') {
     state.screen = SCREEN.TOPICS;
     render();
@@ -962,11 +1075,10 @@ function handleAppClick(event) {
   } else if (target.closest('.confidence-btn')) {
     const btn = target.closest('.confidence-btn');
     const confidence = parseInt(btn.dataset.confidence, 10);
-    const {
-      id: cardId
-    } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
-    const chapter = chapters.find(c => c.id === state.selectedChapterId);
-    progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
+    const card = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+    const chapterId = card.chapterId || state.selectedChapterId;
+    const chapter = chapters.find(c => c.id === chapterId);
+    progressService.updateFlashcardConfidence(chapter.id, chapter.title, card.id, confidence);
     state.flashcardSession.currentIndex++;
     state.flashcardSession.isFlipped = false;
     const confidenceMap = {
@@ -1020,11 +1132,7 @@ function handleAppClick(event) {
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     } else {
-      progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
-      const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapters.find(c => c.id === state.quizConfig.chapterId)?.title;
-      progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
-      state.screen = SCREEN.RESULTS;
-      render();
+      handleQuizFinish();
     }
     return;
   } else if (target.id === 'quit-quiz') {
@@ -1044,12 +1152,8 @@ function handleAppClick(event) {
   }
 
   if (target.id === 'submit-anyway-btn') {
-    progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
-    const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : chapters.find(c => c.id === state.quizConfig.chapterId)?.title;
-    progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
     qs('#flag-submit-modal').classList.add('hidden');
-    state.screen = SCREEN.RESULTS;
-    render();
+    handleQuizFinish();
     return;
   }
   if (target.id === 'review-flagged-btn') {
@@ -1060,6 +1164,14 @@ function handleAppClick(event) {
       state.questionState = state.answers[firstFlaggedIndex] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
       render();
     }
+    return;
+  }
+
+  // --- [FEATURE] Results Screen Filter Logic ---
+  if(target.closest('[data-filter]')) {
+    const filter = target.closest('[data-filter]').dataset.filter;
+    state.resultsFilter = filter;
+    render(); // Re-render the results screen with the new filter
     return;
   }
 
@@ -1089,7 +1201,8 @@ function handleAppClick(event) {
       quizType: null,
       quizConfig: {},
       quizAttemptId: null,
-      flaggedQuestions: new Set()
+      flaggedQuestions: new Set(),
+      resultsFilter: 'all', // Reset filter
     });
     render();
   }
@@ -1117,6 +1230,17 @@ function handleAppClick(event) {
   }
 }
 
+function handleQuizFinish() {
+  progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
+  const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : state.quizType === 'quick_quiz' ? 'Quick Quiz' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title;
+  const { streakExtended, currentStreak } = progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
+  if (streakExtended) {
+    showToast(`🔥 Streak extended to ${currentStreak} days! Keep it up!`);
+  }
+  state.screen = SCREEN.RESULTS;
+  render();
+}
+
 function startQuiz(questionList, quizDetails) {
   state.questions = questionList.map(q => ({ ...q,
     id: q.id || `${q.question.slice(0, 20)}-${Math.random()}`
@@ -1128,6 +1252,7 @@ function startQuiz(questionList, quizDetails) {
   state.questionState = Q_STATE.UNANSWERED;
   state.quizType = quizDetails.type;
   state.quizConfig = quizDetails.config;
+  state.resultsFilter = 'all'; // Reset filter on new quiz start
 
   if (FEATURE_FLAG_QUESTION_FLAGGING) {
     state.quizAttemptId = `${quizDetails.type}-${quizDetails.config.chapterId || 'mock'}-${new Date().getTime()}`;
@@ -1136,8 +1261,28 @@ function startQuiz(questionList, quizDetails) {
     state.flaggedQuestions = new Set(flaggedIds);
   }
   
-  progressService.logActivity({ type: 'quiz-start', chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title });
+  progressService.saveLastActivity({ type: 'quiz', chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title, config: quizDetails.config });
   render();
+}
+
+function startDueFlashcardsSession() {
+    const dueCards = progressService.getAllDueCards();
+    if (dueCards.length === 0) {
+        showToast("You have no flashcards due for review today!");
+        return;
+    }
+    state.flashcardSession = {
+        cards: sampleFromPool(dueCards, 50), // Study up to 50 due cards at a time
+        currentIndex: 0,
+        isFlipped: false,
+        isCrossChapter: true,
+    };
+    state.screen = SCREEN.LEARNING;
+    const { streakExtended, currentStreak } = progressService.logActivity({ type: 'due-flashcards', chapter: 'All Due Cards' });
+    if (streakExtended) {
+        showToast(`🔥 Streak extended to ${currentStreak} days! Keep it up!`);
+    }
+    render();
 }
 
 function startFlashcardSession(chapter) {
@@ -1156,10 +1301,14 @@ function startFlashcardSession(chapter) {
     cards: sampleFromPool(dueCards.length > 0 ? dueCards : chapter.flashcards, 20),
     currentIndex: 0,
     isFlipped: false,
+    isCrossChapter: false,
   };
   state.screen = SCREEN.LEARNING;
   
-  progressService.logActivity({ type: 'flashcards', chapter: chapter.title });
+  const { streakExtended, currentStreak } = progressService.logActivity({ type: 'flashcards', chapter: chapter.title, chapterId: chapter.id });
+  if (streakExtended) {
+    showToast(`🔥 Streak extended to ${currentStreak} days! Keep it up!`);
+  }
   
   render();
 }
@@ -1168,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
   state.root = qs("#app");
 
   document.body.addEventListener('click', (event) => {
-    if (event.target.closest('#app') || event.target.closest('header') || event.target.closest('.modal')) {
+    if (event.target.closest('#app') || event.target.closest('header') || event.target.closest('.modal') || event.target.closest('#resume-container')) {
       handleAppClick(event);
     }
   });
@@ -1187,11 +1336,10 @@ document.addEventListener('keydown', (e) => {
   if (state.screen === SCREEN.LEARNING && state.flashcardSession.isFlipped) {
     const confidence = parseInt(e.key, 10);
     if (confidence >= 1 && confidence <= 5) {
-      const {
-        id: cardId
-      } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
-      const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
-      progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
+      const card = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+      const chapterId = card.chapterId || state.selectedChapterId;
+      const chapter = getChaptersFromGlobal().find(c => c.id === chapterId);
+      progressService.updateFlashcardConfidence(chapter.id, chapter.title, card.id, confidence);
       state.flashcardSession.currentIndex++;
       state.flashcardSession.isFlipped = false;
       render();

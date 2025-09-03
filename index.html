@@ -12,7 +12,8 @@
 
     <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="./manifest.json" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <!-- [FIX] Corrected Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: public/; connect-src 'self' https://generativelanguage.googleapis.com; font-src 'self';">
     
 
     <link rel="stylesheet" href="./css/style.css" />
@@ -32,7 +33,8 @@
           <h1 class="text-lg md:text-2xl font-bold">CII W01 Tutor</h1>
           <a href="./" class="mascot mascot-link" aria-label="Home">
             <div id="mascot-lottie" class="mascot__anim" aria-hidden="true"></div>
-            <img src="public/dog-static.png" class="mascot__fallback" alt="" aria-hidden="true">
+            <!-- [FIX] Changed missing PNG to a valid SVG fallback -->
+            <img src="public/dog-static.svg" class="mascot__fallback" alt="" aria-hidden="true">
           </a>
         </div>
         <nav class="flex items-center gap-4">
@@ -41,29 +43,51 @@
         </nav>
       </div>
     </header>
+    
+    <!-- [FEATURE] Container for the "Resume Last Activity" button -->
+    <div id="resume-container" class="screen !py-0"></div>
 
     <main id="app" class="app-main">
       <section class="card">
         <h2 class="section-title">Loading…</h2>
         <p class="muted">Please wait while the app initializes.</p>
-        <div id="aria-live" class="visually-hidden" aria-live="polite"></div>
+        <!-- [ACCESSIBILITY] Replaced .visually-hidden with .sr-only -->
+        <div id="aria-live" class="sr-only" aria-live="polite"></div>
       </section>
     </main>
 
-    <!-- Welcome Modal -->
+    <!-- [FEATURE] Welcome Modal updated to "Quick Start" chooser -->
     <div id="welcome-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
       <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
-        <h2 id="welcome-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Welcome to the CII W01 Tutor!</h2>
+        <h2 id="welcome-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Welcome to your CII W01 Tutor!</h2>
         <p class="muted mt-2">
-          This app is designed to help you master the key concepts for your exam. You can:
+          How would you like to start your session today?
         </p>
-        <ul class="list-disc list-inside muted mt-4 space-y-1">
-            <li>Study key terms with smart flashcards.</li>
-            <li>Test your knowledge with chapter quizzes.</li>
-            <li>Simulate the real exam with a full mock test.</li>
-        </ul>
-        <div class="mt-6 flex justify-end gap-3">
-          <button id="start-studying" class="btn">Start Studying</button>
+        <div class="mt-6 flex flex-col gap-3">
+          <button id="quick-start-due" class="btn btn-primary w-full justify-start text-left !p-4">
+            <span class="text-2xl mr-4">📚</span>
+            <div>
+              <span class="font-bold">Study Due Flashcards</span><br>
+              <span class="text-sm font-normal">Review what you've learned.</span>
+            </div>
+          </button>
+          <button id="quick-start-quiz" class="btn btn-primary w-full justify-start text-left !p-4">
+            <span class="text-2xl mr-4">❓</span>
+            <div>
+              <span class="font-bold">10-Question Quiz</span><br>
+              <span class="text-sm font-normal">A quick check on mixed topics.</span>
+            </div>
+          </button>
+          <button id="quick-start-mock" class="btn btn-primary w-full justify-start text-left !p-4">
+            <span class="text-2xl mr-4">⏱️</span>
+            <div>
+              <span class="font-bold">Timed Mock Exam</span><br>
+              <span class="text-sm font-normal">Simulate the real exam.</span>
+            </div>
+          </button>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <button id="close-welcome-modal" class="btn-ghost">Maybe later</button>
         </div>
       </div>
     </div>

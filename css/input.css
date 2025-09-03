@@ -6,25 +6,35 @@
 @layer components {
   .screen { @apply w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8; }
   .card { @apply bg-white dark:bg-neutral-900 rounded-2xl shadow-soft p-4 md:p-6; }
-  .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-brand text-white hover:opacity-90 active:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-ghost { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition; }
+  
+  /* [ACCESSIBILITY] Increased touch target size for buttons */
+  .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-brand text-white hover:opacity-90 active:opacity-80 transition disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]; }
+  .btn-ghost { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition min-h-[44px]; }
+  .nav-link { @apply text-neutral-300 hover:text-white transition-colors min-h-[44px] flex items-center px-2; }
+  
   .section-title { @apply text-xl md:text-2xl font-semibold text-neutral-900 dark:text-white; }
   .muted { @apply text-neutral-600 dark:text-neutral-400; }
-  .nav-link { @apply text-neutral-300 hover:text-white transition-colors; }
-  .option-label { @apply flex items-center gap-4 border border-neutral-300 dark:border-neutral-700 rounded-xl p-4 cursor-pointer transition hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-white; }
+
+  /* [ACCESSIBILITY] Increased touch target size for options */
+  .option-label { @apply flex items-center gap-4 border border-neutral-300 dark:border-neutral-700 rounded-xl p-4 cursor-pointer transition hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-white min-h-[44px]; }
   .option-label.is-selected { @apply border-brand ring-2 ring-brand; }
   .option-label.is-correct { @apply border-green-500 bg-green-500/10 text-green-700 dark:text-green-400; }
   .option-label.is-incorrect { @apply border-red-500 bg-red-500/10 text-red-700 dark:text-red-400; }
   .option-label.is-disabled { @apply cursor-not-allowed opacity-70 hover:bg-transparent dark:hover:bg-transparent; }
+  
   .explanation-card { @apply mt-4 p-4 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700; }
+  
   .results-list { @apply mt-6 space-y-8; }
   .result-item { @apply p-4 border border-neutral-200 dark:border-neutral-700 rounded-xl; }
   .result-item__question { @apply font-semibold text-neutral-800 dark:text-neutral-200; }
   .result-item__answer { @apply mt-2 text-sm; }
+  
   .question-text { @apply pr-16; }
+  
   .mode-switch { @apply mt-4 flex items-center gap-2 rounded-xl bg-black/20 p-1 w-fit; }
   .mode-switch .btn { @apply bg-transparent text-neutral-400 hover:text-white; }
   .mode-switch .btn[aria-pressed="true"] { @apply bg-brand text-white; }
+  
   .topics-grid { @apply mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6; }
   .topic-card { @apply text-left p-6 rounded-2xl bg-white/5 border border-white/10 transition-colors hover:bg-white/10 min-h-[100px]; }
   .topic-card__title { @apply font-semibold text-lg text-white; }
@@ -47,7 +57,8 @@
     pointer-events: auto;
   }
   .flag-btn svg { @apply w-5 h-5; }
-  .flag-btn[aria-pressed="true"] { @apply border-amber-400 text-amber-400; }
+  /* [UI] Added visual "pressed" state for the flag button */
+  .flag-btn[aria-pressed="true"] { @apply border-amber-400 text-amber-400 bg-amber-400/20; }
   .flag-btn[aria-pressed="true"] svg { @apply fill-current; }
   .question-card { @apply relative; }
   /* --- END STYLES --- */

@@ -16,6 +16,7 @@ const getInitialData = () => ({
     longest: 0,
     lastActivityDate: null,
   },
+  lastActivity: null, // [FEATURE] For "Resume Last Activity"
 });
 
 export function getProgress() {
@@ -28,6 +29,9 @@ export function getProgress() {
     }
     if (!parsed.hasOwnProperty('studyStreak')) {
       parsed.studyStreak = { current: 0, longest: 0, lastActivityDate: null };
+    }
+    if (!parsed.hasOwnProperty('lastActivity')) {
+        parsed.lastActivity = null;
     }
     return parsed;
   } catch (error) {
@@ -108,6 +112,7 @@ export function completeQuizAttempt(attemptId, questions, answers) {
 
 function updateStudyStreak() {
     const progress = getProgress();
+    let streakExtended = false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -130,21 +135,32 @@ function updateStudyStreak() {
             progress.studyStreak.longest = progress.studyStreak.current;
         }
         progress.studyStreak.lastActivityDate = today.toISOString();
+        streakExtended = true;
     }
-    // No change if activity is on the same day
-    return progress;
+    
+    return { progress, streakExtended };
+}
+
+export function saveLastActivity(activityItem) {
+    const data = getProgress();
+    data.lastActivity = activityItem;
+    saveProgress(data);
 }
 
 export function logActivity(activityItem) {
-  let progress = getProgress();
-  progress = updateStudyStreak(); // Update streak before saving
+  let { progress, streakExtended } = updateStudyStreak();
 
   progress.recentActivity.unshift({
     ...activityItem,
     date: new Date().toISOString(),
   });
   progress.recentActivity = progress.recentActivity.slice(0, 10);
+  
+  // Also save it as the last activity for the resume feature
+  saveLastActivity(activityItem);
+
   saveProgress(progress);
+  return { streakExtended, currentStreak: progress.studyStreak.current };
 }
 
 export function analyzePerformance() {
@@ -159,7 +175,7 @@ export function analyzePerformance() {
     completedAttempts.forEach(attempt => {
         attempt.results.answers.forEach(answer => {
             const { chapterId, correct } = answer;
-            if (!chapterId) return;
+            if (!chapterId || chapterId === 'specimen_exam' || chapterId === 'mock') return;
 
             if (!chapterStats[chapterId]) {
                 chapterStats[chapterId] = { correct: 0, total: 0, chapterId };
@@ -183,6 +199,26 @@ export function analyzePerformance() {
     const weaknesses = performance.slice().reverse().slice(0, 3).filter(p => p.percentage < 70);
     
     return { strengths, weaknesses };
+}
+
+export function getAllDueCards() {
+    const progress = getProgress();
+    const allChaptersData = window.CII_W01_TUTOR_DATA?.chapters || [];
+    const dueCards = [];
+    const now = new Date().toISOString();
+
+    allChaptersData.forEach(chapter => {
+        const chapterProgress = progress.chapters[chapter.id];
+        if (chapter.flashcards && chapter.flashcards.length > 0) {
+            chapter.flashcards.forEach(card => {
+                const cardProgress = chapterProgress?.flashcards?.[card.id];
+                if (!cardProgress || !cardProgress.nextReviewDate || cardProgress.nextReviewDate <= now) {
+                    dueCards.push({ ...card, chapterId: chapter.id, chapterTitle: chapter.title });
+                }
+            });
+        }
+    });
+    return dueCards;
 }
 
 export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, rating) {
@@ -283,4 +319,3 @@ export function saveFlashcardNote(chapterId, cardId, noteText) {
   progress.chapters[chapterId].flashcards[cardId].note = noteText;
   saveProgress(progress);
 }
-
