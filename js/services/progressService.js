@@ -5,9 +5,7 @@ import { STORAGE_KEY } from '../config.js';
 const getInitialData = () => ({
   chapters: {},
   recentActivity: [],
-  // --- NEW ---
   quizAttempts: {}, // Store quiz attempt data, including flags
-  // --- END NEW ---
 });
 
 export function getProgress() {
@@ -28,13 +26,6 @@ function saveProgress(data) {
   }
 }
 
-// --- NEW ---
-/**
- * Creates or retrieves a quiz attempt session.
- * @param {string} attemptId - A unique identifier for the quiz attempt.
- * @param {Array} questions - The list of questions for this attempt.
- * @returns {object} The quiz attempt object.
- */
 export function getOrCreateQuizAttempt(attemptId, questions = []) {
   const progress = getProgress();
   if (!progress.quizAttempts) {
@@ -52,12 +43,6 @@ export function getOrCreateQuizAttempt(attemptId, questions = []) {
   return progress.quizAttempts[attemptId];
 }
 
-/**
- * Updates the flagged status of a question within a quiz attempt.
- * @param {string} attemptId - The ID of the quiz attempt.
- * @param {string} questionId - The ID of the question to update.
- * @param {boolean} isFlagged - The new flagged status.
- */
 export function updateFlagStatus(attemptId, questionId, isFlagged) {
   const progress = getProgress();
   const attempt = progress.quizAttempts?.[attemptId];
@@ -70,10 +55,6 @@ export function updateFlagStatus(attemptId, questionId, isFlagged) {
   }
 }
 
-/**
- * Marks a quiz attempt as complete.
- * @param {string} attemptId - The ID of the quiz attempt.
- */
 export function completeQuizAttempt(attemptId) {
     const progress = getProgress();
     const attempt = progress.quizAttempts?.[attemptId];
@@ -82,8 +63,6 @@ export function completeQuizAttempt(attemptId) {
         saveProgress(progress);
     }
 }
-// --- END NEW ---
-
 
 export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, rating) {
   const progress = getProgress();
@@ -162,4 +141,22 @@ export function cacheAiExplanation(chapterId, cardId, promptType, explanation) {
     }
     progress.chapters[chapterId].flashcards[cardId].aiExplanations[promptType] = explanation;
     saveProgress(progress);
+}
+
+/**
+ * Saves a user-generated note for a specific flashcard.
+ * @param {string} chapterId - The ID of the chapter.
+ * @param {string} cardId - The ID of the flashcard.
+ * @param {string} noteText - The text of the note to save.
+ */
+export function saveFlashcardNote(chapterId, cardId, noteText) {
+  const progress = getProgress();
+  if (!progress.chapters[chapterId]) {
+    progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: '' };
+  }
+  if (!progress.chapters[chapterId].flashcards[cardId]) {
+    progress.chapters[chapterId].flashcards[cardId] = {};
+  }
+  progress.chapters[chapterId].flashcards[cardId].note = noteText;
+  saveProgress(progress);
 }

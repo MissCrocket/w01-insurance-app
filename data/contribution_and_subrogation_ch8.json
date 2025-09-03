@@ -3,6 +3,7 @@
   "questions": [
     {
       "type": "mcq",
+      "loId": "3.11",
       "concept": "Dual insurance",
       "question": "Contribution arises where two or more policies:",
       "options": [
@@ -16,6 +17,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.11",
       "concept": "Rateable proportion",
       "question": "Under contribution, insurers typically share the loss:",
       "options": [
@@ -29,6 +31,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.11",
       "concept": "Non-contribution clause",
       "question": "A 'non-contribution' clause in one policy usually means:",
       "options": [
@@ -42,6 +45,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.11",
       "concept": "More specific insurance",
       "question": "If a ring is covered by a specific jewellery policy and also under a general household policy, which policy normally responds first?",
       "options": [
@@ -55,6 +59,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.12",
       "concept": "Subrogation basics",
       "question": "Subrogation in indemnity insurance most closely means:",
       "options": [
@@ -68,6 +73,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.12",
       "concept": "Benefit policy",
       "question": "Which policy normally does NOT give subrogation rights?",
       "options": [
@@ -81,6 +87,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.12",
       "concept": "Case law",
       "question": "Which case confirmed an insurer could, in principle, recover from a negligent fellow employee under subrogation rights?",
       "options": [
@@ -94,6 +101,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.12",
       "concept": "Waivers",
       "question": "A 'hold harmless' / waiver of subrogation clause agreed pre-loss will usually:",
       "options": [
@@ -107,6 +115,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.11",
       "concept": "Specific vs general clauses",
       "question": "A 'more specific insurance' clause mainly affects:",
       "options": [
@@ -119,27 +128,45 @@
       "explanation": "It gives the specific policy primary liability before general cover responds."
     },
     {
-      "type": "fill",
+      "type": "mcq",
+      "loId": "3.11",
       "concept": "Term recall",
       "question": "The sharing of a loss between two insurers covering the same interest, subject-matter and peril is called ________.",
-      "correctAnswer": ["contribution"],
+      "options": ["Subrogation", "Indemnity", "Contribution", "Average"],
+      "correctAnswer": "Contribution",
       "explanation": "Core definition of contribution."
     },
     {
-      "type": "fill",
+      "type": "mcq",
+      "loId": "3.12",
       "concept": "Term recall",
       "question": "An insurer pursuing a negligent third party after paying the insured is exercising the right of ________.",
-      "correctAnswer": ["subrogation"],
+      "options": ["Contribution", "Subrogation", "Indemnity", "Proximate Cause"],
+      "correctAnswer": "Subrogation",
       "explanation": "Core definition of subrogation."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.11",
+      "concept": "Application of Contribution (Scenario)",
+      "question": "A building worth £500,000 is insured with Insurer X for £300,000 and Insurer Y for £200,000. Both policies cover fire. Following a fire that causes £100,000 of damage, how much should Insurer X pay?",
+      "options": [
+        "£100,000",
+        "£50,000",
+        "£60,000",
+        "£40,000"
+      ],
+      "correctAnswer": "£60,000",
+      "explanation": "Contribution applies. Insurer X has 3/5 (£300k/£500k) of the total cover, so they pay 3/5 of the loss: (300,000 / 500,000) * 100,000 = £60,000."
     }
   ],
   "flashcards": [
-    { "term": "Contribution – Conditions", "definition": "Requires common interest, common subject-matter, and common peril." },
-    { "term": "Rateable Proportion", "definition": "Insurers share losses in proportion to their sums insured, unless modified by wording." },
-    { "term": "Non-Contribution Clause", "definition": "A policy term that disapplies contribution for that policy." },
-    { "term": "More Specific Insurance", "definition": "Specific policy responds before general policy where both cover the same risk." },
-    { "term": "Lister v Romford Ice", "definition": "Authority that subrogation can (in principle) apply against a negligent co-employee; often waived by modern policies." },
-    { "term": "Waiver / Hold Harmless", "definition": "Agreement not to pursue recovery; may bind insurer if permitted by policy terms/consented." },
-    { "term": "Benefit Policies & Subrogation", "definition": "Subrogation typically does not apply to benefit policies (e.g., personal accident)." }
+    { "id": "ch8_1", "loId": "3.11", "term": "Contribution – Conditions", "definition": "Requires common interest, common subject-matter, and common peril." },
+    { "id": "ch8_2", "loId": "3.11", "term": "Rateable Proportion", "definition": "Insurers share losses in proportion to their sums insured, unless modified by wording." },
+    { "id": "ch8_3", "loId": "3.11", "term": "Non-Contribution Clause", "definition": "A policy term that disapplies contribution for that policy." },
+    { "id": "ch8_4", "loId": "3.11", "term": "More Specific Insurance", "definition": "Specific policy responds before general policy where both cover the same risk." },
+    { "id": "ch8_5", "loId": "3.12", "term": "Lister v Romford Ice", "definition": "Authority that subrogation can (in principle) apply against a negligent co-employee; often waived by modern policies." },
+    { "id": "ch8_6", "loId": "3.12", "term": "Waiver / Hold Harmless", "definition": "Agreement not to pursue recovery; may bind insurer if permitted by policy terms/consented." },
+    { "id": "ch8_7", "loId": "3.12", "term": "Benefit Policies & Subrogation", "definition": "Subrogation typically does not apply to benefit policies (e.g., personal accident)." }
   ]
 }

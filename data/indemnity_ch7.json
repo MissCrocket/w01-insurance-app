@@ -3,6 +3,7 @@
   "questions": [
     {
       "type": "mcq",
+      "loId": "3.8",
       "concept": "Definition",
       "question": "Indemnity in insurance most closely means:",
       "options": [
@@ -16,6 +17,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.8",
       "concept": "Benefit policies",
       "question": "Which of the following is NOT a policy of indemnity?",
       "options": [
@@ -29,6 +31,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.8",
       "concept": "Settlement methods",
       "question": "Typical ways an insurer can provide indemnity include:",
       "options": [
@@ -42,6 +45,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.9",
       "concept": "Reinstatement vs repair",
       "question": "Reinstatement is most likely to apply to:",
       "options": [
@@ -55,6 +59,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.9",
       "concept": "New-for-old",
       "question": "‘New for old’ cover typically:",
       "options": [
@@ -68,6 +73,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.9",
       "concept": "First-loss",
       "question": "A first-loss policy:",
       "options": [
@@ -81,6 +87,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.9",
       "concept": "Agreed value",
       "question": "An agreed value clause most closely means:",
       "options": [
@@ -94,73 +101,79 @@
     },
     {
       "type": "mcq",
+      "loId": "3.10",
       "concept": "Average (underinsurance)",
-      "question": "If sum insured is 75% of true value and the loss is $40,000, with average applying, settlement is:",
+      "question": "If a sum insured is 75% of the true value and the loss is £40,000, what will the settlement be if the policy is subject to average?",
       "options": [
-        "$30,000",
-        "$35,000",
-        "$40,000",
-        "$10,000"
+        "£30,000",
+        "£35,000",
+        "£40,000",
+        "£10,000"
       ],
-      "correctAnswer": "$30,000",
-      "explanation": "Average reduces the claim in the same proportion as underinsurance (0.75 × $40,000 = $30,000)."
+      "correctAnswer": "£30,000",
+      "explanation": "The average condition reduces the claim in the same proportion as the underinsurance (0.75 × £40,000 = £30,000)."
     },
     {
       "type": "mcq",
+      "loId": "3.10",
       "concept": "Deductible / excess",
-      "question": "A deductible (excess) of $500 generally means:",
+      "question": "A deductible (excess) of £500 generally means:",
       "options": [
-        "The insurer reduces each payable claim by $500",
+        "The insurer reduces each payable claim by £500",
         "The policyholder always pays 50% of the claim",
-        "The limit of indemnity is $500",
+        "The limit of indemnity is £500",
         "Average will not apply"
       ],
-      "correctAnswer": "The insurer reduces each payable claim by $500",
-      "explanation": "Excess/deductible is the first part of each loss borne by the insured."
+      "correctAnswer": "The insurer reduces each payable claim by £500",
+      "explanation": "The excess/deductible is the first part of each loss borne by the insured."
     },
     {
       "type": "mcq",
+      "loId": "3.10",
       "concept": "Item limits",
-      "question": "A valuable ring worth $6,000 is stolen under contents cover with a single-article limit of $2,500. Assuming no specified item extension:",
+      "question": "A valuable ring worth £6,000 is stolen under a contents policy with a single-article limit of £2,500. Assuming it was not specified separately, what is the maximum payable?",
       "options": [
-        "The full $6,000 is payable",
-        "$2,500 is the maximum payable (before any excess)",
-        "Nothing is payable",
-        "Average will increase the payment"
+        "The full £6,000 is payable",
+        "£2,500 is the maximum payable (before any excess)",
+        "Nothing is payable as it was underinsured",
+        "The insurer will pay for a replacement of lesser value"
       ],
-      "correctAnswer": "$2,500 is the maximum payable (before any excess)",
-      "explanation": "Item/single-article limits cap the insurer’s liability for certain items."
+      "correctAnswer": "£2,500 is the maximum payable (before any excess)",
+      "explanation": "Item/single-article limits cap the insurer’s liability for certain items unless they are specified separately for their full value."
     },
     {
       "type": "mcq",
+      "loId": "3.8",
       "concept": "Liability policies",
       "question": "A liability policy provides indemnity for:",
       "options": [
         "Market value of insured’s property",
         "Legal liability to pay damages and claimant’s costs (up to the limit)",
-        "Any loss the policyholder suffers",
-        "New-for-old replacement of property"
+        "Any loss the policyholder suffers, regardless of liability",
+        "New-for-old replacement of a third party's property"
       ],
       "correctAnswer": "Legal liability to pay damages and claimant’s costs (up to the limit)",
       "explanation": "Liability policies indemnify legal liability rather than property value."
     },
     {
-      "type": "fill",
+      "type": "mcq",
+      "loId": "3.9",
       "concept": "Term recall",
       "question": "Paying claims at current replacement cost without deducting wear and tear is known as ________ cover.",
-      "correctAnswer": ["new-for-old", "reinstatement"],
-      "explanation": "Both terms are commonly encountered; many home contents are on a new-for-old basis."
+      "options": ["Agreed value", "New-for-old", "First loss", "Strict indemnity"],
+      "correctAnswer": "New-for-old",
+      "explanation": "New-for-old is a common modification of indemnity, especially in household contents policies."
     }
   ],
   "flashcards": [
-    { "term": "Indemnity", "definition": "Restore the insured to the same financial position as immediately before the loss (no better, no worse)." },
-    { "term": "Settlement Methods", "definition": "Cash payment, repair, replacement, reinstatement." },
-    { "term": "Benefit Policies", "definition": "Personal accident/sickness/critical illness etc. are not contracts of indemnity." },
-    { "term": "Agreed Value", "definition": "Pre-agreed settlement amount for specified property." },
-    { "term": "First-Loss Policy", "definition": "Insures for less than full value where total loss is unlikely; modest premium saving." },
-    { "term": "Average (Underinsurance)", "definition": "Claim reduced in proportion to underinsurance." },
-    { "term": "Item Limits", "definition": "Caps on insurer liability for certain articles (e.g., jewellery) unless specified separately." },
-    { "term": "Excess/Deductible", "definition": "First part of each loss borne by the insured." },
-    { "term": "Strict Indemnity", "definition": "Pays current market value with wear & tear deducted (contrast with new-for-old/reinstatement)." }
+    { "id": "ch7_1", "loId": "3.8", "term": "Indemnity", "definition": "Restore the insured to the same financial position as immediately before the loss (no better, no worse)." },
+    { "id": "ch7_2", "loId": "3.8", "term": "Settlement Methods", "definition": "Cash payment, repair, replacement, reinstatement." },
+    { "id": "ch7_3", "loId": "3.8", "term": "Benefit Policies", "definition": "Personal accident/sickness/critical illness etc. are not contracts of indemnity." },
+    { "id": "ch7_4", "loId": "3.9", "term": "Agreed Value", "definition": "Pre-agreed settlement amount for specified property." },
+    { "id": "ch7_5", "loId": "3.9", "term": "First-Loss Policy", "definition": "Insures for less than full value where total loss is unlikely; modest premium saving." },
+    { "id": "ch7_6", "loId": "3.10", "term": "Average (Underinsurance)", "definition": "Claim reduced in proportion to underinsurance." },
+    { "id": "ch7_7", "loId": "3.10", "term": "Item Limits", "definition": "Caps on insurer liability for certain articles (e.g., jewellery) unless specified separately." },
+    { "id": "ch7_8", "loId": "3.10", "term": "Excess/Deductible", "definition": "First part of each loss borne by the insured." },
+    { "id": "ch7_9", "loId": "3.8", "term": "Strict Indemnity", "definition": "Pays current market value with wear & tear deducted (contrast with new-for-old/reinstatement)." }
   ]
 }

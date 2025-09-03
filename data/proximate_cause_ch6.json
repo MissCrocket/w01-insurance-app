@@ -3,6 +3,7 @@
   "questions": [
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Definition",
       "question": "In insurance, 'proximate cause' generally refers to the:",
       "options": [
@@ -16,6 +17,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Excepted peril",
       "question": "Where the peril identified as the proximate cause is an excepted (excluded) peril:",
       "options": [
@@ -29,6 +31,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Uninsured/unnamed peril",
       "question": "An uninsured (unnamed) peril that is the proximate cause will:",
       "options": [
@@ -42,6 +45,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Concurrent causes",
       "question": "If two causes operate together to produce a loss and one is insured and the other excluded, the usual approach is:",
       "options": [
@@ -55,8 +59,9 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Chain of events",
-      "question": "A storm blows a roof off; hours later rain enters and damages stock. Which is most likely the proximate cause?",
+      "question": "A storm blows a roof off; hours later rain enters and damages stock. Which is most likely the proximate cause of the stock damage?",
       "options": [
         "Rain (water ingress)",
         "Storm",
@@ -68,6 +73,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Intervening cause",
       "question": "A fire is followed days later by looting that causes the main loss. The looting is likely considered:",
       "options": [
@@ -81,6 +87,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Sole cause wording",
       "question": "If a policy states it will respond only where fire is the 'sole cause' of loss, then where two causes operate concurrently:",
       "options": [
@@ -94,6 +101,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Wide exclusion wording",
       "question": "Policy states: 'Loss caused directly or indirectly by flood is excluded.' If flood (excluded) leads to fire (insured) that causes the damage, the likely outcome is:",
       "options": [
@@ -107,6 +115,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Excepted peril chain",
       "question": "If any event in the chain is an excepted peril and is found to be proximate:",
       "options": [
@@ -119,14 +128,17 @@
       "explanation": "If the excepted peril is proximate, there is no liability."
     },
     {
-      "type": "fill",
+      "type": "mcq",
+      "loId": "3.7",
       "concept": "Term recall",
       "question": "The dominant, efficient cause of loss is called the ________ cause.",
-      "correctAnswer": ["proximate"],
+      "options": ["Remote", "Proximate", "Insured", "Excepted"],
+      "correctAnswer": "Proximate",
       "explanation": "Recall of the core definition."
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Policy wording importance",
       "question": "Which statement best reflects the role of policy wording in proximate cause?",
       "options": [
@@ -140,6 +152,7 @@
     },
     {
       "type": "mcq",
+      "loId": "3.7",
       "concept": "Named perils vs all risks",
       "question": "A 'named perils' policy will usually respond when:",
       "options": [
@@ -150,13 +163,27 @@
       ],
       "correctAnswer": "An insured peril is established as proximate",
       "explanation": "Liability depends on the insured peril being the dominant cause under named-perils cover."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.7",
+      "concept": "Application of Proximate Cause (Scenario)",
+      "question": "A storm damages a roof, allowing rain to enter two days later, which ruins a carpet. What is the proximate cause of the damage to the carpet?",
+      "options": [
+        "The rain, as it was the final event that caused the damage.",
+        "The storm, as it started the unbroken chain of events.",
+        "The delay in repairing the roof, which is a new intervening cause.",
+        "Poor carpet maintenance, which is an uninsured peril."
+      ],
+      "correctAnswer": "The storm, as it started the unbroken chain of events.",
+      "explanation": "The rain damage is a direct and natural consequence of the roof being damaged by the storm. The storm is the dominant, effective cause that set the events in motion."
     }
   ],
   "flashcards": [
-    { "term": "Proximate Cause", "definition": "The dominant, effective cause of a loss; determines if a policy responds." },
-    { "term": "Insured vs Excepted Peril", "definition": "Insured peril may lead to payment; if an excepted/excluded peril is proximate, claim fails." },
-    { "term": "Concurrent Causes", "definition": "Two causes acting together; the dominant one governs liability unless wording alters the result." },
-    { "term": "Sole Cause Wording", "definition": "Requires the insured peril to be the only cause for cover to apply." },
-    { "term": "Wide Exclusion Wording", "definition": "Excludes claims where an excluded peril contributes directly or indirectly." }
+    { "id": "ch6_1", "loId": "3.7", "term": "Proximate Cause", "definition": "The dominant, effective cause of a loss; determines if a policy responds." },
+    { "id": "ch6_2", "loId": "3.7", "term": "Insured vs Excepted Peril", "definition": "Insured peril may lead to payment; if an excepted/excluded peril is proximate, claim fails." },
+    { "id": "ch6_3", "loId": "3.7", "term": "Concurrent Causes", "definition": "Two causes acting together; the dominant one governs liability unless wording alters the result." },
+    { "id": "ch6_4", "loId": "3.7", "term": "Sole Cause Wording", "definition": "Requires the insured peril to be the only cause for cover to apply." },
+    { "id": "ch6_5", "loId": "3.7", "term": "Wide Exclusion Wording", "definition": "Excludes claims where an excluded peril contributes directly or indirectly." }
   ]
 }
