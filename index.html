@@ -10,7 +10,7 @@
 
     <base href="./">
 
-    <link rel="icon" href="./public/favicon.ico" />
+    <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="./manifest.json" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     
@@ -50,7 +50,7 @@
       </section>
     </main>
 
-    <div id="reset-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div id="reset-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
       <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
         <h2 id="reset-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Reset All Progress?</h2>
         <p class="muted mt-2">
@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <div id="flag-submit-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="flag-submit-modal-title">
+    <div id="flag-submit-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="flag-submit-modal-title">
       <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
         <h2 id="flag-submit-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Flagged questions</h2>
         <p class="muted mt-2" id="flag-submit-modal-body">
