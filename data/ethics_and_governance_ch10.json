@@ -1,8 +1,15 @@
 {
   "title": "Chapter 10: Ethics, Governance & Internal Controls",
+  "los": [
+    { "id": "5.1", "description": "Explain the functions of the Chartered Insurance Institute (CII)." },
+    { "id": "5.2", "description": "Explain the importance of the fair treatment of customers and positive customer outcomes." },
+    { "id": "5.3", "description": "Understand the objectives of 'fit and proper' requirements and the risks of unsuitability." },
+    { "id": "5.4", "description": "Understand the importance of internal control systems." }
+  ],
   "questions": [
     {
       "type": "mcq",
+      "loId": "5.1",
       "concept": "CII Code",
       "question": "Which is NOT one of the five central principles of the CII Code of Ethics?",
       "options": [
@@ -16,6 +23,7 @@
     },
     {
       "type": "mcq",
+      "loId": "5.3",
       "concept": "Fit & proper",
       "question": "A 'fit and proper' person in a regulated firm is best described as someone who:",
       "options": [
@@ -29,6 +37,7 @@
     },
     {
       "type": "mcq",
+      "loId": "5.4",
       "concept": "Compliance vs audit",
       "question": "Which pairing is most accurate?",
       "options": [
@@ -42,19 +51,7 @@
     },
     {
       "type": "mcq",
-      "concept": "Complaints handling",
-      "question": "A basic complaints handling flow is most likely to include:",
-      "options": [
-        "Ignore minor issues",
-        "Log, investigate, respond within timeframes, escalate/offer redress where appropriate",
-        "Pass all complaints to marketing",
-        "Refund in all cases"
-      ],
-      "correctAnswer": "Log, investigate, respond within timeframes, escalate/offer redress where appropriate",
-      "explanation": "Documented, timely handling is a core control and regulatory expectation."
-    },
-    {
-      "type": "mcq",
+      "loId": "5.2",
       "concept": "Conflicts of interest",
       "question": "When a conflict of interest arises, an appropriate first action is to:",
       "options": [
@@ -64,40 +61,7 @@
         "Delete records of the conflict"
       ],
       "correctAnswer": "Disclose the conflict and manage or avoid it according to policy",
-      "explanation": "Transparency and proper management are essential."
-    },
-    {
-      "type": "mcq",
-      "concept": "Data protection",
-      "question": "Under data protection rules (e.g., GDPR), personal data must be processed lawfully, fairly, and:",
-      "options": [
-        "Always stored indefinitely",
-        "Kept accurate and up to date",
-        "Shared with any insurer on request",
-        "Used only for marketing"
-      ],
-      "correctAnswer": "Kept accurate and up to date",
-      "explanation": "Accuracy is a core principle alongside lawfulness, fairness, transparency, etc."
-    },
-    {
-      "type": "mcq",
-      "concept": "ESG awareness",
-      "question": "Within ethics/governance, ESG generally refers to:",
-      "options": [
-        "Earnings, Sales, Growth",
-        "Environmental, Social, and Governance factors",
-        "Engagement, Sales, Guidance",
-        "Environmental, Safety, Guarantees"
-      ],
-      "correctAnswer": "Environmental, Social, and Governance factors",
-      "explanation": "ESG is part of broader ethical/governance considerations."
-    },
-    {
-      "type": "fill",
-      "concept": "Principle recall",
-      "question": "Treating customers ________ is a core ethical expectation.",
-      "correctAnswer": "fairly",
-      "explanation": "Fair treatment underpins codes of ethics and conduct regulation."
+      "explanation": "Transparency and proper management are essential to treating customers fairly."
     },
     {
       "type": "mcq",
@@ -115,13 +79,10 @@
     }
   ],
   "flashcards": [
-    { "id": "ch10_1", "term": "CII Code – 5 Principles", "definition": "Comply with laws & Code; act with integrity; act in clients’ best interests; provide high service; treat people fairly." },
-    { "id": "ch10_2", "term": "Fit & Proper", "definition": "Honesty, competence, financial soundness, suitability for the role." },
-    { "id": "ch10_3", "term": "Compliance vs Audit", "definition": "Compliance = rules & monitoring; Internal Audit = independent assurance over controls." },
-    { "id": "ch10_4", "term": "Complaints Handling", "definition": "Log → investigate → respond → escalate/redress where appropriate." },
-    { "id": "ch10_5", "term": "Conflicts of Interest", "definition": "Disclose and manage/avoid per policy; prioritise client interests and fairness." },
-    { "id": "ch10_6", "term": "ESG", "definition": "Environmental, Social, Governance considerations in ethics and oversight." },
-    { "id": "ch10_7", "term": "GDPR Accuracy Principle", "definition": "Personal data must be accurate, up-to-date, and processed lawfully and fairly." },
-    { "id": "ch10_lo5_4_1", "loId": "5.4", "term": "Internal Control System", "definition": "The whole system of controls, financial and otherwise, established by management to carry on the business in an orderly and efficient manner, ensure adherence to policies, safeguard assets, and secure the completeness and accuracy of records." }
+    { "id": "ch10_1", "loId": "5.1", "term": "CII Code – 5 Principles", "definition": "Comply with laws & Code; act with integrity; act in clients’ best interests; provide high service; treat people fairly." },
+    { "id": "ch10_2", "loId": "5.3", "term": "Fit & Proper", "definition": "Honesty, competence, financial soundness, suitability for the role." },
+    { "id": "ch10_3", "loId": "5.4", "term": "Compliance vs Audit", "definition": "Compliance = rules & monitoring; Internal Audit = independent assurance over controls." },
+    { "id": "ch10_4", "loId": "5.4", "term": "Complaints Handling", "definition": "Log → investigate → respond → escalate/redress where appropriate." },
+    { "id": "ch10_5", "loId": "5.2", "term": "Conflicts of Interest", "definition": "Disclose and manage/avoid per policy; prioritise client interests and fairness." }
   ]
 }

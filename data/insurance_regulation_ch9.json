@@ -1,8 +1,15 @@
 {
   "title": "Chapter 9: Insurance Regulation",
+  "los": [
+    { "id": "4.1", "description": "Explain the importance of the regulation of the insurance industry." },
+    { "id": "4.2", "description": "Understand the importance of establishing and maintaining capital adequacy." },
+    { "id": "4.3", "description": "Understand the importance of combating financial crime." },
+    { "id": "4.4", "description": "Explain fraud and how it impacts the insurance industry." }
+  ],
   "questions": [
     {
       "type": "mcq",
+      "loId": "4.1",
       "concept": "Why regulate?",
       "question": "A core purpose of insurance regulation is to:",
       "options": [
@@ -16,6 +23,7 @@
     },
     {
       "type": "mcq",
+      "loId": "4.1",
       "concept": "Prudential vs conduct",
       "question": "Prudential regulation focuses primarily on:",
       "options": [
@@ -29,19 +37,16 @@
     },
     {
       "type": "mcq",
+      "loId": "4.1",
       "concept": "Regulator functions",
       "question": "Typical oversight functions of a regulator include regulation, authorisation, supervision, surveillance and:",
-      "options": [
-        "Claims adjusting",
-        "Enforcement",
-        "Underwriting",
-        "Distribution"
-      ],
+      "options": ["Claims adjusting", "Enforcement", "Underwriting", "Distribution"],
       "correctAnswer": "Enforcement",
       "explanation": "Regulators can sanction or refer breaches for prosecution."
     },
     {
       "type": "mcq",
+      "loId": "4.1",
       "concept": "IAIS role",
       "question": "The International Association of Insurance Supervisors (IAIS) primarily:",
       "options": [
@@ -55,6 +60,7 @@
     },
     {
       "type": "mcq",
+      "loId": "4.2",
       "concept": "Capital adequacy",
       "question": "Capital adequacy frameworks are intended to:",
       "options": [
@@ -68,6 +74,7 @@
     },
     {
       "type": "mcq",
+      "loId": "4.3",
       "concept": "CDD basics",
       "question": "Customer Due Diligence (CDD) measures generally include:",
       "options": [
@@ -81,6 +88,7 @@
     },
     {
       "type": "mcq",
+      "loId": "4.3",
       "concept": "Money laundering stages",
       "question": "Which is the correct order of the three stages of money laundering?",
       "options": [
@@ -94,6 +102,7 @@
     },
     {
       "type": "mcq",
+      "loId": "4.4",
       "concept": "Fraud types",
       "question": "Examples of insurance fraud can include:",
       "options": [
@@ -107,6 +116,7 @@
     },
     {
       "type": "mcq",
+      "loId": "4.1",
       "concept": "Market conduct tools",
       "question": "From a market conduct perspective, regulators may require:",
       "options": [
@@ -120,18 +130,75 @@
     },
     {
       "type": "fill",
+      "loId": "4.3",
       "concept": "Term recall",
       "question": "The global AML/CTF standard-setting body is the ________.",
       "correctAnswer": ["fatf", "financial action task force"],
       "explanation": "FATF issues recommendations and mutual evaluations through a global network."
+    },
+    {
+      "type": "mcq",
+      "loId": "4.2",
+      "concept": "Solvency Control Levels",
+      "question": "An insurer's capital falling below the Minimum Capital Requirement (MCR) is likely to trigger:",
+      "options": [
+        "A small fine",
+        "Immediate and significant regulatory intervention",
+        "A recommendation to raise premiums",
+        "A temporary suspension of advertising"
+      ],
+      "correctAnswer": "Immediate and significant regulatory intervention",
+      "explanation": "The MCR is a 'hard floor' for solvency, and a breach will result in serious regulatory action to protect policyholders."
+    },
+    {
+      "type": "mcq",
+      "loId": "4.4",
+      "concept": "Fraud Prevention",
+      "question": "Which of the following is a key measure for preventing internal fraud?",
+      "options": [
+        "Increasing sales commissions",
+        "Mandatory staff vacations and job rotation in sensitive roles",
+        "Reducing the number of internal audits",
+        "Allowing senior staff to override all controls"
+      ],
+      "correctAnswer": "Mandatory staff vacations and job rotation in sensitive roles",
+      "explanation": "These measures make it more difficult for a single individual to conceal fraudulent activity over a long period."
+    },
+    {
+      "type": "mcq",
+      "loId": "4.3",
+      "concept": "Financial Crime",
+      "question": "An insurer that knowingly handles funds linked to terrorist activities is exposed to which type of risk?",
+      "options": [
+        "Only reputational risk",
+        "Only operational risk",
+        "Legal, operational, and reputational risks",
+        "Only legal risk"
+      ],
+      "correctAnswer": "Legal, operational, and reputational risks",
+      "explanation": "Handling such funds can lead to severe legal penalties, operational failures, and significant damage to the insurer's reputation."
+    },
+    {
+      "type": "mcq",
+      "loId": "4.4",
+      "concept": "Policyholder Fraud",
+      "question": "A policyholder deliberately understates the value of their insured items to get a lower premium. This is an example of:",
+      "options": [
+        "Internal fraud",
+        "Intermediary fraud",
+        "Policyholder fraud",
+        "Claims fraud"
+      ],
+      "correctAnswer": "Policyholder fraud",
+      "explanation": "This is a type of policyholder fraud that occurs at the inception of the policy."
     }
   ],
   "flashcards": [
-    { "term": "Prudential vs Conduct", "definition": "Prudential = financial soundness; Conduct = fair treatment of customers." },
-    { "term": "IAIS", "definition": "International standard-setter for insurance supervision (principles, standards, guidance)." },
-    { "term": "Solvency Control Levels", "definition": "Thresholds triggering supervisory intervention to protect policyholders." },
-    { "term": "CDD", "definition": "Identify/verify customers & beneficial owners; monitor relationships on a risk basis." },
-    { "term": "Fraud Types", "definition": "Policyholder, intermediary, and internal; managed via prevention, detection, response." },
-    { "term": "Money Laundering Stages", "definition": "Placement → Layering → Integration." }
+    { "id": 1, "loId": "4.1", "term": "Prudential vs Conduct", "definition": "Prudential = financial soundness; Conduct = fair treatment of customers." },
+    { "id": 2, "loId": "4.1", "term": "IAIS", "definition": "International standard-setter for insurance supervision (principles, standards, guidance)." },
+    { "id": 3, "loId": "4.2", "term": "Solvency Control Levels", "definition": "Thresholds triggering supervisory intervention to protect policyholders." },
+    { "id": 4, "loId": "4.3", "term": "CDD", "definition": "Identify/verify customers & beneficial owners; monitor relationships on a risk basis." },
+    { "id": 5, "loId": "4.4", "term": "Fraud Types", "definition": "Policyholder, intermediary, and internal; managed via prevention, detection, response." },
+    { "id": 6, "loId": "4.3", "term": "Money Laundering Stages", "definition": "Placement → Layering → Integration." }
   ]
 }

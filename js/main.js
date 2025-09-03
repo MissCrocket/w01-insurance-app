@@ -1,6 +1,10 @@
 // js/main.js
 import * as progressService from './services/progressService.js';
-import { STORAGE_KEY, FEATURE_FLAG_QUESTION_FLAGGING, FLAGGING_CONFIG } from './config.js';
+import {
+  STORAGE_KEY,
+  FEATURE_FLAG_QUESTION_FLAGGING,
+  FLAGGING_CONFIG
+} from './config.js';
 
 export const SCREEN = {
   TOPICS: "topics",
@@ -35,10 +39,10 @@ const state = {
   score: 0,
   root: null,
   flashcardSession: {
-      cards: [],
-      currentIndex: 0,
-      isFlipped: false,
-      dueCards: 0,
+    cards: [],
+    currentIndex: 0,
+    isFlipped: false,
+    dueCards: 0,
   },
   // --- NEW for Flagging Feature ---
   quizAttemptId: null, // Unique ID for the current quiz attempt
@@ -51,14 +55,24 @@ function getChaptersFromGlobal() {
   if (Array.isArray(central) && central.length) return central;
   return [];
 }
-function qs(sel, parent = document) { return parent.querySelector(sel); }
-function qsa(sel, parent = document) { return Array.from(parent.querySelectorAll(sel)); }
+
+function qs(sel, parent = document) {
+  return parent.querySelector(sel);
+}
+
+function qsa(sel, parent = document) {
+  return Array.from(parent.querySelectorAll(sel));
+}
+
 function announce(text) {
   const el = document.getElementById("aria-live");
   if (!el) return;
   el.textContent = "";
-  requestAnimationFrame(() => { el.textContent = text; });
+  requestAnimationFrame(() => {
+    el.textContent = text;
+  });
 }
+
 function focusFirst(el) {
   const focusable = el.querySelector(
     'h1, h2, h3, button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -72,14 +86,17 @@ export function allocateByWeights(los, desiredTotal) {
     const targetFloat = ((lo.weight || 0) / totalWeight) * desiredTotal;
     const target = Math.floor(targetFloat);
     const capped = Math.min(target, lo.poolSize || 0);
-    return { ...lo, count: capped };
+    return { ...lo,
+      count: capped
+    };
   });
   let allocated = base.reduce((s, lo) => s + lo.count, 0);
   let deficit = Math.max(0, desiredTotal - allocated);
   if (deficit > 0) {
     const room = base.filter((lo) => lo.count < (lo.poolSize || 0));
     if (room.length) {
-      let i = 0, added = 0;
+      let i = 0,
+        added = 0;
       while (added < deficit) {
         const lo = room[i % room.length];
         if (lo.count < (lo.poolSize || 0)) {
@@ -96,7 +113,11 @@ export function allocateByWeights(los, desiredTotal) {
   return out;
 }
 const isMCQ = (q) => q && q.type === "mcq" && Array.isArray(q.options) && q.options.length > 1;
-function mcqOnly(arr) { return (arr || []).filter(isMCQ); }
+
+function mcqOnly(arr) {
+  return (arr || []).filter(isMCQ);
+}
+
 function sampleFromPool(pool, n) {
   const arr = pool.slice();
   for (let i = arr.length - 1; i > 0; i--) {
@@ -107,49 +128,46 @@ function sampleFromPool(pool, n) {
 }
 
 function buildQuiz(config) {
-  const { chapters, type, chapterId, totalQuestions, customChapters } = config; // Add customChapters
+  const {
+    chapters,
+    type,
+    chapterId,
+    totalQuestions,
+    customChapters
+  } = config;
   const allQuestions = [];
 
-  // --- NEW CUSTOM QUIZ LOGIC ---
   if (type === 'custom' && Array.isArray(customChapters)) {
     const customPool = chapters
       .filter(c => customChapters.includes(c.id))
       .flatMap(c => mcqOnly(c.questions));
     allQuestions.push(...sampleFromPool(customPool, Math.min(totalQuestions, customPool.length)));
-  // --- END NEW LOGIC ---
-  } else if (type === 'mock') {
-    const withLOs = chapters.filter((c) => Array.isArray(c.los) && c.los.length);
-    if (withLOs.length) {
-        const flatLOs = [];
-        withLOs.forEach((c) => {
-            (c.los || []).forEach((lo) => {
-                const poolSize = mcqOnly(c.questions).filter((q) => q.loId === lo.id).length;
-                flatLOs.push({ id: `${c.id}::${lo.id}`, weight: lo.weight || 0, poolSize, chapterId: c.id, loId: lo.id });
-            });
-        });
-        const counts = allocateByWeights(flatLOs, totalQuestions);
-        counts.forEach((count, compositeId) => {
-            const [chapId, loId] = compositeId.split("::");
-            const chapter = chapters.find((c) => c.id === chapId);
-            if (!chapter) return;
-            const pool = mcqOnly(chapter.questions).filter((q) => q.loId === loId);
-            allQuestions.push(...sampleFromPool(pool, count));
-        });
-    } else {
-        const sizes = chapters.map((c) => mcqOnly(c.questions).length);
-        const totalPool = sizes.reduce((a, b) => a + b, 0) || 1;
-        chapters.forEach((c) => {
-            const pool = mcqOnly(c.questions);
-            const want = Math.floor((pool.length / totalPool) * totalQuestions);
-            allQuestions.push(...sampleFromPool(pool, want));
-        });
-    }
+  } else if (type === 'mock' || type === 'specimen') {
+    const examWeights = {
+      '1': 20,
+      '2': 22,
+      '3': 42,
+      '4': 14,
+      '5': 2
+    };
+
+    const allMcqs = chapters.flatMap(c => mcqOnly(c.questions));
+
+    Object.entries(examWeights).forEach(([loGroup, count]) => {
+      const groupPool = allMcqs.filter(q => q.loId && q.loId.startsWith(`${loGroup}.`));
+      allQuestions.push(...sampleFromPool(groupPool, Math.min(count, groupPool.length)));
+    });
+
   } else { // module quiz
     const chapter = chapters.find(c => c.id === chapterId);
     const poolAll = mcqOnly(chapter?.questions);
     if (poolAll.length) {
       if (Array.isArray(chapter.los) && chapter.los.length) {
-        const losMeta = chapter.los.map((lo) => ({ id: lo.id, weight: lo.weight || 0, poolSize: poolAll.filter((q) => q.loId === lo.id).length }));
+        const losMeta = chapter.los.map((lo) => ({
+          id: lo.id,
+          weight: lo.weight || 0,
+          poolSize: poolAll.filter((q) => q.loId === lo.id).length
+        }));
         const counts = allocateByWeights(losMeta, Math.min(totalQuestions, poolAll.length));
         counts.forEach((n, loId) => {
           const loPool = poolAll.filter((q) => q.loId === loId);
@@ -160,21 +178,21 @@ function buildQuiz(config) {
       }
     }
   }
-  
+
   const uniq = new Map();
   allQuestions.forEach((q) => {
-      const key = q.id || `${q.question}::${JSON.stringify(q.options)}`;
-      if (!uniq.has(key)) uniq.set(key, q);
+    const key = q.id || `${q.question}::${JSON.stringify(q.options)}`;
+    if (!uniq.has(key)) uniq.set(key, q);
   });
   let uniqueList = Array.from(uniq.values());
 
-  if (uniqueList.length < totalQuestions) {
-      const flat = chapters.flatMap((c) => mcqOnly(c.questions));
-      const spare = flat.filter((q) => !uniqueList.find(uq => uq.question === q.question));
-      uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
+  if (uniqueList.length < totalQuestions && type !== 'mock' && type !== 'specimen') {
+    const flat = chapters.flatMap((c) => mcqOnly(c.questions));
+    const spare = flat.filter((q) => !uniqueList.find(uq => uq.question === q.question));
+    uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
   }
 
-  return sampleFromPool(uniqueList, totalQuestions); // Randomize the final list
+  return sampleFromPool(uniqueList, totalQuestions);
 }
 
 function showToast(message) {
@@ -217,9 +235,9 @@ function render() {
       pageTitle = "My Progress";
       break;
     case SCREEN.MANAGE:
-        screenEl = renderManageCards();
-        pageTitle = `Manage Cards - ${chapter.title}`;
-        break;
+      screenEl = renderManageCards();
+      pageTitle = `Manage Cards - ${chapter.title}`;
+      break;
     default:
       screenEl = document.createElement("div");
       screenEl.innerHTML = `<p>Unknown screen.</p>`;
@@ -229,7 +247,7 @@ function render() {
   document.title = pageTitle;
   announce(`Screen changed to ${state.screen}`);
   focusFirst(screenEl);
-  
+
   if (state.screen === SCREEN.PROGRESS) {
     activateChart();
   }
@@ -264,7 +282,7 @@ function renderTopics() {
     card.setAttribute("role", "listitem");
     card.innerHTML = `
       <div class="topic-card__title">Start Mock Exam</div>
-      <div class="topic-card__meta">50 questions • MCQ • LO-weighted where available</div>
+      <div class="topic-card__meta">100 questions • MCQ • LO-weighted</div>
     `;
     qs(".mode-switch", wrap).after(card);
   } else if (state.mode === MODE.SPECIMEN) {
@@ -279,31 +297,31 @@ function renderTopics() {
     qs(".mode-switch", wrap).after(card);
   } else {
     chapters.forEach((ch) => {
-        const card = document.createElement("button");
-        card.className = "topic-card";
-        card.setAttribute("role", "listitem");
-        card.dataset.chapterId = ch.id;
-        card.innerHTML = `
+      const card = document.createElement("button");
+      card.className = "topic-card";
+      card.setAttribute("role", "listitem");
+      card.dataset.chapterId = ch.id;
+      card.innerHTML = `
           <div class="topic-card__title">${ch.title || ch.id}</div>
           <div class="topic-card__meta">Flashcards & Quizzes</div>
         `;
-        grid.appendChild(card);
+      grid.appendChild(card);
     });
   }
   return wrap;
 }
 
 function renderProgress() {
-    const wrap = document.createElement('section');
-    wrap.className = 'screen screen-progress';
-    const progress = progressService.getProgress();
+  const wrap = document.createElement('section');
+  wrap.className = 'screen screen-progress';
+  const progress = progressService.getProgress();
 
-    const chapterMasteries = Object.values(progress.chapters).map(ch => ch.mastery);
-    const overallMastery = chapterMasteries.length > 0
-        ? (chapterMasteries.reduce((a, b) => a + b, 0) / chapterMasteries.length) * 100
-        : 0;
+  const chapterMasteries = Object.values(progress.chapters).map(ch => ch.mastery);
+  const overallMastery = chapterMasteries.length > 0 ?
+    (chapterMasteries.reduce((a, b) => a + b, 0) / chapterMasteries.length) * 100 :
+    0;
 
-    wrap.innerHTML = `
+  wrap.innerHTML = `
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-white">My Progress</h1>
         </div>
@@ -325,98 +343,126 @@ function renderProgress() {
         </div>
     `;
 
-    const activityLog = qs('#activity-log', wrap);
-    if (progress.recentActivity.length > 0) {
-        progress.recentActivity.forEach(act => {
-            const actEl = document.createElement('div');
-            actEl.className = 'text-neutral-300 text-sm flex justify-between';
-            actEl.innerHTML = `
+  const activityLog = qs('#activity-log', wrap);
+  if (progress.recentActivity.length > 0) {
+    progress.recentActivity.forEach(act => {
+      const actEl = document.createElement('div');
+      actEl.className = 'text-neutral-300 text-sm flex justify-between';
+      actEl.innerHTML = `
                 <p>${act.type === 'quiz' ? `Completed Quiz: ${act.chapter}` : 'Studied Flashcards'}</p>
                 <p>${act.score ? `Score: ${act.score}` : ''} <span class="text-neutral-500 ml-4">${new Date(act.date).toLocaleDateString()}</span></p>
             `;
-            activityLog.appendChild(actEl);
-        });
-    } else {
-        activityLog.innerHTML = `<p class="text-neutral-500">No activity yet. Take a quiz or study some flashcards to see your progress!</p>`;
-    }
+      activityLog.appendChild(actEl);
+    });
+  } else {
+    activityLog.innerHTML = `<p class="text-neutral-500">No activity yet. Take a quiz or study some flashcards to see your progress!</p>`;
+  }
 
-    return wrap;
+  return wrap;
 }
 
 function activateChart() {
-    const ctx = document.getElementById('mastery-chart')?.getContext('2d');
-    if (!ctx) return;
-    const progress = progressService.getProgress();
-    const allChapters = getChaptersFromGlobal();
-    const labels = allChapters.map(ch => ch.title.replace(/Chapter \d+: /g, ''));
-    const data = allChapters.map(ch => {
-        const chapterProgress = progress.chapters[ch.id];
-        return chapterProgress ? chapterProgress.mastery * 100 : 0;
-    });
+  const ctx = document.getElementById('mastery-chart')?.getContext('2d');
+  if (!ctx) return;
+  const progress = progressService.getProgress();
+  const allChapters = getChaptersFromGlobal();
+  const labels = allChapters.map(ch => ch.title.replace(/Chapter \d+: /g, ''));
+  const data = allChapters.map(ch => {
+    const chapterProgress = progress.chapters[ch.id];
+    return chapterProgress ? chapterProgress.mastery * 100 : 0;
+  });
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Mastery %',
-                data: data,
-                backgroundColor: 'rgba(251, 191, 36, 0.6)',
-                borderColor: 'rgba(251, 191, 36, 1)',
-                borderWidth: 1
-            }]
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Mastery %',
+        data: data,
+        backgroundColor: 'rgba(251, 191, 36, 0.6)',
+        borderColor: 'rgba(251, 191, 36, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: {
+            color: 'rgba(255,255,255,0.1)'
+          },
+          ticks: {
+            color: '#9ca3af'
+          }
         },
-        options: {
-            scales: {
-                y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
-                x: { grid: { display: false }, ticks: { color: '#9ca3af', maxRotation: 60, minRotation: 60 } }
-            },
-            plugins: { legend: { display: false } }
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: '#9ca3af',
+            maxRotation: 60,
+            minRotation: 60
+          }
         }
-    });
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
 }
 
 async function getAiExplanation(term, definition, promptType, container) {
-    const progress = progressService.getProgress();
-    const cardId = state.flashcardSession.cards[state.flashcardSession.currentIndex].id;
-    const cached = progress.chapters[state.selectedChapterId]?.flashcards[cardId]?.aiExplanations?.[promptType];
+  const progress = progressService.getProgress();
+  const cardId = state.flashcardSession.cards[state.flashcardSession.currentIndex].id;
+  const cached = progress.chapters[state.selectedChapterId]?.flashcards[cardId]?.aiExplanations?.[promptType];
 
-    if (cached) {
-        container.innerHTML = `<p class="text-amber-300">${cached}</p>`;
-        return;
-    }
+  if (cached) {
+    container.innerHTML = `<p class="text-amber-300">${cached}</p>`;
+    return;
+  }
 
-    container.innerHTML = '<p class="text-neutral-400 animate-pulse">🤖 Gemini is thinking...</p>';
-    qsa('[data-prompt]').forEach(b => b.disabled = true);
-    try {
-        const response = await fetch('/.netlify/functions/getAiExplanation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ term, definition, promptType }),
-        });
-        if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
-        const data = await response.json();
-        const formattedText = data.explanation
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\n/g, '<br>');
-        container.innerHTML = `<p class="text-amber-300">${formattedText}</p>`;
-        progressService.cacheAiExplanation(state.selectedChapterId, cardId, promptType, formattedText);
-    } catch (error) {
-        console.error('Failed to fetch AI explanation:', error);
-        container.innerHTML = '<p class="text-red-400">Sorry, there was an error connecting to the AI.</p>';
-    } finally {
-        qsa('[data-prompt]').forEach(b => b.disabled = false);
-    }
+  container.innerHTML = '<p class="text-neutral-400 animate-pulse">🤖 Gemini is thinking...</p>';
+  qsa('[data-prompt]').forEach(b => b.disabled = true);
+  try {
+    const response = await fetch('/.netlify/functions/getAiExplanation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        term,
+        definition,
+        promptType
+      }),
+    });
+    if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
+    const data = await response.json();
+    const formattedText = data.explanation
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    container.innerHTML = `<p class="text-amber-300">${formattedText}</p>`;
+    progressService.cacheAiExplanation(state.selectedChapterId, cardId, promptType, formattedText);
+  } catch (error) {
+    console.error('Failed to fetch AI explanation:', error);
+    container.innerHTML = '<p class="text-red-400">Sorry, there was an error connecting to the AI.</p>';
+  } finally {
+    qsa('[data-prompt]').forEach(b => b.disabled = false);
+  }
 }
 
 function renderLearning() {
-    const wrap = document.createElement("section");
-    wrap.className = "screen screen-learning";
-    const session = state.flashcardSession;
-    const card = session.cards[session.currentIndex];
+  const wrap = document.createElement("section");
+  wrap.className = "screen screen-learning";
+  const session = state.flashcardSession;
+  const card = session.cards[session.currentIndex];
 
-    if (!card) {
-        wrap.innerHTML = `
+  if (!card) {
+    wrap.innerHTML = `
         <div class="text-center">
             <h1 class="text-2xl font-bold text-white mb-4">Session Complete!</h1>
             <p class="text-neutral-300 mb-8">You've reviewed all the cards for this chapter.</p>
@@ -424,20 +470,22 @@ function renderLearning() {
             <button id="quiz-btn" class="btn btn-primary ml-4">Take Chapter Quiz</button>
         </div>
         `;
-        return wrap;
-    }
+    return wrap;
+  }
 
-    const progress = progressService.getProgress();
-    const chapterProgress = progress.chapters[state.selectedChapterId] || { flashcards: {} };
-    const cardProgress = chapterProgress.flashcards[card.id] || {};
-    const noteText = cardProgress.note || '';
+  const progress = progressService.getProgress();
+  const chapterProgress = progress.chapters[state.selectedChapterId] || {
+    flashcards: {}
+  };
+  const cardProgress = chapterProgress.flashcards[card.id] || {};
+  const noteText = cardProgress.note || '';
 
-    const termSide = `
+  const termSide = `
         <div class="text-center text-3xl font-bold text-white">${card.term}</div>
         <button class="btn mt-8 bg-amber-500 hover:bg-amber-600" id="reveal-btn">Reveal Answer</button>
     `;
-    
-    const definitionSide = `
+
+  const definitionSide = `
         <div class="text-xl font-medium text-neutral-200 text-center">${card.definition}</div>
         
         <div class="w-full max-w-md mx-auto mt-8">
@@ -455,22 +503,22 @@ function renderLearning() {
             <textarea id="flashcard-notes" class="w-full mt-1 p-2 rounded bg-neutral-800 border border-neutral-700 text-white focus:ring-amber-500 focus:border-amber-500" rows="3" placeholder="Add your personal notes here...">${noteText}</textarea>
         </div>
     `;
-    
-    const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
-    let cardStatus = 'new';
-    if (cardProgress) {
-        if (cardProgress.confidence >= 4) cardStatus = 'mastered';
-        else if (cardProgress.confidence >= 2) cardStatus = 'learning';
-        else cardStatus = 'new';
-    }
 
-    const statusClasses = {
-        new: 'border-blue-500',
-        learning: 'border-orange-500',
-        mastered: 'border-green-500'
-    };
+  const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
+  let cardStatus = 'new';
+  if (cardProgress) {
+    if (cardProgress.confidence >= 4) cardStatus = 'mastered';
+    else if (cardProgress.confidence >= 2) cardStatus = 'learning';
+    else cardStatus = 'new';
+  }
 
-    wrap.innerHTML = `
+  const statusClasses = {
+    new: 'border-blue-500',
+    learning: 'border-orange-500',
+    mastered: 'border-green-500'
+  };
+
+  wrap.innerHTML = `
         <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
             <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
             <div>
@@ -484,9 +532,9 @@ function renderLearning() {
         <div id="controls" class="mt-6 max-w-3xl mx-auto"></div>
     `;
 
-    const controls = qs('#controls', wrap);
-    if (session.isFlipped) {
-        controls.innerHTML = `
+  const controls = qs('#controls', wrap);
+  if (session.isFlipped) {
+    controls.innerHTML = `
         <div class="text-center text-neutral-400 mb-4">How well did you know this?</div>
         <div class="grid grid-cols-5 gap-3">
             <button data-confidence="1" class="confidence-btn bg-gradient-to-br from-red-500 to-red-700 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Forgot">Forgot</button>
@@ -497,17 +545,17 @@ function renderLearning() {
         </div>
         `;
 
-        const notesInput = qs('#flashcard-notes', wrap);
-        notesInput.addEventListener('blur', () => {
-            progressService.saveFlashcardNote(state.selectedChapterId, card.id, notesInput.value);
-            showToast('Note saved!');
-        });
+    const notesInput = qs('#flashcard-notes', wrap);
+    notesInput.addEventListener('blur', () => {
+      progressService.saveFlashcardNote(state.selectedChapterId, card.id, notesInput.value);
+      showToast('Note saved!');
+    });
 
-    } else {
-        controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
-    }
-    
-    return wrap;
+  } else {
+    controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
+  }
+
+  return wrap;
 }
 
 function renderQuiz() {
@@ -515,7 +563,7 @@ function renderQuiz() {
   wrap.className = "screen screen-quiz";
   const q = state.questions[state.currentIndex];
   const progressPercent = ((state.currentIndex + 1) / state.questions.length) * 100;
-  
+
   const quizNavHTML = FEATURE_FLAG_QUESTION_FLAGGING ? renderQuizNavigation() : '';
 
   wrap.innerHTML = `
@@ -557,6 +605,7 @@ function renderQuiz() {
   const nextBtn = qs("#next-btn", wrap);
   const finishBtn = qs("#finish-btn", wrap);
   const isLastQuestion = state.currentIndex === state.questions.length - 1;
+  const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
 
   (q?.options || []).forEach((optText, idx) => {
     const label = document.createElement("label");
@@ -587,7 +636,7 @@ function renderQuiz() {
 
   if (state.questionState === Q_STATE.ANSWERED) {
     const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
-    explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${q.explanation || 'No explanation provided.'}</p>${loIdText}`;
+    explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${q.explanation || 'No explanation provided. For more information, please see W01 ' + chapter.title + '.'}</p>${loIdText}`;
     explanationEl.hidden = false;
     if (isLastQuestion) {
       finishBtn.hidden = false;
@@ -596,14 +645,19 @@ function renderQuiz() {
     }
   }
 
-  if (state.questionState === Q_STATE.UNANSWERED) { announce("New question loaded."); } else { const resultText = state.answers[state.currentIndex]?.correct ? 'Correct.' : 'Incorrect.'; announce(resultText); }
+  if (state.questionState === Q_STATE.UNANSWERED) {
+    announce("New question loaded.");
+  } else {
+    const resultText = state.answers[state.currentIndex]?.correct ? 'Correct.' : 'Incorrect.';
+    announce(resultText);
+  }
   return wrap;
 
 }
 
 function renderFlagButton(questionId) {
-    const isFlagged = state.flaggedQuestions.has(questionId);
-    return `
+  const isFlagged = state.flaggedQuestions.has(questionId);
+  return `
         <button type="button" class="flag-btn" id="flag-btn" data-question-id="${questionId}" aria-pressed="${isFlagged}" title="${isFlagged ? 'Remove flag (F)' : 'Mark for review (F)'}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
         </button>
@@ -611,35 +665,35 @@ function renderFlagButton(questionId) {
 }
 
 function renderQuizNavigation() {
-    const navItems = state.questions.map((q, idx) => {
-        const isCurrent = idx === state.currentIndex;
-        const isFlagged = state.flaggedQuestions.has(q.id);
-        const answerInfo = state.answers[idx]; // Get answer details
+  const navItems = state.questions.map((q, idx) => {
+    const isCurrent = idx === state.currentIndex;
+    const isFlagged = state.flaggedQuestions.has(q.id);
+    const answerInfo = state.answers[idx]; // Get answer details
 
-        let itemClass = 'quiz-nav-item';
-        if (isCurrent) itemClass += ' is-current';
-        
-        if (answerInfo) { 
-            if (answerInfo.correct) {
-                itemClass += ' is-answered-correct';
-            } else {
-                itemClass += ' is-answered-incorrect';
-            }
-        }
-        
-        const flagMarker = isFlagged 
-            ? '<svg class="flag-marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>' 
-            : '';
+    let itemClass = 'quiz-nav-item';
+    if (isCurrent) itemClass += ' is-current';
 
-        return `
+    if (answerInfo) {
+      if (answerInfo.correct) {
+        itemClass += ' is-answered-correct';
+      } else {
+        itemClass += ' is-answered-incorrect';
+      }
+    }
+
+    const flagMarker = isFlagged ?
+      '<svg class="flag-marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>' :
+      '';
+
+    return `
             <button class="${itemClass}" data-index="${idx}" aria-label="Question ${idx + 1}">
                 ${idx + 1}
                 ${flagMarker}
             </button>
         `;
-    }).join('');
+  }).join('');
 
-    return `
+  return `
         <aside class="quiz-nav-panel">
             <h3 class="quiz-nav-header">Questions (${state.flaggedQuestions.size} Flagged)</h3>
             <div class="quiz-nav-grid" id="quiz-nav-grid">
@@ -655,11 +709,15 @@ function renderResults() {
   const total = state.questions.length || 0;
   const correct = state.answers.filter((a) => a?.correct).length;
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-  
+
   const chapters = getChaptersFromGlobal();
   const chapter = chapters.find(c => c.id === state.quizConfig.chapterId);
   if (chapter) {
-    progressService.logActivity({ type: 'quiz', chapter: chapter.title, score: `${correct}/${total}` });
+    progressService.logActivity({
+      type: 'quiz',
+      chapter: chapter.title,
+      score: `${correct}/${total}`
+    });
   }
 
   wrap.innerHTML = `
@@ -686,11 +744,11 @@ function renderResults() {
     const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
     const correctChoice = q.options[correctIndex];
     const isCorrect = answer?.correct;
-    
+
     const isFlagged = state.flaggedQuestions.has(q.id);
-    const flagIndicator = FEATURE_FLAG_QUESTION_FLAGGING && isFlagged 
-      ? `<svg class="inline-block w-5 h-5 ml-2 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>`
-      : '';
+    const flagIndicator = FEATURE_FLAG_QUESTION_FLAGGING && isFlagged ?
+      `<svg class="inline-block w-5 h-5 ml-2 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>` :
+      '';
     const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
 
     item.innerHTML = `
@@ -712,13 +770,13 @@ function renderResults() {
 }
 
 function renderManageCards() {
-    const wrap = document.createElement('section');
-    wrap.className = 'screen screen-manage';
-    const progress = progressService.getProgress();
-    const chapters = getChaptersFromGlobal();
-    const chapter = chapters.find(c => c.id === state.selectedChapterId);
+  const wrap = document.createElement('section');
+  wrap.className = 'screen screen-manage';
+  const progress = progressService.getProgress();
+  const chapters = getChaptersFromGlobal();
+  const chapter = chapters.find(c => c.id === state.selectedChapterId);
 
-    wrap.innerHTML = `
+  wrap.innerHTML = `
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-white">Manage Cards: ${chapter.title}</h1>
             <button id="back-to-learning" class="btn-ghost">Back to Learning</button>
@@ -739,28 +797,32 @@ function renderManageCards() {
         </div>
     `;
 
-    const board = qs('#manage-board', wrap);
-    const chapterProgress = progress.chapters[chapter.id] || { flashcards: {} };
+  const board = qs('#manage-board', wrap);
+  const chapterProgress = progress.chapters[chapter.id] || {
+    flashcards: {}
+  };
 
-    chapter.flashcards.forEach(card => {
-        const cardProgress = chapterProgress.flashcards[card.id];
-        const status = cardProgress?.status || 'new';
+  chapter.flashcards.forEach(card => {
+    const cardProgress = chapterProgress.flashcards[card.id];
+    const status = cardProgress?.status || 'new';
 
-        const cardEl = document.createElement('div');
-        cardEl.className = 'p-3 bg-neutral-800 rounded cursor-pointer';
-        cardEl.textContent = card.term;
-        cardEl.dataset.cardId = card.id;
-        cardEl.draggable = true;
+    const cardEl = document.createElement('div');
+    cardEl.className = 'p-3 bg-neutral-800 rounded cursor-pointer';
+    cardEl.textContent = card.term;
+    cardEl.dataset.cardId = card.id;
+    cardEl.draggable = true;
 
-        board.querySelector(`[data-status="${status}"] .card-list`).appendChild(cardEl);
-    });
+    board.querySelector(`[data-status="${status}"] .card-list`).appendChild(cardEl);
+  });
 
-    return wrap;
+  return wrap;
 }
 
 
 function handleAppClick(event) {
-  const { target } = event;
+  const {
+    target
+  } = event;
   const chapters = getChaptersFromGlobal();
 
   if (target.closest('.nav-link')) {
@@ -773,46 +835,63 @@ function handleAppClick(event) {
   const topicCard = target.closest('.topic-card');
   if (topicCard) {
     if (state.mode === MODE.MOCK) {
-      const questions = buildQuiz({ chapters, type: 'mock', totalQuestions: 50 });
-      startQuiz(questions, { type: 'mock', config: { totalQuestions: 50 } });
+      const questions = buildQuiz({
+        chapters,
+        type: 'mock',
+        totalQuestions: 100
+      });
+      startQuiz(questions, {
+        type: 'mock',
+        config: {
+          totalQuestions: 100
+        }
+      });
     } else if (state.mode === MODE.SPECIMEN) {
-        const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
-        const questions = specimenChapter ? mcqOnly(specimenChapter.questions) : [];
-        startQuiz(questions, { type: 'specimen', config: { chapterId: 'specimen_exam', totalQuestions: questions.length } });
+      const questions = buildQuiz({
+        chapters,
+        type: 'specimen',
+        totalQuestions: 100
+      });
+      startQuiz(questions, {
+        type: 'specimen',
+        config: {
+          totalQuestions: 100
+        }
+      });
     } else {
       state.selectedChapterId = topicCard.dataset.chapterId;
       const chapter = chapters.find(c => c.id === state.selectedChapterId);
       startFlashcardSession(chapter);
     }
   }
-  
+
   if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('#flag-btn')) {
     const btn = target.closest('#flag-btn');
     const questionId = btn.dataset.questionId;
     const isCurrentlyFlagged = state.flaggedQuestions.has(questionId);
-    
+
     if (isCurrentlyFlagged) {
-        state.flaggedQuestions.delete(questionId);
-        announce("Flag removed.");
+      state.flaggedQuestions.delete(questionId);
+      announce("Flag removed.");
     } else {
-        state.flaggedQuestions.add(questionId);
-        announce("Flag added.");
+      state.flaggedQuestions.add(questionId);
+      announce("Flag added.");
     }
-    
+
     progressService.updateFlagStatus(state.quizAttemptId, questionId, !isCurrentlyFlagged);
     render();
     return;
   }
-  
+
   if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('.quiz-nav-item')) {
-      const navItem = target.closest('.quiz-nav-item');
-      const index = parseInt(navItem.dataset.index, 10);
-      if (index >= 0 && index < state.questions.length && index !== state.currentIndex) {
-          state.currentIndex = index;
-          state.questionState = state.answers[index] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
-          render();
-      }
-      return;
+    const navItem = target.closest('.quiz-nav-item');
+    const index = parseInt(navItem.dataset.index, 10);
+    if (index >= 0 && index < state.questions.length && index !== state.currentIndex) {
+      state.currentIndex = index;
+      state.questionState = state.answers[index] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
+      render();
+    }
+    return;
   }
 
   if (target.id === 'back-btn' || target.id === 'back-to-topics-secondary') {
@@ -829,24 +908,46 @@ function handleAppClick(event) {
   } else if (target.closest('[data-prompt]')) {
     const btn = target.closest('[data-prompt]');
     const promptType = btn.dataset.prompt;
-    const { term, definition } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+    const {
+      term,
+      definition
+    } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
     const responseContainer = qs('#ai-response');
     getAiExplanation(term, definition, promptType, responseContainer);
   } else if (target.closest('.confidence-btn')) {
     const btn = target.closest('.confidence-btn');
     const confidence = parseInt(btn.dataset.confidence, 10);
-    const { id: cardId } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+    const {
+      id: cardId
+    } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
     const chapter = chapters.find(c => c.id === state.selectedChapterId);
     progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
     state.flashcardSession.currentIndex++;
     state.flashcardSession.isFlipped = false;
-    const confidenceMap = {1: 'Forgot', 2: 'Hard', 3: 'Good', 4: 'Easy', 5: 'Perfect'};
+    const confidenceMap = {
+      1: 'Forgot',
+      2: 'Hard',
+      3: 'Good',
+      4: 'Easy',
+      5: 'Perfect'
+    };
     showToast(`Card marked as '${confidenceMap[confidence]}'`);
     render();
   } else if (target.id === 'quiz-btn') {
-      const chapter = chapters.find(c => c.id === state.selectedChapterId);
-      const qsList = buildQuiz({ chapters, type: 'module', chapterId: chapter.id, totalQuestions: 15 });
-      startQuiz(qsList, { type: 'module', config: { chapterId: chapter.id, totalQuestions: 15 } });
+    const chapter = chapters.find(c => c.id === state.selectedChapterId);
+    const qsList = buildQuiz({
+      chapters,
+      type: 'module',
+      chapterId: chapter.id,
+      totalQuestions: 15
+    });
+    startQuiz(qsList, {
+      type: 'module',
+      config: {
+        chapterId: chapter.id,
+        totalQuestions: 15
+      }
+    });
   }
 
   if (target.closest('.option-label') && state.questionState === Q_STATE.UNANSWERED) {
@@ -855,7 +956,11 @@ function handleAppClick(event) {
     const q = state.questions[state.currentIndex];
     const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
     const isCorrect = chosenIndex === correctIndex;
-    state.answers[state.currentIndex] = { qid: q.id, selectedIndex: chosenIndex, correct: isCorrect };
+    state.answers[state.currentIndex] = {
+      qid: q.id,
+      selectedIndex: chosenIndex,
+      correct: isCorrect
+    };
     state.questionState = Q_STATE.ANSWERED;
     render();
   } else if (target.id === 'next-btn') {
@@ -864,62 +969,88 @@ function handleAppClick(event) {
     render();
   } else if (target.id === 'finish-btn') {
     if (FEATURE_FLAG_QUESTION_FLAGGING && FLAGGING_CONFIG.enableWarningOnSubmit && state.flaggedQuestions.size > 0) {
-        const modal = qs('#flag-submit-modal');
-        const body = qs('#flag-submit-modal-body');
-        body.textContent = `You have ${state.flaggedQuestions.size} flagged question(s). Are you sure you want to submit?`;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+      const modal = qs('#flag-submit-modal');
+      const body = qs('#flag-submit-modal-body');
+      body.textContent = `You have ${state.flaggedQuestions.size} flagged question(s). Are you sure you want to submit?`;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     } else {
-        progressService.completeQuizAttempt(state.quizAttemptId);
-        state.screen = SCREEN.RESULTS;
-        render();
+      progressService.completeQuizAttempt(state.quizAttemptId);
+      state.screen = SCREEN.RESULTS;
+      render();
     }
     return;
   } else if (target.id === 'quit-quiz') {
     progressService.completeQuizAttempt(state.quizAttemptId); // Mark as abandoned
-    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {}, quizAttemptId: null, flaggedQuestions: new Set() });
+    Object.assign(state, {
+      screen: SCREEN.TOPICS,
+      questions: [],
+      answers: [],
+      currentIndex: 0,
+      score: 0,
+      quizType: null,
+      quizConfig: {},
+      quizAttemptId: null,
+      flaggedQuestions: new Set()
+    });
     render();
   }
-  
+
   if (target.id === 'submit-anyway-btn') {
-      progressService.completeQuizAttempt(state.quizAttemptId);
-      qs('#flag-submit-modal').classList.add('hidden');
-      state.screen = SCREEN.RESULTS;
-      render();
-      return;
+    progressService.completeQuizAttempt(state.quizAttemptId);
+    qs('#flag-submit-modal').classList.add('hidden');
+    state.screen = SCREEN.RESULTS;
+    render();
+    return;
   }
   if (target.id === 'review-flagged-btn') {
-      qs('#flag-submit-modal').classList.add('hidden');
-      const firstFlaggedIndex = state.questions.findIndex(q => state.flaggedQuestions.has(q.id));
-      if (firstFlaggedIndex !== -1) {
-          state.currentIndex = firstFlaggedIndex;
-          state.questionState = state.answers[firstFlaggedIndex] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
-          render();
-      }
-      return;
+    qs('#flag-submit-modal').classList.add('hidden');
+    const firstFlaggedIndex = state.questions.findIndex(q => state.flaggedQuestions.has(q.id));
+    if (firstFlaggedIndex !== -1) {
+      state.currentIndex = firstFlaggedIndex;
+      state.questionState = state.answers[firstFlaggedIndex] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
+      render();
+    }
+    return;
   }
 
 
   if (target.id === 'retry') {
     let newQuestions;
     if (state.quizType === 'specimen') {
-        const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
-        newQuestions = specimenChapter ? mcqOnly(specimenChapter.questions) : [];
+      const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
+      newQuestions = specimenChapter ? mcqOnly(specimenChapter.questions) : [];
     } else {
-        newQuestions = buildQuiz({ chapters, ...state.quizConfig });
+      newQuestions = buildQuiz({
+        chapters,
+        ...state.quizConfig
+      });
     }
-    startQuiz(newQuestions, { type: state.quizType, config: state.quizConfig });
+    startQuiz(newQuestions, {
+      type: state.quizType,
+      config: state.quizConfig
+    });
   } else if (target.id === 'back' && state.screen === SCREEN.RESULTS) {
-    Object.assign(state, { screen: SCREEN.TOPICS, questions: [], answers: [], currentIndex: 0, score: 0, quizType: null, quizConfig: {}, quizAttemptId: null, flaggedQuestions: new Set() });
+    Object.assign(state, {
+      screen: SCREEN.TOPICS,
+      questions: [],
+      answers: [],
+      currentIndex: 0,
+      score: 0,
+      quizType: null,
+      quizConfig: {},
+      quizAttemptId: null,
+      flaggedQuestions: new Set()
+    });
     render();
   }
-  
+
   if (target.id === 'manage-cards-btn') {
     state.screen = SCREEN.MANAGE;
     render();
   } else if (target.id === 'back-to-learning') {
-      state.screen = SCREEN.LEARNING;
-      render();
+    state.screen = SCREEN.LEARNING;
+    render();
   }
 
 
@@ -938,7 +1069,9 @@ function handleAppClick(event) {
 }
 
 function startQuiz(questionList, quizDetails) {
-  state.questions = questionList.map(q => ({...q, id: q.id || `${q.question.slice(0, 20)}-${Math.random()}`})) || [];
+  state.questions = questionList.map(q => ({ ...q,
+    id: q.id || `${q.question.slice(0, 20)}-${Math.random()}`
+  })) || [];
   state.answers = new Array(state.questions.length).fill(null);
   state.currentIndex = 0;
   state.score = 0;
@@ -953,102 +1086,106 @@ function startQuiz(questionList, quizDetails) {
     const flaggedIds = attempt.questions.filter(q => q.flagged).map(q => q.id);
     state.flaggedQuestions = new Set(flaggedIds);
   }
-  
+
   render();
 }
 
 function startFlashcardSession(chapter) {
-    const progress = progressService.getProgress();
-    const chapterProgress = progress.chapters[chapter.id] || { flashcards: {} };
-    const now = new Date().toISOString();
+  const progress = progressService.getProgress();
+  const chapterProgress = progress.chapters[chapter.id] || {
+    flashcards: {}
+  };
+  const now = new Date().toISOString();
 
-    const dueCards = chapter.flashcards.filter(card => {
-        const cardProgress = chapterProgress.flashcards[card.id];
-        return !cardProgress || !cardProgress.nextReviewDate || cardProgress.nextReviewDate <= now;
-    });
+  const dueCards = chapter.flashcards.filter(card => {
+    const cardProgress = chapterProgress.flashcards[card.id];
+    return !cardProgress || !cardProgress.nextReviewDate || cardProgress.nextReviewDate <= now;
+  });
 
-    state.flashcardSession = {
-        cards: sampleFromPool(dueCards, dueCards.length),
-        currentIndex: 0,
-        isFlipped: false,
-    };
-    state.screen = SCREEN.LEARNING;
-    render();
+  state.flashcardSession = {
+    cards: sampleFromPool(dueCards, dueCards.length),
+    currentIndex: 0,
+    isFlipped: false,
+  };
+  state.screen = SCREEN.LEARNING;
+  render();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    state.root = qs("#app");
-    
-    document.body.addEventListener('click', (event) => {
-        if (event.target.closest('#app') || event.target.closest('header') || event.target.closest('.modal')) {
-             handleAppClick(event);
-        }
-    });
+  state.root = qs("#app");
 
-    render();
+  document.body.addEventListener('click', (event) => {
+    if (event.target.closest('#app') || event.target.closest('header') || event.target.closest('.modal')) {
+      handleAppClick(event);
+    }
+  });
+
+  render();
 });
 
 
 document.addEventListener('keydown', (e) => {
-    if (state.screen === SCREEN.LEARNING && state.flashcardSession.isFlipped) {
-        const confidence = parseInt(e.key, 10);
-        if (confidence >= 1 && confidence <= 5) {
-            const { id: cardId } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
-            const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
-            progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
-            state.flashcardSession.currentIndex++;
-            state.flashcardSession.isFlipped = false;
-            render();
-        }
+  if (state.screen === SCREEN.LEARNING && state.flashcardSession.isFlipped) {
+    const confidence = parseInt(e.key, 10);
+    if (confidence >= 1 && confidence <= 5) {
+      const {
+        id: cardId
+      } = state.flashcardSession.cards[state.flashcardSession.currentIndex];
+      const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
+      progressService.updateFlashcardConfidence(chapter.id, chapter.title, cardId, confidence);
+      state.flashcardSession.currentIndex++;
+      state.flashcardSession.isFlipped = false;
+      render();
     }
+  }
 
-    if (FEATURE_FLAG_QUESTION_FLAGGING && state.screen === SCREEN.QUIZ && e.key.toLowerCase() === 'f') {
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
-            return;
-        }
-        e.preventDefault();
-        const flagBtn = qs('#flag-btn');
-        if (flagBtn) {
-            flagBtn.click();
-        }
+  if (FEATURE_FLAG_QUESTION_FLAGGING && state.screen === SCREEN.QUIZ && e.key.toLowerCase() === 'f') {
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+      return;
     }
+    e.preventDefault();
+    const flagBtn = qs('#flag-btn');
+    if (flagBtn) {
+      flagBtn.click();
+    }
+  }
 });
 
 let draggedCard = null;
 
 document.addEventListener('dragstart', (e) => {
-    if (e.target.dataset.cardId) {
-        draggedCard = e.target;
-        e.target.style.opacity = '0.5';
-    }
+  if (e.target.dataset.cardId) {
+    draggedCard = e.target;
+    e.target.style.opacity = '0.5';
+  }
 });
 
 document.addEventListener('dragend', (e) => {
-    if (e.target.dataset.cardId) {
-        e.target.style.opacity = '1';
-    }
+  if (e.target.dataset.cardId) {
+    e.target.style.opacity = '1';
+  }
 });
 
 document.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    const dropZone = e.target.closest('[data-status]');
-    if (dropZone) {
-        // can add visual feedback here
-    }
+  e.preventDefault();
+  const dropZone = e.target.closest('[data-status]');
+  if (dropZone) {
+    // can add visual feedback here
+  }
 });
 
 document.addEventListener('drop', (e) => {
-    e.preventDefault();
-    if (draggedCard) {
-        const dropZone = e.target.closest('[data-status] .card-list');
-        if (dropZone) {
-            const newStatus = dropZone.parentElement.dataset.status;
-            const cardId = draggedCard.dataset.cardId;
-            const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
+  e.preventDefault();
+  if (draggedCard) {
+    const dropZone = e.target.closest('[data-status] .card-list');
+    if (dropZone) {
+      const newStatus = dropZone.parentElement.dataset.status;
+      const cardId = draggedCard.dataset.cardId;
+      const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
 
-            progressService.updateCardStatus(chapter.id, cardId, newStatus);
-            dropZone.appendChild(draggedCard);
-            draggedCard = null;
-        }
+      progressService.updateCardStatus(chapter.id, cardId, newStatus);
+      dropZone.appendChild(draggedCard);
+      draggedCard = null;
     }
+  }
 });

@@ -1,6 +1,10 @@
 // js/services/progressService.js
-import { calculateNextReview } from '../utils/spacedRepetition.js';
-import { STORAGE_KEY } from '../config.js';
+import {
+  calculateNextReview
+} from '../utils/spacedRepetition.js';
+import {
+  STORAGE_KEY
+} from '../config.js';
 
 const getInitialData = () => ({
   chapters: {},
@@ -34,7 +38,10 @@ export function getOrCreateQuizAttempt(attemptId, questions = []) {
   if (!progress.quizAttempts[attemptId]) {
     progress.quizAttempts[attemptId] = {
       id: attemptId,
-      questions: questions.map(q => ({ id: q.id, flagged: false })),
+      questions: questions.map(q => ({
+        id: q.id,
+        flagged: false
+      })),
       startTime: new Date().toISOString(),
       completed: false,
     };
@@ -56,19 +63,23 @@ export function updateFlagStatus(attemptId, questionId, isFlagged) {
 }
 
 export function completeQuizAttempt(attemptId) {
-    const progress = getProgress();
-    const attempt = progress.quizAttempts?.[attemptId];
-    if (attempt) {
-        attempt.completed = true;
-        saveProgress(progress);
-    }
+  const progress = getProgress();
+  const attempt = progress.quizAttempts?.[attemptId];
+  if (attempt) {
+    attempt.completed = true;
+    saveProgress(progress);
+  }
 }
 
 export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, rating) {
   const progress = getProgress();
 
   if (!progress.chapters[chapterId]) {
-    progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: chapterTitle };
+    progress.chapters[chapterId] = {
+      mastery: 0,
+      flashcards: {},
+      title: chapterTitle
+    };
   }
 
   let card = progress.chapters[chapterId].flashcards[cardId] || {
@@ -82,7 +93,7 @@ export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, ratin
 
   card = calculateNextReview(card, rating);
   card.confidence = rating;
-  
+
   if (rating >= 4) {
     card.status = 'mastered';
   } else if (rating >= 2) {
@@ -103,11 +114,11 @@ export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, ratin
 }
 
 export function updateCardStatus(chapterId, cardId, newStatus) {
-    const progress = getProgress();
-    if (progress.chapters[chapterId] && progress.chapters[chapterId].flashcards[cardId]) {
-        progress.chapters[chapterId].flashcards[cardId].status = newStatus;
-        saveProgress(progress);
-    }
+  const progress = getProgress();
+  if (progress.chapters[chapterId] && progress.chapters[chapterId].flashcards[cardId]) {
+    progress.chapters[chapterId].flashcards[cardId].status = newStatus;
+    saveProgress(progress);
+  }
 }
 
 export function logActivity(activityItem) {
@@ -129,18 +140,22 @@ export function resetProgress() {
 }
 
 export function cacheAiExplanation(chapterId, cardId, promptType, explanation) {
-    const progress = getProgress();
-    if (!progress.chapters[chapterId]) {
-        progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: '' };
-    }
-    if (!progress.chapters[chapterId].flashcards[cardId]) {
-        progress.chapters[chapterId].flashcards[cardId] = {};
-    }
-    if (!progress.chapters[chapterId].flashcards[cardId].aiExplanations) {
-        progress.chapters[chapterId].flashcards[cardId].aiExplanations = {};
-    }
-    progress.chapters[chapterId].flashcards[cardId].aiExplanations[promptType] = explanation;
-    saveProgress(progress);
+  const progress = getProgress();
+  if (!progress.chapters[chapterId]) {
+    progress.chapters[chapterId] = {
+      mastery: 0,
+      flashcards: {},
+      title: ''
+    };
+  }
+  if (!progress.chapters[chapterId].flashcards[cardId]) {
+    progress.chapters[chapterId].flashcards[cardId] = {};
+  }
+  if (!progress.chapters[chapterId].flashcards[cardId].aiExplanations) {
+    progress.chapters[chapterId].flashcards[cardId].aiExplanations = {};
+  }
+  progress.chapters[chapterId].flashcards[cardId].aiExplanations[promptType] = explanation;
+  saveProgress(progress);
 }
 
 /**
@@ -152,7 +167,11 @@ export function cacheAiExplanation(chapterId, cardId, promptType, explanation) {
 export function saveFlashcardNote(chapterId, cardId, noteText) {
   const progress = getProgress();
   if (!progress.chapters[chapterId]) {
-    progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: '' };
+    progress.chapters[chapterId] = {
+      mastery: 0,
+      flashcards: {},
+      title: ''
+    };
   }
   if (!progress.chapters[chapterId].flashcards[cardId]) {
     progress.chapters[chapterId].flashcards[cardId] = {};
