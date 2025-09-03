@@ -2,12 +2,12 @@
   "title": "Chapter 2: The Insurance Market",
   "questions": [
     { "type": "mcq", "concept": "Reinsurers are 'insurers for insurers', helping them manage very large risks.", "question": "A large corporation wants to insure a new billion-dollar factory. Their insurer might spread this massive risk by purchasing insurance for themselves from what type of entity?", "options": ["An aggregator", "A reinsurer", "A loss adjuster", "A captive insurer"], "correctAnswer": "A reinsurer", "explanation": "Correct! Reinsurers provide insurance for insurance companies." },
-    { "type": "fill", "concept": "Lloyd's of London is not an insurance company but a marketplace where members (syndicates) underwrite risks.", "question": "At Lloyd's, the groups of private individuals or corporate members who actually carry the risks are called ________.", "correctAnswer": "syndicates", "explanation": "Correct. The capital is provided by the members, who form syndicates to underwrite insurance risks." },
+    { "type": "mcq", "concept": "Lloyd's of London is not an insurance company but a marketplace where members (syndicates) underwrite risks.", "question": "At Lloyd's, the groups of private individuals or corporate members who actually carry the risks are called ________.", "options": ["Brokers", "Syndicates", "Managing Agents", "Names"], "correctAnswer": "Syndicates", "explanation": "Correct. The capital is provided by the members, who form syndicates to underwrite insurance risks." },
     { "type": "mcq", "concept": "A captive insurer is a subsidiary company established by a large parent company to insure its own risks.", "question": "What is a primary advantage for a large corporation to set up a captive insurer?", "options": ["To sell insurance to the general public", "To gain direct access to reinsurance markets and potentially lower costs", "To avoid all regulatory oversight", "To eliminate the need for any risk management"], "correctAnswer": "To gain direct access to reinsurance markets and potentially lower costs", "explanation": "Exactly. Captives can offer tailored coverage and access reinsurance more efficiently." },
     { "type": "mcq", "concept": "A loss adjuster is an independent expert appointed by an insurer to investigate a claim.", "question": "After a major fire at a factory, who would the insurer most likely appoint to investigate the circumstances and recommend a settlement amount?", "options": ["A loss assessor", "A loss adjuster", "An actuary", "A compliance officer"], "correctAnswer": "A loss adjuster", "explanation": "Correct. A loss adjuster works on behalf of the insurer, whereas a loss assessor works for the policyholder." },
-    { "type": "fill", "concept": "An underwriter assesses risks and decides whether to accept them.", "question": "The key professional role responsible for assessing a risk and deciding the terms and premium is the ________.", "correctAnswer": "underwriter", "explanation": "Correct. The underwriter is central to the process of accepting and pricing risk." },
+    { "type": "mcq", "concept": "An underwriter assesses risks and decides whether to accept them.", "question": "The key professional role responsible for assessing a risk and deciding the terms and premium is the ________.", "options": ["Claims Handler", "Loss Adjuster", "Underwriter", "Actuary"], "correctAnswer": "Underwriter", "explanation": "Correct. The underwriter is central to the process of accepting and pricing risk." },
     { "type": "mcq", "concept": "Mutual companies are owned by their policyholders.", "question": "An insurance company that is owned by its policyholders rather than shareholders is known as a:", "options": ["Proprietary company", "Captive company", "Mutual company", "Composite company"], "correctAnswer": "Mutual company", "explanation": "Correct. In a mutual company, profits are typically returned to policyholders in some form." },
-    { "type": "fill", "concept": "Bancassurance is the sale of insurance products through a bank's distribution channels.", "question": "The arrangement between a bank and an insurer to sell insurance products to the bank's customers is called ________.", "correctAnswer": "bancassurance", "explanation": "That's right. Bancassurance is a major distribution channel in many markets." },
+    { "type": "mcq", "concept": "Bancassurance is the sale of insurance products through a bank's distribution channels.", "question": "The arrangement between a bank and an insurer to sell insurance products to the bank's customers is called ________.", "options": ["Reinsurance", "Bancassurance", "Direct Insurance", "Co-insurance"], "correctAnswer": "Bancassurance", "explanation": "That's right. Bancassurance is a major distribution channel in many markets." },
     { "type": "mcq", "concept": "Takaful is a type of insurance compliant with Islamic Sharia law.", "question": "What type of insurance is based on the principle that risk and profit should be shared between participants in line with Islamic law?", "options": ["Composite insurance", "Takaful insurance", "Mutual insurance", "Captive insurance"], "correctAnswer": "Takaful insurance", "explanation": "Correct. Takaful avoids elements like uncertainty (Gharar) and gambling (Maysir) found in conventional insurance." },
     { "type": "mcq", "concept": "Intermediaries", "question": "Someone who helps a household find suitable cover by placing business with insurers is best described as a:", "options": ["Compliance officer", "Insurance broker", "Loss assessor", "Risk manager"], "correctAnswer": "Insurance broker", "explanation": "Brokers act for clients in placing insurance with insurers." },
     { "type": "mcq", "concept": "Loss Assessor", "question": "Who would a policyholder hire to prepare and negotiate their claim with the insurer?", "options": ["Loss assessor", "Loss adjuster", "Actuary", "Underwriter"], "correctAnswer": "Loss assessor", "explanation": "Assessors are engaged by the insured; adjusters by the insurer." },
@@ -22,7 +22,35 @@
     { "type": "mcq", "concept": "Roles", "question": "Who ultimately decides if a proposed risk is accepted and on what terms?", "options": ["Actuary", "Underwriter", "Loss assessor", "Risk manager"], "correctAnswer": "Underwriter", "explanation": "Underwriters accept/decline risks and set pricing/terms." },
     { "type": "mcq", "concept": "What is Lloyd’s?", "question": "Lloyd’s is best described as:", "options": ["An insurance regulator", "An insurance company", "An insurance market", "A single underwriting syndicate"], "correctAnswer": "An insurance market", "explanation": "It is a marketplace where multiple syndicates underwrite." },
     { "type": "mcq", "concept": "Claims FNOL", "question": "The first job of a call-centre handler when a customer reports a motor accident is to take:", "options": ["Renewal premium", "A statement from witnesses", "First notification of loss details", "The salvage value"], "correctAnswer": "First notification of loss details", "explanation": "FNOL intake initiates the claims process." },
-    { "type": "mcq", "concept": "Claims leakage", "question": "Avoidable overpayments on claims are referred to as:", "options": ["Average", "Leakage", "Subrogation", "Indemnity"], "correctAnswer": "Leakage", "explanation": "‘Leakage’ is the industry term for preventable overpayment." }
+    { "type": "mcq", "concept": "Claims leakage", "question": "Avoidable overpayments on claims are referred to as:", "options": ["Average", "Leakage", "Subrogation", "Indemnity"], "correctAnswer": "Leakage", "explanation": "‘Leakage’ is the industry term for preventable overpayment." },
+    {
+      "type": "mcq",
+      "loId": "2.3",
+      "concept": "Lloyd's Structure",
+      "question": "Within the Lloyd's market, who is responsible for appointing the underwriter and managing a syndicate on behalf of the capital providers?",
+      "options": [
+        "The Council of Lloyd's",
+        "A Members' Agent",
+        "A Managing Agent",
+        "A Lloyd's Broker"
+      ],
+      "correctAnswer": "A Managing Agent",
+      "explanation": "The managing agent is a company that manages one or more syndicates, including the critical function of appointing the underwriter to accept risks."
+    },
+    {
+      "type": "mcq",
+      "loId": "2.3",
+      "concept": "Lloyd's Broker Role",
+      "question": "A risk is placed at Lloyd's by creating a Market Reform Contract (slip) which is then taken to an underwriter. Who traditionally performs this role?",
+      "options": [
+        "A Loss Adjuster",
+        "A Lloyd's Broker",
+        "A Managing Agent",
+        "The client directly"
+      ],
+      "correctAnswer": "A Lloyd's Broker",
+      "explanation": "Accredited Lloyd's brokers are specialists who represent the client and have expertise in placing risks within the Lloyd's market."
+    }
   ],
   "flashcards": [
     { "id": 8, "term": "Reinsurance", "definition": "Insurer transfers part of a risk to another insurer (the reinsurer) to manage exposure." },
@@ -33,6 +61,8 @@
     { "id": 40, "term": "Loss Assessor", "definition": "Represents policyholders in preparing and negotiating claims." },
     { "id": 41, "term": "Underwriter", "definition": "Accepts or declines risks and sets terms/premiums." },
     { "id": 110, "term": "Names (Lloyd's)", "definition": "Members providing capital to syndicates; bear underwriting risk." },
-    { "id": 139, "term": "Claims Leakage", "definition": "Avoidable overpayment on claims versus what should have been paid." }
+    { "id": 139, "term": "Claims Leakage", "definition": "Avoidable overpayment on claims versus what should have been paid." },
+    { "id": "ch2_lo2_3_1", "loId": "2.3", "term": "Lloyd's Syndicate", "definition": "A group of members, either individuals or corporate, who provide the capital to underwrite insurance risks at Lloyd's." },
+    { "id": "ch2_lo2_3_2", "loId": "2.3", "term": "Lloyd's Managing Agent", "definition": "A company that manages one or more syndicates, responsible for employing underwriters, handling claims, and managing the syndicate's infrastructure." }
   ]
 }

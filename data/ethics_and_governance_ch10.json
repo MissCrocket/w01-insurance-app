@@ -96,17 +96,32 @@
       "type": "fill",
       "concept": "Principle recall",
       "question": "Treating customers ________ is a core ethical expectation.",
-      "correctAnswer": ["fairly"],
+      "correctAnswer": "fairly",
       "explanation": "Fair treatment underpins codes of ethics and conduct regulation."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.4",
+      "concept": "Internal Control Systems",
+      "question": "An insurance company requires that all payments over £10,000 must be authorised by two senior managers. This is an example of:",
+      "options": [
+        "A compliance function",
+        "An internal control system",
+        "A risk management framework",
+        "An internal audit"
+      ],
+      "correctAnswer": "An internal control system",
+      "explanation": "This is a specific procedure within the internal control system designed to prevent fraud and error."
     }
   ],
   "flashcards": [
-    { "term": "CII Code – 5 Principles", "definition": "Comply with laws & Code; act with integrity; act in clients’ best interests; provide high service; treat people fairly." },
-    { "term": "Fit & Proper", "definition": "Honesty, competence, financial soundness, suitability for the role." },
-    { "term": "Compliance vs Audit", "definition": "Compliance = rules & monitoring; Internal Audit = independent assurance over controls." },
-    { "term": "Complaints Handling", "definition": "Log → investigate → respond → escalate/redress where appropriate." },
-    { "term": "Conflicts of Interest", "definition": "Disclose and manage/avoid per policy; prioritise client interests and fairness." },
-    { "term": "ESG", "definition": "Environmental, Social, Governance considerations in ethics and oversight." },
-    { "term": "GDPR Accuracy Principle", "definition": "Personal data must be accurate, up-to-date, and processed lawfully and fairly." }
+    { "id": "ch10_1", "term": "CII Code – 5 Principles", "definition": "Comply with laws & Code; act with integrity; act in clients’ best interests; provide high service; treat people fairly." },
+    { "id": "ch10_2", "term": "Fit & Proper", "definition": "Honesty, competence, financial soundness, suitability for the role." },
+    { "id": "ch10_3", "term": "Compliance vs Audit", "definition": "Compliance = rules & monitoring; Internal Audit = independent assurance over controls." },
+    { "id": "ch10_4", "term": "Complaints Handling", "definition": "Log → investigate → respond → escalate/redress where appropriate." },
+    { "id": "ch10_5", "term": "Conflicts of Interest", "definition": "Disclose and manage/avoid per policy; prioritise client interests and fairness." },
+    { "id": "ch10_6", "term": "ESG", "definition": "Environmental, Social, Governance considerations in ethics and oversight." },
+    { "id": "ch10_7", "term": "GDPR Accuracy Principle", "definition": "Personal data must be accurate, up-to-date, and processed lawfully and fairly." },
+    { "id": "ch10_lo5_4_1", "loId": "5.4", "term": "Internal Control System", "definition": "The whole system of controls, financial and otherwise, established by management to carry on the business in an orderly and efficient manner, ensure adherence to policies, safeguard assets, and secure the completeness and accuracy of records." }
   ]
 }

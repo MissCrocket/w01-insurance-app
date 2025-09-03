@@ -1,5 +1,11 @@
 {
   "title": "Chapter 1: Risk and Insurance",
+  "los": [
+    {"id": "1.3", "description": "Risk Management Function and Process"},
+    {"id": "1.6", "description": "The Need for Insurance"},
+    {"id": "1.7", "description": "Co-insurance, Dual Insurance, and Self-insurance"},
+    {"id": "1.8", "description": "Main Classes of Insurance"}
+  ],
   "questions": [
     {
       "type": "mcq",
@@ -13,6 +19,286 @@
       ],
       "correctAnswer": "The thing being insured (the offices)",
       "explanation": "Correct! In insurance jargon, 'a risk' often refers to the subject-matter of the insurance."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.3",
+      "concept": "Risk Management Process",
+      "question": "What are the three key steps in the risk management process?",
+      "options": [
+        "Risk Identification, Risk Analysis, and Risk Control",
+        "Risk Transfer, Risk Avoidance, and Risk Acceptance",
+        "Risk Assessment, Risk Mitigation, and Risk Reporting",
+        "Risk Identification, Risk Funding, and Risk Review"
+      ],
+      "correctAnswer": "Risk Identification, Risk Analysis, and Risk Control",
+      "explanation": "The core process involves identifying potential risks, analyzing their potential impact, and implementing measures to control them."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.3",
+      "concept": "Risk Control",
+      "question": "Installing a fire alarm and sprinkler system in a building is an example of which risk management technique?",
+      "options": [
+        "Risk Avoidance",
+        "Risk Transfer",
+        "Physical Risk Control",
+        "Financial Risk Control"
+      ],
+      "correctAnswer": "Physical Risk Control",
+      "explanation": "This is a physical measure taken to reduce the likelihood and severity of a loss from fire."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.3",
+      "concept": "Risk Analysis",
+      "question": "When a risk manager examines past data to predict the frequency and severity of future losses, which part of the risk management process are they conducting?",
+      "options": [
+        "Risk Identification",
+        "Risk Control",
+        "Risk Analysis",
+        "Risk Transfer"
+      ],
+      "correctAnswer": "Risk Analysis",
+      "explanation": "Risk analysis involves evaluating risks, often by using historical data to forecast future outcomes."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.6",
+      "concept": "Need for Insurance",
+      "question": "What is the primary function of insurance in the context of risk management?",
+      "options": [
+        "To eliminate all possibility of a loss occurring.",
+        "To act as a risk transfer mechanism.",
+        "To generate profit for the policyholder through claims.",
+        "To provide a government-mandated savings plan."
+      ],
+      "correctAnswer": "To act as a risk transfer mechanism.",
+      "explanation": "Insurance allows an individual or entity to transfer the financial consequences of a large, unknown potential loss to an insurer in exchange for a smaller, certain premium."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.7",
+      "concept": "Self-insurance",
+      "question": "A large retail chain decides to set aside a dedicated fund to pay for minor shoplifting losses instead of buying a specific insurance policy. This is an example of:",
+      "options": [
+        "Co-insurance",
+        "Dual insurance",
+        "Self-insurance",
+        "Reinsurance"
+      ],
+      "correctAnswer": "Self-insurance",
+      "explanation": "Self-insurance is the practice of retaining a risk and making one's own financial arrangements to cover any potential losses."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.7",
+      "concept": "Dual Insurance",
+      "question": "A person has their laptop covered under both their home contents policy and a separate travel insurance policy. This situation is known as:",
+      "options": [
+        "Self-insurance",
+        "Co-insurance",
+        "Double Insurance",
+        "Dual Insurance"
+      ],
+      "correctAnswer": "Dual Insurance",
+      "explanation": "Dual insurance exists when two or more policies are in force that cover the same risk. The principle of contribution would apply in the event of a claim."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.7",
+      "concept": "Co-insurance",
+      "question": "A very large industrial risk is insured with Insurer A taking 50%, Insurer B taking 30%, and Insurer C taking 20%. This arrangement is called:",
+      "options": [
+        "Dual insurance",
+        "Co-insurance",
+        "Self-insurance",
+        "Layered insurance"
+      ],
+      "correctAnswer": "Co-insurance",
+      "explanation": "Co-insurance is when multiple insurers share a single risk, each taking a specified percentage."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.8",
+      "concept": "Classes of Insurance",
+      "question": "Which class of insurance provides cover for legal liability to pay damages to a member of the public for injury or property damage?",
+      "options": [
+        "Property insurance",
+        "Pecuniary insurance",
+        "Liability insurance",
+        "Marine insurance"
+      ],
+      "correctAnswer": "Liability insurance",
+      "explanation": "Public liability insurance is a key example of this class, covering liability to third parties."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.8",
+      "concept": "Classes of Insurance",
+      "question": "Business interruption insurance, which covers loss of income after a fire, falls into which main class of insurance?",
+      "options": [
+        "Property insurance",
+        "Pecuniary insurance",
+        "Liability insurance",
+        "Accident insurance"
+      ],
+      "correctAnswer": "Pecuniary insurance",
+      "explanation": "Pecuniary insurance relates to financial losses, such as loss of profit or revenue, rather than physical damage to property."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.3",
+      "concept": "Risk Transfer",
+      "question": "Purchasing an insurance policy is a form of:",
+      "options": [
+        "Risk Retention",
+        "Risk Control",
+        "Risk Avoidance",
+        "Risk Transfer"
+      ],
+      "correctAnswer": "Risk Transfer",
+      "explanation": "It transfers the financial risk from the policyholder to the insurer."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.7",
+      "concept": "Self-insurance vs Non-insurance",
+      "question": "What is the key difference between self-insurance and non-insurance?",
+      "options": [
+        "There is no difference.",
+        "Self-insurance involves creating a formal plan and fund to meet losses, whereas non-insurance is simply ignoring the risk.",
+        "Non-insurance is only for small risks.",
+        "Self-insurance is illegal for corporations."
+      ],
+      "correctAnswer": "Self-insurance involves creating a formal plan and fund to meet losses, whereas non-insurance is simply ignoring the risk.",
+      "explanation": "Self-insurance is a conscious risk retention strategy, while non-insurance is the absence of a strategy."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.7",
+      "concept": "Policy Excess",
+      "question": "The excess on a motor policy, where the policyholder pays the first £250 of any claim, is a form of:",
+      "options": [
+        "Co-insurance",
+        "Partial self-insurance",
+        "Dual insurance",
+        "Non-insurance"
+      ],
+      "correctAnswer": "Partial self-insurance",
+      "explanation": "The policyholder is retaining a small, fixed part of the risk themselves."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.8",
+      "concept": "Classes of Insurance",
+      "question": "Employers' Liability insurance is an example of which main class?",
+      "options": [
+        "Property",
+        "Pecuniary",
+        "Liability",
+        "Engineering"
+      ],
+      "correctAnswer": "Liability",
+      "explanation": "It covers the employer's legal liability for injury to their employees."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.3",
+      "concept": "Risk Identification Methods",
+      "question": "Which of the following is a common method for risk identification in a commercial setting?",
+      "options": [
+        "Physical surveys of premises",
+        "Ignoring past incidents",
+        "Only considering financial reports",
+        "Guessing potential problems"
+      ],
+      "correctAnswer": "Physical surveys of premises",
+      "explanation": "Direct inspection and surveys are key techniques for identifying physical hazards and operational risks."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.6",
+      "concept": "Need for Insurance",
+      "question": "Why is insurance particularly important for new businesses?",
+      "options": [
+        "It guarantees they will make a profit.",
+        "It provides peace of mind and encourages enterprise by covering potentially catastrophic losses.",
+        "It is a free service provided by the government.",
+        "It replaces the need for any business planning."
+      ],
+      "correctAnswer": "It provides peace of mind and encourages enterprise by covering potentially catastrophic losses.",
+      "explanation": "Insurance makes it easier for new businesses to start by protecting them from risks that could otherwise bankrupt them."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.7",
+      "concept": "Contribution",
+      "question": "If a property is insured under two separate policies (dual insurance) and a valid claim occurs, which principle prevents the insured from recovering more than their actual loss?",
+      "options": [
+        "Subrogation",
+        "Indemnity",
+        "Contribution",
+        "Average"
+      ],
+      "correctAnswer": "Contribution",
+      "explanation": "The principle of contribution allows the two insurers to share the cost of the claim, ensuring the policyholder is indemnified but does not profit."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.8",
+      "concept": "Classes of Insurance",
+      "question": "Insurance covering physical damage to a ship's hull and machinery is part of which class of insurance?",
+      "options": [
+        "Aviation",
+        "Engineering",
+        "Marine",
+        "Property"
+      ],
+      "correctAnswer": "Marine",
+      "explanation": "Marine insurance is the specific class that covers ships, cargo, and related liabilities."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.3",
+      "concept": "Risk Management Function",
+      "question": "The overall goal of the risk management function within a company is to:",
+      "options": [
+        "Purchase as much insurance as possible.",
+        "Identify, analyse, and economically control risks that threaten the business.",
+        "Prevent all accidents from ever happening.",
+        "Handle all insurance claims."
+      ],
+      "correctAnswer": "Identify, analyse, and economically control risks that threaten the business.",
+      "explanation": "Risk management is a strategic function aimed at protecting the assets and earning power of a business."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.6",
+      "concept": "Social Benefits of Insurance",
+      "question": "Which of the following is a key social benefit of insurance?",
+      "options": [
+        "It makes people more careless.",
+        "It encourages business activity and helps keep people in employment after a loss.",
+        "It lowers the price of all goods and services.",
+        "It is a method for redistributing wealth."
+      ],
+      "correctAnswer": "It encourages business activity and helps keep people in employment after a loss.",
+      "explanation": "By providing a safety net, insurance fosters economic stability and growth."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.8",
+      "concept": "Personal vs Commercial Lines",
+      "question": "Motor and home insurance are typically referred to as:",
+      "options": [
+        "Commercial lines",
+        "Personal lines",
+        "Pecuniary lines",
+        "Specialty lines"
+      ],
+      "correctAnswer": "Personal lines",
+      "explanation": "Personal lines insurance is designed for individuals and families, as opposed to businesses."
     }
   ],
   "flashcards": [
@@ -20,6 +306,13 @@
       "id": 1,
       "term": "Risk",
       "definition": "Can refer to uncertainty, unpredictability, the possibility of loss, the chance of gain, the peril insured against, or the thing being insured."
-    }
+    },
+    { "id": "ch1_lo1_3_1", "loId": "1.3", "term": "Risk Management Process", "definition": "The three-stage process of (1) Risk Identification, (2) Risk Analysis (assessing frequency/severity), and (3) Risk Control (e.g., prevention, reduction, transfer)." },
+    { "id": "ch1_lo1_3_2", "loId": "1.3", "term": "Risk Control", "definition": "Actions taken to control, reduce, or eliminate risk. Can be physical (e.g., fire alarm) or financial (e.g., buying insurance)." },
+    { "id": "ch1_lo1_6_1", "loId": "1.6", "term": "Need for Insurance", "definition": "Insurance serves as a vital risk transfer mechanism, swapping a large, uncertain loss for a small, certain premium, thereby providing peace of mind and enabling economic activity." },
+    { "id": "ch1_lo1_7_1", "loId": "1.7", "term": "Self-insurance", "definition": "A formal strategy of retaining a risk and setting aside a fund from which to pay for any losses that occur." },
+    { "id": "ch1_lo1_7_2", "loId": "1.7", "term": "Co-insurance", "definition": "The sharing of a single risk between two or more insurers, each covering a stated percentage of that risk." },
+    { "id": "ch1_lo1_7_3", "loId": "1.7", "term": "Dual Insurance", "definition": "The situation where two or more separate insurance policies are in force covering the same interest in the same subject-matter." },
+    { "id": "ch1_lo1_8_1", "loId": "1.8", "term": "Main Classes of Insurance", "definition": "Includes Property, Pecuniary (financial), Liability, and Accident insurance. Can also be grouped into Personal and Commercial lines." }
   ]
 }

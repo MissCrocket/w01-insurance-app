@@ -107,15 +107,22 @@ function sampleFromPool(pool, n) {
 }
 
 function buildQuiz(config) {
-  const { chapters, type, chapterId, totalQuestions } = config;
+  const { chapters, type, chapterId, totalQuestions, customChapters } = config; // Add customChapters
   const allQuestions = [];
 
-  if (type === 'mock') {
+  // --- NEW CUSTOM QUIZ LOGIC ---
+  if (type === 'custom' && Array.isArray(customChapters)) {
+    const customPool = chapters
+      .filter(c => customChapters.includes(c.id))
+      .flatMap(c => mcqOnly(c.questions));
+    allQuestions.push(...sampleFromPool(customPool, Math.min(totalQuestions, customPool.length)));
+  // --- END NEW LOGIC ---
+  } else if (type === 'mock') {
     const withLOs = chapters.filter((c) => Array.isArray(c.los) && c.los.length);
     if (withLOs.length) {
         const flatLOs = [];
         withLOs.forEach((c) => {
-            c.los.forEach((lo) => {
+            (c.los || []).forEach((lo) => {
                 const poolSize = mcqOnly(c.questions).filter((q) => q.loId === lo.id).length;
                 flatLOs.push({ id: `${c.id}::${lo.id}`, weight: lo.weight || 0, poolSize, chapterId: c.id, loId: lo.id });
             });
@@ -156,14 +163,14 @@ function buildQuiz(config) {
   
   const uniq = new Map();
   allQuestions.forEach((q) => {
-      const key = q.id || `${q.text}::${JSON.stringify(q.options)}`;
+      const key = q.id || `${q.question}::${JSON.stringify(q.options)}`;
       if (!uniq.has(key)) uniq.set(key, q);
   });
   let uniqueList = Array.from(uniq.values());
 
   if (uniqueList.length < totalQuestions) {
       const flat = chapters.flatMap((c) => mcqOnly(c.questions));
-      const spare = flat.filter((q) => !uniqueList.includes(q));
+      const spare = flat.filter((q) => !uniqueList.find(uq => uq.question === q.question));
       uniqueList.push(...sampleFromPool(spare, totalQuestions - uniqueList.length));
   }
 
@@ -554,7 +561,8 @@ function renderQuiz() {
     if (state.questionState === Q_STATE.ANSWERED) {
       const userAnswer = state.answers[state.currentIndex];
       label.classList.add('is-disabled');
-      if (idx === q.correctIndex) {
+      const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
+      if (idx === correctIndex) {
         label.classList.add('is-correct');
       } else if (idx === userAnswer?.selectedIndex) {
         label.classList.add('is-incorrect');
@@ -580,7 +588,6 @@ function renderQuiz() {
 
 function renderFlagButton(questionId) {
     const isFlagged = state.flaggedQuestions.has(questionId);
-    // The <span> with the text has been removed from here
     return `
         <button type="button" class="flag-btn" id="flag-btn" data-question-id="${questionId}" aria-pressed="${isFlagged}" title="${isFlagged ? 'Remove flag (F)' : 'Mark for review (F)'}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
@@ -597,7 +604,6 @@ function renderQuizNavigation() {
         let itemClass = 'quiz-nav-item';
         if (isCurrent) itemClass += ' is-current';
         
-        // Logic to add correct/incorrect classes
         if (answerInfo) { 
             if (answerInfo.correct) {
                 itemClass += ' is-answered-correct';
@@ -606,7 +612,6 @@ function renderQuizNavigation() {
             }
         }
         
-        // The is-flagged class is now separate for the marker
         const flagMarker = isFlagged 
             ? '<svg class="flag-marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>' 
             : '';
@@ -663,15 +668,14 @@ function renderResults() {
     const item = document.createElement('div');
     item.className = 'result-item card';
     const userChoice = (answer && answer.selectedIndex !== undefined) ? q.options[answer.selectedIndex] : 'Not answered';
-    const correctChoice = q.options[q.correctIndex];
+    const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
+    const correctChoice = q.options[correctIndex];
     const isCorrect = answer?.correct;
     
-    // --- NEW: Add flag indicator in review ---
     const isFlagged = state.flaggedQuestions.has(q.id);
     const flagIndicator = FEATURE_FLAG_QUESTION_FLAGGING && isFlagged 
       ? `<svg class="inline-block w-5 h-5 ml-2 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>`
       : '';
-    // --- END NEW ---
 
     item.innerHTML = `
       <p class="result-item__question text-neutral-800 dark:text-white">${idx + 1}. ${q.question} ${flagIndicator}</p>
@@ -756,7 +760,7 @@ function handleAppClick(event) {
       startQuiz(questions, { type: 'mock', config: { totalQuestions: 50 } });
     } else if (state.mode === MODE.SPECIMEN) {
         const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
-        const questions = specimenChapter ? specimenChapter.questions : [];
+        const questions = specimenChapter ? mcqOnly(specimenChapter.questions) : [];
         startQuiz(questions, { type: 'specimen', config: { chapterId: 'specimen_exam', totalQuestions: questions.length } });
     } else {
       state.selectedChapterId = topicCard.dataset.chapterId;
@@ -765,7 +769,6 @@ function handleAppClick(event) {
     }
   }
   
-  // --- NEW: Flag Button Handler ---
   if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('#flag-btn')) {
     const btn = target.closest('#flag-btn');
     const questionId = btn.dataset.questionId;
@@ -780,15 +783,14 @@ function handleAppClick(event) {
     }
     
     progressService.updateFlagStatus(state.quizAttemptId, questionId, !isCurrentlyFlagged);
-    render(); // Re-render to update UI
+    render();
     return;
   }
   
-  // --- NEW: Quiz Navigation Jumps ---
   if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('.quiz-nav-item')) {
       const navItem = target.closest('.quiz-nav-item');
       const index = parseInt(navItem.dataset.index, 10);
-      if (index !== state.currentIndex) {
+      if (index >= 0 && index < state.questions.length && index !== state.currentIndex) {
           state.currentIndex = index;
           state.questionState = state.answers[index] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
           render();
@@ -834,7 +836,8 @@ function handleAppClick(event) {
     const label = target.closest('.option-label');
     const chosenIndex = parseInt(label.dataset.index, 10);
     const q = state.questions[state.currentIndex];
-    const isCorrect = chosenIndex === q.correctIndex;
+    const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
+    const isCorrect = chosenIndex === correctIndex;
     state.answers[state.currentIndex] = { qid: q.id, selectedIndex: chosenIndex, correct: isCorrect };
     state.questionState = Q_STATE.ANSWERED;
     render();
@@ -861,7 +864,6 @@ function handleAppClick(event) {
     render();
   }
   
-  // --- NEW: Submit Anyway and Review Flagged ---
   if (target.id === 'submit-anyway-btn') {
       progressService.completeQuizAttempt(state.quizAttemptId);
       qs('#flag-submit-modal').classList.add('hidden');
@@ -885,7 +887,7 @@ function handleAppClick(event) {
     let newQuestions;
     if (state.quizType === 'specimen') {
         const specimenChapter = getChaptersFromGlobal().find(c => c.id === 'specimen_exam');
-        newQuestions = specimenChapter ? specimenChapter.questions : [];
+        newQuestions = specimenChapter ? mcqOnly(specimenChapter.questions) : [];
     } else {
         newQuestions = buildQuiz({ chapters, ...state.quizConfig });
     }
@@ -919,7 +921,7 @@ function handleAppClick(event) {
 }
 
 function startQuiz(questionList, quizDetails) {
-  state.questions = questionList || [];
+  state.questions = questionList.map(q => ({...q, id: q.id || `${q.question.slice(0, 20)}-${Math.random()}`})) || [];
   state.answers = new Array(state.questions.length).fill(null);
   state.currentIndex = 0;
   state.score = 0;
@@ -928,14 +930,12 @@ function startQuiz(questionList, quizDetails) {
   state.quizType = quizDetails.type;
   state.quizConfig = quizDetails.config;
 
-  // --- NEW: Initialize attempt for flagging ---
   if (FEATURE_FLAG_QUESTION_FLAGGING) {
     state.quizAttemptId = `${quizDetails.type}-${quizDetails.config.chapterId || 'mock'}-${new Date().getTime()}`;
     const attempt = progressService.getOrCreateQuizAttempt(state.quizAttemptId, state.questions);
     const flaggedIds = attempt.questions.filter(q => q.flagged).map(q => q.id);
     state.flaggedQuestions = new Set(flaggedIds);
   }
-  // --- END NEW ---
   
   render();
 }
@@ -962,37 +962,11 @@ function startFlashcardSession(chapter) {
 document.addEventListener('DOMContentLoaded', () => {
     state.root = qs("#app");
     
-    // Use event delegation on a parent element that is always present
     document.body.addEventListener('click', (event) => {
-        const { target } = event;
-
-        if (target.closest('[data-screen]')) {
-            const screen = target.closest('[data-screen]').dataset.screen;
-            state.screen = screen;
-            render();
-            return;
+        if (event.target.closest('#app') || event.target.closest('header') || event.target.closest('.modal')) {
+             handleAppClick(event);
         }
-        
-        if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('#flag-btn')) {
-            const btn = target.closest('#flag-btn');
-            const questionId = btn.dataset.questionId;
-            const isCurrentlyFlagged = state.flaggedQuestions.has(questionId);
-            
-            if (isCurrentlyFlagged) {
-                state.flaggedQuestions.delete(questionId);
-                announce("Flag removed.");
-            } else {
-                state.flaggedQuestions.add(questionId);
-                announce("Flag added.");
-            }
-            
-            progressService.updateFlagStatus(state.quizAttemptId, questionId, !isCurrentlyFlagged);
-            render(); // Re-render to update UI
-            return;
-        }
-
-        handleAppClick(event);
-    }, { capture: true }); // Use capture phase to handle events before they are stopped by other listeners
+    });
 
     render();
 });
@@ -1028,25 +1002,37 @@ let draggedCard = null;
 document.addEventListener('dragstart', (e) => {
     if (e.target.dataset.cardId) {
         draggedCard = e.target;
+        e.target.style.opacity = '0.5';
+    }
+});
+
+document.addEventListener('dragend', (e) => {
+    if (e.target.dataset.cardId) {
+        e.target.style.opacity = '1';
     }
 });
 
 document.addEventListener('dragover', (e) => {
     e.preventDefault();
+    const dropZone = e.target.closest('[data-status]');
+    if (dropZone) {
+        // can add visual feedback here
+    }
 });
 
 document.addEventListener('drop', (e) => {
     e.preventDefault();
     if (draggedCard) {
-        const dropZone = e.target.closest('[data-status]');
+        const dropZone = e.target.closest('[data-status] .card-list');
         if (dropZone) {
-            const newStatus = dropZone.dataset.status;
+            const newStatus = dropZone.parentElement.dataset.status;
             const cardId = draggedCard.dataset.cardId;
             const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
 
             progressService.updateCardStatus(chapter.id, cardId, newStatus);
-            dropZone.querySelector('.card-list').appendChild(draggedCard);
+            dropZone.appendChild(draggedCard);
             draggedCard = null;
         }
     }
 });
+
