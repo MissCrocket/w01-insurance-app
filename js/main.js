@@ -636,7 +636,11 @@ function renderQuiz() {
 
   if (state.questionState === Q_STATE.ANSWERED) {
     const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
-    explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${q.explanation || 'No explanation provided. For more information, please see W01 ' + chapter.title + '.'}</p>${loIdText}`;
+    let explanationText = q.explanation || 'No explanation provided.';
+    if (!q.explanation && chapter) {
+        explanationText = 'No explanation provided. For more information, please see W01 ' + chapter.title + '.';
+    }
+    explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${explanationText}</p>${loIdText}`;
     explanationEl.hidden = false;
     if (isLastQuestion) {
       finishBtn.hidden = false;
