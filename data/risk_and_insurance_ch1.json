@@ -9,6 +9,7 @@
   "questions": [
     {
       "type": "mcq",
+      "loId": "1.1",
       "concept": "The term 'risk' in insurance can refer to the event being insured against, the object being insured, or the subject of the insurance as a whole.",
       "question": "An underwriter says 'we have received a large risk of three offices to insure.' In this context, what does 'risk' primarily refer to?",
       "options": [
@@ -304,6 +305,7 @@
   "flashcards": [
     {
       "id": 1,
+      "loId": "1.1",
       "term": "Risk",
       "definition": "Can refer to uncertainty, unpredictability, the possibility of loss, the chance of gain, the peril insured against, or the thing being insured."
     },

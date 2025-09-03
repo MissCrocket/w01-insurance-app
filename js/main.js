@@ -427,6 +427,11 @@ function renderLearning() {
         return wrap;
     }
 
+    const progress = progressService.getProgress();
+    const chapterProgress = progress.chapters[state.selectedChapterId] || { flashcards: {} };
+    const cardProgress = chapterProgress.flashcards[card.id] || {};
+    const noteText = cardProgress.note || '';
+
     const termSide = `
         <div class="text-center text-3xl font-bold text-white">${card.term}</div>
         <button class="btn mt-8 bg-amber-500 hover:bg-amber-600" id="reveal-btn">Reveal Answer</button>
@@ -444,12 +449,14 @@ function renderLearning() {
         </div>
 
         <div id="ai-response" class="w-full max-w-md mx-auto mt-3 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
+
+        <div class="w-full max-w-md mx-auto mt-4">
+            <label for="flashcard-notes" class="text-sm text-neutral-400">My Notes:</label>
+            <textarea id="flashcard-notes" class="w-full mt-1 p-2 rounded bg-neutral-800 border border-neutral-700 text-white focus:ring-amber-500 focus:border-amber-500" rows="3" placeholder="Add your personal notes here...">${noteText}</textarea>
+        </div>
     `;
     
-    const progress = progressService.getProgress();
     const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
-    const chapterProgress = progress.chapters[chapter.id] || { flashcards: {} };
-    const cardProgress = chapterProgress.flashcards[card.id];
     let cardStatus = 'new';
     if (cardProgress) {
         if (cardProgress.confidence >= 4) cardStatus = 'mastered';
@@ -489,6 +496,13 @@ function renderLearning() {
             <button data-confidence="5" class="confidence-btn bg-gradient-to-br from-blue-500 to-blue-700 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Perfect">Perfect</button>
         </div>
         `;
+
+        const notesInput = qs('#flashcard-notes', wrap);
+        notesInput.addEventListener('blur', () => {
+            progressService.saveFlashcardNote(state.selectedChapterId, card.id, notesInput.value);
+            showToast('Note saved!');
+        });
+
     } else {
         controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
     }
@@ -572,7 +586,8 @@ function renderQuiz() {
   });
 
   if (state.questionState === Q_STATE.ANSWERED) {
-    explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${q.explanation || 'No explanation provided.'}</p>`;
+    const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
+    explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${q.explanation || 'No explanation provided.'}</p>${loIdText}`;
     explanationEl.hidden = false;
     if (isLastQuestion) {
       finishBtn.hidden = false;
@@ -676,6 +691,7 @@ function renderResults() {
     const flagIndicator = FEATURE_FLAG_QUESTION_FLAGGING && isFlagged 
       ? `<svg class="inline-block w-5 h-5 ml-2 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z"/></svg>`
       : '';
+    const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
 
     item.innerHTML = `
       <p class="result-item__question text-neutral-800 dark:text-white">${idx + 1}. ${q.question} ${flagIndicator}</p>
@@ -686,6 +702,7 @@ function renderResults() {
         ${!isCorrect ? `<p class="text-green-600 dark:text-green-500"><strong>Correct answer:</strong> ${correctChoice}</p>` : ''}
         <div class="explanation-card !mt-3 text-sm">
           <p class="text-neutral-700 dark:text-neutral-300"><strong>Explanation:</strong> ${q.explanation}</p>
+          ${loIdText}
         </div>
       </div>
     `;
@@ -1035,4 +1052,3 @@ document.addEventListener('drop', (e) => {
         }
     }
 });
-
