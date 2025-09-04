@@ -50,6 +50,7 @@ const state = {
   // --- NEW for Results Filtering ---
   resultsFilter: 'all', // 'all', 'incorrect', 'flagged'
   isQuizNavVisible: false, // For mobile quiz nav
+  studyMode: false, // For "Try Again" feature
 };
 
 function getChaptersFromGlobal() {
@@ -725,6 +726,7 @@ function renderQuiz() {
               <div id="explanation-container" class="explanation-card" hidden></div>
             </article>
             <div class="quiz-actions mt-6 text-right">
+              <button class="btn" id="try-again-btn" hidden>Try Again</button>
               <button class="btn" id="next-btn" hidden>Next Question &rarr;</button>
               <button class="btn btn-primary" id="finish-btn" hidden>Finish Quiz</button>
             </div>
@@ -738,8 +740,11 @@ function renderQuiz() {
   const explanationEl = qs("#explanation-container", wrap);
   const nextBtn = qs("#next-btn", wrap);
   const finishBtn = qs("#finish-btn", wrap);
+  const tryAgainBtn = qs("#try-again-btn", wrap);
   const isLastQuestion = state.currentIndex === state.questions.length - 1;
   const chapter = getChaptersFromGlobal().find(c => c.id === q.chapterId);
+  const userAnswer = state.answers[state.currentIndex];
+  const isCorrect = userAnswer?.correct;
 
   (q?.options || []).forEach((optText, idx) => {
     const label = document.createElement("label");
@@ -756,7 +761,6 @@ function renderQuiz() {
     label.appendChild(input);
     label.appendChild(span);
     if (state.questionState === Q_STATE.ANSWERED) {
-      const userAnswer = state.answers[state.currentIndex];
       label.classList.add('is-disabled');
       const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
       if (idx === correctIndex) {
@@ -776,7 +780,10 @@ function renderQuiz() {
     }
     explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${explanationText}</p>${loIdText}`;
     explanationEl.hidden = false;
-    if (isLastQuestion) {
+    
+    if (state.studyMode && !isCorrect) {
+        tryAgainBtn.hidden = false;
+    } else if (isLastQuestion) {
       finishBtn.hidden = false;
     } else {
       nextBtn.hidden = false;
@@ -786,7 +793,7 @@ function renderQuiz() {
   if (state.questionState === Q_STATE.UNANSWERED) {
     announce("New question loaded.");
   } else {
-    const resultText = state.answers[state.currentIndex]?.correct ? 'Correct.' : 'Incorrect.';
+    const resultText = isCorrect ? 'Correct.' : 'Incorrect.';
     announce(resultText);
   }
   
@@ -1124,7 +1131,7 @@ function handleAppClick(event) {
     const chapter = chapters.find(c => c.id === chapterId);
     if (chapter) {
       const qsList = buildQuiz({ chapters, type: 'module', chapterId: chapter.id, totalQuestions: 10 });
-      startQuiz(qsList, { type: 'module', config: { chapterId: chapter.id, totalQuestions: 10 } });
+      startQuiz(qsList, { type: 'module', config: { chapterId: chapter.id, totalQuestions: 10 }, studyMode: true });
     }
     return;
   }
@@ -1180,7 +1187,8 @@ function handleAppClick(event) {
       config: {
         chapterId: chapter.id,
         totalQuestions: 15
-      }
+      },
+      studyMode: true,
     });
   }
 
@@ -1196,6 +1204,10 @@ function handleAppClick(event) {
       correct: isCorrect
     };
     state.questionState = Q_STATE.ANSWERED;
+    render();
+  } else if (target.id === 'try-again-btn') {
+    state.questionState = Q_STATE.UNANSWERED;
+    state.answers[state.currentIndex] = null; // Clear the previous incorrect answer
     render();
   } else if (target.id === 'next-btn') {
     state.currentIndex++;
@@ -1255,6 +1267,11 @@ function handleAppClick(event) {
 
   if (target.id === 'retry') {
     let newQuestions;
+    const retryConfig = {
+      type: state.quizType,
+      config: state.quizConfig,
+      studyMode: state.quizType === 'module',
+    };
     if (state.quizType === 'specimen') {
        const chapters = getChaptersFromGlobal();
        newQuestions = buildQuiz({ chapters, type: 'specimen', totalQuestions: 100 });
@@ -1264,10 +1281,7 @@ function handleAppClick(event) {
         ...state.quizConfig
       });
     }
-    startQuiz(newQuestions, {
-      type: state.quizType,
-      config: state.quizConfig
-    });
+    startQuiz(newQuestions, retryConfig);
   } else if (target.id === 'back' && state.screen === SCREEN.RESULTS) {
     Object.assign(state, {
       screen: SCREEN.TOPICS,
@@ -1329,6 +1343,7 @@ function startQuiz(questionList, quizDetails) {
   state.questionState = Q_STATE.UNANSWERED;
   state.quizType = quizDetails.type;
   state.quizConfig = quizDetails.config;
+  state.studyMode = quizDetails.studyMode || false;
   state.resultsFilter = 'all'; // Reset filter on new quiz start
   state.isQuizNavVisible = false; // Ensure nav is hidden by default on mobile
 
@@ -1339,7 +1354,7 @@ function startQuiz(questionList, quizDetails) {
     state.flaggedQuestions = new Set(flaggedIds);
   }
   
-  progressService.saveLastActivity({ type: 'quiz', chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title, config: quizDetails.config });
+  progressService.saveLastActivity({ type: 'quiz', chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title, config: quizDetails.config, studyMode: state.studyMode });
   render();
 }
 

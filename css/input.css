@@ -13,7 +13,7 @@
   .nav-link { @apply text-neutral-300 hover:text-white transition-colors min-h-[44px] flex items-center px-2; }
   
   .section-title { @apply text-xl md:text-2xl font-semibold text-neutral-900 dark:text-white; }
-  .muted { @apply text-neutral-600 dark:text-neutral-400; }
+  .muted { @apply text-neutral-600 dark:text-neutral-300; }
 
   /* [ACCESSIBILITY] Increased touch target size for options */
   .option-label { @apply flex items-center gap-4 border border-neutral-300 dark:border-neutral-700 rounded-xl p-4 cursor-pointer transition hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-white min-h-[44px]; }
@@ -27,7 +27,7 @@
   .results-list { @apply mt-6 space-y-8; }
   .result-item { @apply p-4 border border-neutral-200 dark:border-neutral-700 rounded-xl; }
   .result-item__question { @apply font-semibold text-neutral-800 dark:text-neutral-200; }
-  .result-item__answer { @apply mt-2 text-sm; }
+  .result-item__answer { @apply mt-2 text-sm text-neutral-600 dark:text-neutral-300; }
   
   .question-text { @apply pr-16; }
   
