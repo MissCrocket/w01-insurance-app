@@ -757,6 +757,7 @@ function renderQuiz() {
       ${timerHTML}
       ${quizNavToggleHTML}
     </div>
+    <div id="pre-exam-notice" class="card text-center bg-amber-500/10 border-amber-500/50 text-amber-200 my-4"></div>
     <div class="w-full bg-neutral-700 rounded-full h-2.5 mt-4">
         <div class="bg-brand h-2.5 rounded-full" style="width: ${progressPercent}%"></div>
     </div>
@@ -785,6 +786,13 @@ function renderQuiz() {
         ${quizNavHTML}
     </div>
   `;
+
+  const noticeEl = qs("#pre-exam-notice", wrap);
+  if (state.quizType === 'mock' || state.quizType === 'specimen') {
+      noticeEl.innerHTML = `<p class="font-bold">This is a timed 2-hour exam simulation. The test will automatically submit when the timer runs out. Good luck!</p>`;
+  } else {
+      noticeEl.style.display = 'none';
+  }
 
   const optionsEl = qs(".options", wrap);
   const explanationEl = qs("#explanation-container", wrap);
