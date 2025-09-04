@@ -10,6 +10,25 @@
     { "id": "1.7", "description": "Co-insurance, Dual Insurance, and Self-insurance" },
     { "id": "1.8", "description": "Main Classes of Insurance" }
   ],
+  "case_study": {
+    "title": "Case Study: The New Café",
+    "scenario": "Maria is opening a new café. She's invested her life savings into it. She's worried about a fire destroying her new kitchen equipment (a pure risk) and also about whether her café will be popular enough to make a profit (a speculative risk). To protect her investment, she speaks to an insurance broker.",
+    "questions": [
+      {
+        "question": "Which of Maria's risks is insurable and why?",
+        "answer": "The risk of a fire is insurable because it is a pure risk – there is no chance of financial gain, only loss. The risk of the café not being profitable is a speculative risk and is not insurable."
+      },
+      {
+        "question": "What is the primary benefit of Maria buying insurance for her kitchen equipment?",
+        "answer": "The primary benefit is risk transfer. She transfers the large, uncertain financial risk of a fire to the insurer in exchange for a smaller, certain premium. This gives her peace of mind and protects her savings."
+      }
+    ]
+  },
+  "learning_prompts": [
+    "Consider your own perception of risk. Would you describe yourself as 'risk-seeking' or 'risk-averse' in your daily life? Why?",
+    "Think about a recent natural disaster reported in the news. How might this be classified as a 'fundamental risk', and what could be the impact on the insurance industry?",
+    "If you were an underwriter, what physical and moral hazards would you consider when assessing an application for motor insurance for a high-performance sports car?"
+  ],
   "questions": [
     {
       "type": "mcq",
