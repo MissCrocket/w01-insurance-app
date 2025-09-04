@@ -153,30 +153,44 @@ function buildQuiz(config) {
       .flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
     allQuestions.push(...sampleFromPool(customPool, Math.min(totalQuestions, customPool.length)));
   } else if (type === 'mock') {
-        const syllabusWeights = { '1': 20, '2': 22, '3': 42, '4': 14, '5': 2 };
-        const questionPools = {};
+    const syllabusWeights = {
+      '1': 20,
+      '2': 22,
+      '3': 42,
+      '4': 14,
+      '5': 2
+    };
+    const questionPools = {
+      '1': [],
+      '2': [],
+      '3': [],
+      '4': [],
+      '5': []
+    };
 
-        chapters.forEach(chapter => {
-            if (chapter.id === 'specimen_exam') return;
-            mcqOnly(chapter.questions).forEach(q => {
-                if (q.loId) {
-                    const lo = q.loId.split('.')[0];
-                    if (!questionPools[lo]) {
-                        questionPools[lo] = [];
-                    }
-                    questionPools[lo].push(tagQuestionsWithChapter([q], chapter.id)[0]);
-                }
-            });
-        });
+    // Populate question pools from all chapters except specimen_exam
+    chapters.forEach(chapter => {
+      if (chapter.id === 'specimen_exam') return;
+      mcqOnly(chapter.questions).forEach(q => {
+        if (q.loId) {
+          const lo = q.loId.split('.')[0];
+          if (questionPools[lo]) {
+            questionPools[lo].push(tagQuestionsWithChapter([q], chapter.id)[0]);
+          }
+        }
+      });
+    });
 
-        Object.keys(syllabusWeights).forEach(lo => {
-            if (questionPools[lo]) {
-                const numQuestions = syllabusWeights[lo];
-                allQuestions.push(...sampleFromPool(questionPools[lo], numQuestions));
-            }
-        });
-        
-        allQuestions = sampleFromPool(allQuestions, allQuestions.length);
+    // Select questions based on syllabus weights
+    Object.keys(syllabusWeights).forEach(lo => {
+      if (questionPools[lo]) {
+        const numQuestions = syllabusWeights[lo];
+        allQuestions.push(...sampleFromPool(questionPools[lo], numQuestions));
+      }
+    });
+    
+    // Shuffle the final 100-question exam
+    allQuestions = sampleFromPool(allQuestions, allQuestions.length);
 
   } else if (type === 'quick_quiz') {
     const allMcqs = chapters.filter(c => c.id !== 'specimen_exam').flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
