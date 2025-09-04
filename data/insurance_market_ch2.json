@@ -13,7 +13,7 @@
         "A captive insurer"
       ],
       "correctAnswer": "A reinsurer",
-      "explanation": "Correct! Reinsurers provide insurance for insurance companies."
+      "explanation": "Reinsurers provide insurance for insurance companies."
     },
     {
       "type": "mcq",
@@ -27,7 +27,7 @@
         "Composite company"
       ],
       "correctAnswer": "Mutual company",
-      "explanation": "Correct. In a mutual company, profits are typically returned to policyholders in some form."
+      "explanation": "In a mutual company, profits are typically returned to policyholders in some form."
     },
     {
       "type": "mcq",
@@ -41,7 +41,7 @@
         "Names"
       ],
       "correctAnswer": "Syndicates",
-      "explanation": "Correct. The capital is provided by the members, who form syndicates to underwrite insurance risks."
+      "explanation": "The capital is provided by the members, who form syndicates to underwrite insurance risks."
     },
     {
       "type": "mcq",
@@ -55,7 +55,7 @@
         "Co-insurance"
       ],
       "correctAnswer": "Bancassurance",
-      "explanation": "That's right. Bancassurance is a major distribution channel in many markets."
+      "explanation": "Bancassurance is a major distribution channel in many markets."
     },
     {
       "type": "mcq",
@@ -69,7 +69,7 @@
         "A compliance officer"
       ],
       "correctAnswer": "A loss adjuster",
-      "explanation": "Correct. A loss adjuster works on behalf of the insurer, whereas a loss assessor works for the policyholder."
+      "explanation": "A loss adjuster works on behalf of the insurer, whereas a loss assessor works for the policyholder."
     },
     {
       "type": "mcq",
@@ -97,7 +97,7 @@
         "To eliminate the need for any risk management"
       ],
       "correctAnswer": "To gain direct access to reinsurance markets and potentially lower costs",
-      "explanation": "Exactly. Captives can offer tailored coverage and access reinsurance more efficiently."
+      "explanation": "Captives can offer tailored coverage and access reinsurance more efficiently."
     },
     {
       "type": "mcq",
@@ -125,7 +125,7 @@
         "Actuary"
       ],
       "correctAnswer": "Underwriter",
-      "explanation": "Correct. The underwriter is central to the process of accepting and pricing risk."
+      "explanation": "The underwriter is central to the process of accepting and pricing risk."
     },
     {
       "type": "mcq",
@@ -139,7 +139,7 @@
         "Captive insurance"
       ],
       "correctAnswer": "Takaful insurance",
-      "explanation": "Correct. Takaful avoids elements like uncertainty (Gharar) and gambling (Maysir) found in conventional insurance."
+      "explanation": "Takaful avoids elements like uncertainty (Gharar) and gambling (Maysir) found in conventional insurance."
     },
     {
       "type": "mcq",
