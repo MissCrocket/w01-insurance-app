@@ -1,5 +1,19 @@
 {
   "title": "Chapter 3: Contract and Agency",
+  "case_study": {
+    "title": "Case Study: The Broker's Mistake",
+    "scenario": "An insurance broker, acting on behalf of a client, is arranging a public liability policy for a small festival. The insurer provides a quote with a specific condition excluding liability for firework displays. The client tells the broker they accept the quote. The broker, however, forgets to pass the acceptance to the insurer for three weeks. During this time, a small firework-related incident occurs. The insurer argues that no contract was in place.",
+    "questions": [
+      {
+        "question": "Was a valid contract formed at the time of the incident? Explain the roles of offer and acceptance.",
+        "answer": "No, a valid contract was not in place. The insurer made an 'offer' (the quote with its specific terms). The client's instruction to the broker was an 'acceptance,' but because the broker (acting as the client's agent for placing the business) failed to communicate this acceptance to the insurer, the contract was never concluded. The insurer was never 'on risk'."
+      },
+      {
+        "question": "What is the legal relationship between the client, the broker, and the insurer in this scenario?",
+        "answer": "The broker is the 'agent' of the client (the 'principal') for the purpose of placing the insurance. The broker owes a duty of skill and care to the client. By failing to communicate the acceptance, the broker has likely breached this duty and could be liable to the client for the uninsured loss."
+      }
+    ]
+  },
   "los": [
     { "id": "3.1", "description": "Explain the essentials of a valid contract of insurance." },
     { "id": "3.2", "description": "Explain how contracts of insurance can be terminated." },

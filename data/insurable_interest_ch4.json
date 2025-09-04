@@ -1,5 +1,19 @@
 {
   "title": "Chapter 4: Insurable Interest",
+  "case_study": {
+    "title": "Case Study: The Classic Car",
+    "scenario": "Ahmed restores a vintage car that he co-owns with his sister, Fatima. They both contribute to its upkeep. Ahmed takes out an insurance policy in his name only for the full market value of the car. A month later, before Fatima has been added to the policy, the car is stolen from a locked garage. The insurer questions whether Ahmed can claim for the full value of the car.",
+    "questions": [
+      {
+        "question": "Does Ahmed have insurable interest in the car, and if so, to what extent?",
+        "answer": "Yes, Ahmed has insurable interest as a part-owner. Legally, he can insure the property for its full value because, as a co-owner, he is considered a trustee for his sister's share. He has a legal right to insure arising out of a financial relationship with the car."
+      },
+      {
+        "question": "When did insurable interest need to exist for Ahmed's policy to be valid?",
+        "answer": "For general insurance, such as a motor policy, insurable interest must exist at the time the policy is taken out and, crucially, at the time of the loss. Since Ahmed was still a co-owner when the car was stolen, the requirement is met."
+      }
+    ]
+  },
   "questions": [
     { "type": "mcq", "loId": "3.5", "concept": "Definition", "question": "Why can't you take out a fire insurance policy on your neighbor's house?", "options": ["It's against public policy", "You have no insurable interest", "It's a speculative risk", "The risk is not fortuitous"], "correctAnswer": "You have no insurable interest", "explanation": "No financial loss would fall on you if the house burned." },
     { "type": "mcq", "loId": "3.5", "concept": "Timing – general insurance", "question": "You sell your insured car to a friend. The next day, before you cancel the policy, your friend has an accident. Why won't your insurer pay for the damage?", "options": ["You no longer had insurable interest at the time of loss", "The premium was not high enough", "It was a breach of warranty", "The new driver was not named"], "correctAnswer": "You no longer had insurable interest at the time of loss", "explanation": "Once sold, you no longer suffer loss on that vehicle." },

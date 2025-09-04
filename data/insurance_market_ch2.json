@@ -1,5 +1,19 @@
 {
   "title": "Chapter 2: The Insurance Market",
+  "case_study": {
+    "title": "Case Study: The Specialist Engineering Firm",
+    "scenario": "A specialist engineering firm, 'InnovateMech', has developed a new, high-value piece of manufacturing equipment. The risk is significant, and their primary insurer can only take on 60% of the value. InnovateMech's broker advises that the risk needs to be spread. The broker approaches a syndicate at Lloyd's and another specialist insurer to cover the remaining 40%. After a major fire, InnovateMech's managing director appoints an expert to help prepare and negotiate the complex claim.",
+    "questions": [
+      {
+        "question": "What is the role of the primary insurer, the Lloyd's syndicate, and the specialist insurer in this arrangement?",
+        "answer": "They are acting as co-insurers, each taking a percentage of the risk. The primary insurer has also likely purchased reinsurance to protect its own capital from such a large single risk."
+      },
+      {
+        "question": "What is the professional title of the expert appointed by InnovateMech to handle the claim?",
+        "answer": "The expert is a Loss Assessor, who works on behalf of the policyholder to prepare, present, and negotiate a claim. The insurers, on the other hand, will appoint a Loss Adjuster to investigate the claim on their behalf."
+      }
+    ]
+  },
   "questions": [
     {
       "type": "mcq",

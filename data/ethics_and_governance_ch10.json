@@ -1,5 +1,19 @@
 {
   "title": "Chapter 10: Ethics, Governance & Internal Controls",
+  "case_study": {
+    "title": "Case Study: The Pressure to Sell",
+    "scenario": "An insurance intermediary is under pressure to meet high sales targets. An elderly client, who has been with them for years, comes in to renew their household policy. The intermediary realises they could sell the client a new, more expensive policy that includes several features the client doesn't need, such as extensive cover for sports equipment. This would earn the intermediary a higher commission. The intermediary is also aware that their firm's internal audit department has recently flagged issues with advice given to vulnerable customers.",
+    "questions": [
+      {
+        "question": "Which principles of the CII Code of Ethics are at risk of being breached here?",
+        "answer": "Several principles are at risk. Primarily: 'Act in the best interests of each client' by recommending an unsuitable policy for personal gain. Also, 'Act with the highest ethical standards and integrity' by potentially taking unfair advantage of a long-standing, possibly vulnerable, client. Finally, 'Provide a high standard of service' is breached if the advice is not appropriate to the client's needs."
+      },
+      {
+        "question": "What roles should the firm's compliance and internal audit functions play in preventing situations like this?",
+        "answer": "The Compliance function should have clear policies and training in place regarding the fair treatment of customers, particularly those who may be vulnerable. They should monitor sales patterns for potential miss-selling. The Internal Audit function provides independent assurance that these controls are working effectively. The fact that internal audit has already flagged issues indicates a weakness in the control system that senior management must address."
+      }
+    ]
+  },
   "los": [
     { "id": "5.1", "description": "Explain the functions of the Chartered Insurance Institute (CII)." },
     { "id": "5.2", "description": "Explain the importance of the fair treatment of customers and positive customer outcomes." },

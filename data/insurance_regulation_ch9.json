@@ -1,5 +1,19 @@
 {
   "title": "Chapter 9: Insurance Regulation",
+  "case_study": {
+    "title": "Case Study: The New Insurer",
+    "scenario": "A new insurance company, 'SafeGuard Insure,' wants to start operating. Before they can sell any policies, they must apply to the national regulator for a license. The regulator conducts a thorough review of their business plan, their financial projections, and the backgrounds of their senior managers. The regulator is particularly focused on ensuring SafeGuard has enough money set aside to pay future claims.",
+    "questions": [
+      {
+        "question": "What is the main purpose of this regulatory process?",
+        "answer": "The main purpose is to protect consumers and maintain confidence in the financial system. The regulator performs oversight functions, including authorisation, to ensure that new insurers are financially sound, well-managed, and fit to trade before they are allowed to take premiums from the public."
+      },
+      {
+        "question": "What is the term for the requirement that SafeGuard must have enough money to pay claims, and what regulatory concept does this relate to?",
+        "answer": "This is known as 'capital adequacy.' It is a key part of 'prudential regulation,' which focuses on the financial safety and soundness of insurance companies to ensure they can meet their obligations to policyholders, even under stressful financial conditions."
+      }
+    ]
+  },
   "los": [
     { "id": "4.1", "description": "Explain the importance of the regulation of the insurance industry." },
     { "id": "4.2", "description": "Understand the importance of establishing and maintaining capital adequacy." },

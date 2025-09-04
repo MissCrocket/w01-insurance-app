@@ -1,5 +1,19 @@
 {
   "title": "Chapter 8: Contribution & Subrogation",
+  "case_study": {
+    "title": "Case Study: The Two Policies",
+    "scenario": "A company owns a building worth £1 million. It has two separate fire insurance policies on the building: one with Insurer A for a sum insured of £750,000 and another with Insurer B for a sum insured of £500,000. A fire causes £100,000 of damage. The company claims the full £100,000 from Insurer A, as the loss is well within their sum insured.",
+    "questions": [
+      {
+        "question": "Can the company claim the full £100,000 from Insurer A? What right does Insurer A have?",
+        "answer": "Yes, in the absence of a specific policy condition, the company can claim the full amount from either insurer. However, Insurer A has the right of contribution. This allows them to call upon Insurer B to share the cost of the claim, as both policies cover the same interest, subject-matter, and peril."
+      },
+      {
+        "question": "How will the two insurers share the £100,000 loss?",
+        "answer": "They will share it in proportion to their sums insured. The total sum insured is £1,250,000 (£750,000 + £500,000). Insurer A's share is (£750,000 / £1,250,000) = 60%. Insurer B's share is (£500,000 / £1,250,000) = 40%. Therefore, Insurer A will pay £60,000 and can recover £40,000 from Insurer B."
+      }
+    ]
+  },
   "questions": [
     {
       "type": "mcq",

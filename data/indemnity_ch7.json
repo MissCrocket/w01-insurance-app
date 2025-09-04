@@ -1,5 +1,19 @@
 {
   "title": "Chapter 7: Indemnity",
+  "case_study": {
+    "title": "Case Study: The Underinsured Shop",
+    "scenario": "A shopkeeper, Ben, insures the contents of his shop for £60,000. He believes this is enough. After a fire, a loss adjuster assesses the total value of the contents at the time of the fire to be £100,000. The cost of the damage is £20,000. Ben's policy contains a standard pro-rata condition of average.",
+    "questions": [
+      {
+        "question": "Why will Ben not receive the full £20,000 for his loss?",
+        "answer": "Ben will not receive the full amount because he has underinsured his property. The policy is subject to average, which means that because he only insured 60% of the true value (£60,000 / £100,000), he is considered to be his own insurer for the remaining 40%. Therefore, the insurer will only pay 60% of the loss."
+      },
+      {
+        "question": "How much will the insurer pay Ben for his £20,000 loss?",
+        "answer": "The insurer will apply the average formula: (Sum Insured / Value at Risk) x Loss. This is (£60,000 / £100,000) x £20,000 = 0.6 x £20,000 = £12,000. Ben will receive £12,000, less any policy excess."
+      }
+    ]
+  },
   "questions": [
     {
       "type": "mcq",

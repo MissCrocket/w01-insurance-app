@@ -1,5 +1,19 @@
 {
   "title": "Chapter 5: Disclosure and Representation",
+  "case_study": {
+    "title": "Case Study: The Jeweller's 'Oversight'",
+    "scenario": "A jeweller applies for a commercial insurance policy to cover their stock. On the proposal form, they are asked about security measures and state they have a 'standard alarm system'. In reality, the alarm is an old, domestic model, not a commercial-grade system linked to a central station. They also fail to mention that the previous owner of the shop had two burglaries in the last three years, a fact they were aware of. After a break-in, the insurer discovers these facts during the claims investigation.",
+    "questions": [
+      {
+        "question": "How has the jeweller breached the duty of fair presentation?",
+        "answer": "The jeweller has breached the duty in two ways. Firstly, by describing the alarm as 'standard', they have made a misrepresentation of fact. Secondly, by not mentioning the previous burglaries, they have failed to disclose material information that they knew, or ought to have known, would influence a prudent insurer's judgement."
+      },
+      {
+        "question": "What remedies might be available to the insurer?",
+        "answer": "The remedies depend on whether the breach was deliberate or reckless. If it was, the insurer can avoid the policy from the beginning, refuse all claims, and keep the premium. If the breach was careless, the remedy is proportionate. For example, if the insurer would have charged a higher premium, they can reduce the claim payment proportionally. If they would have imposed a warranty for a better alarm, they can treat the policy as if that warranty were in place."
+      }
+    ]
+  },
   "questions": [
     { "type": "mcq", "loId": "3.6", "concept": "Utmost good faith / fair presentation", "question": "What is the primary duty of a proposer for a commercial insurance policy under the principle of good faith?", "options": ["To pay the premium on time", "To make a fair presentation of the risk", "To read the policy document carefully", "To negotiate the best price"], "correctAnswer": "To make a fair presentation of the risk", "explanation": "In commercial lines, the duty is to disclose material information clearly and accessibly." },
     { "type": "mcq", "loId": "3.6", "concept": "Material fact", "question": "Any information that would influence the judgment of a prudent insurer is known as ________ information.", "options": ["Secondary", "Conditional", "Material", "Public"], "correctAnswer": "Material", "explanation": "Material facts affect acceptance, pricing, and terms." },

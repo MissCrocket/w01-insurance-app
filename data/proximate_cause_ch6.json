@@ -1,5 +1,19 @@
 {
   "title": "Chapter 6: Proximate Cause",
+  "case_study": {
+    "title": "Case Study: The Warehouse Fire",
+    "scenario": "A warehouse stores flammable chemicals. A small, accidental fire breaks out (an insured peril). Firefighters arrive and use a large volume of water to extinguish the fire. The water runs off and contaminates a nearby stream, leading to a fine from the environmental agency for pollution (a peril that is not specifically insured or excluded). The warehouse owner claims for the fire damage and the cost of the fine.",
+    "questions": [
+      {
+        "question": "What is the proximate cause of the fire damage and the pollution fine?",
+        "answer": "The proximate cause for both the fire damage and the pollution fine is the initial fire. The fire was the dominant, effective cause that started an unbroken chain of events. The water damage and subsequent pollution were a direct consequence of the necessary actions taken to deal with the insured peril (fire)."
+      },
+      {
+        "question": "Is the insurer likely to be liable for the fire damage and the pollution fine?",
+        "answer": "The insurer is liable for the fire damage as it was caused directly by an insured peril. They are also likely to be liable for the pollution fine. Even though pollution was an uninsured (unnamed) peril, it was the direct and foreseeable result of mitigating an insured peril. The chain of causation was not broken. The claim for the fine would be paid, subject to the policy's liability limits."
+      }
+    ]
+  },
   "questions": [
     {
       "type": "mcq",
