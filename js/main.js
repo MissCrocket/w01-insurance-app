@@ -746,7 +746,7 @@ function renderQuiz() {
     ` : '<div></div>';
     
   let timerHTML = '';
-  if (state.quizType === 'mock') {
+  if (state.quizType === 'mock' || state.quizType === 'specimen') {
       timerHTML = `<div id="timer" class="text-xl font-bold text-amber-400"></div>`;
   }
 
@@ -1451,7 +1451,7 @@ function startQuiz(questionList, quizDetails) {
     state.flaggedQuestions = new Set(flaggedIds);
   }
   
-  if (state.quizType === 'mock') {
+  if (state.quizType === 'mock' || state.quizType === 'specimen') {
         state.quizEndTime = Date.now() + 120 * 60 * 1000;
         state.quizTimer = setInterval(updateTimer, 1000);
     }
