@@ -351,6 +351,20 @@
       ],
       "correctAnswer": "Personal lines",
       "explanation": "Personal lines insurance is designed for individuals and families, as opposed to businesses."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.2",
+      "concept": "Islamic Finance and Risk",
+      "question": "Why are speculative risks prohibited in Islamic finance?",
+      "options": [
+        "Due to the principles of Gharar (excessive uncertainty) and Maysir (gambling).",
+        "Because they only result in losses.",
+        "Because they are only undertaken by individuals.",
+        "Due to the principle of insurable interest."
+      ],
+      "correctAnswer": "Due to the principles of Gharar (excessive uncertainty) and Maysir (gambling).",
+      "explanation": "Islamic finance principles prohibit excessive uncertainty and gambling, making speculative risks uninsurable."
     }
   ],
   "flashcards": [
@@ -378,6 +392,12 @@
     { "id": "ch1_lo1_7_1", "loId": "1.7", "term": "Self-insurance", "definition": "A formal strategy of retaining a risk and setting aside a fund from which to pay for any losses that occur." },
     { "id": "ch1_lo1_7_2", "loId": "1.7", "term": "Co-insurance", "definition": "The sharing of a single risk between two or more insurers, each covering a stated percentage of that risk." },
     { "id": "ch1_lo1_7_3", "loId": "1.7", "term": "Dual Insurance", "definition": "The situation where two or more separate insurance policies are in force covering the same interest in the same subject-matter." },
-    { "id": "ch1_lo1_8_1", "loId": "1.8", "term": "Main Classes of Insurance", "definition": "Includes Property, Pecuniary (financial), Liability, and Accident insurance. Can also be grouped into Personal and Commercial lines." }
+    { "id": "ch1_lo1_8_1", "loId": "1.8", "term": "Main Classes of Insurance", "definition": "Includes Property, Pecuniary (financial), Liability, and Accident insurance. Can also be grouped into Personal and Commercial lines." },
+    {
+      "id": "ch1_lo1_2_1",
+      "loId": "1.2",
+      "term": "Gharar and Maysir",
+      "definition": "Islamic finance principles prohibiting speculative risks. Gharar refers to excessive uncertainty, and Maysir refers to gambling."
+    }
   ]
 }

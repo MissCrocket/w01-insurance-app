@@ -10,12 +10,32 @@
     { "type": "mcq", "loId": "3.6", "concept": "When duty begins", "question": "In a commercial placement, the duty of fair presentation begins:", "options": ["Only at inception", "When the schedule is issued", "At the beginning of negotiations", "Only if there is a claim"], "correctAnswer": "At the beginning of negotiations", "explanation": "Duty applies throughout the pre-contractual stage." },
     { "type": "mcq", "loId": "3.6", "concept": "Good faith modified by wording", "question": "A policy requirement to notify changes in use or vehicle details is an example of wording that modifies which principle?", "options": ["Indemnity", "Contribution", "Good faith", "Subrogation"], "correctAnswer": "Good faith", "explanation": "Ongoing disclosure obligations are set out in policy terms." },
     { "type": "mcq", "loId": "3.6", "concept": "Fraudulent non-disclosure", "question": "Which circumstance most clearly permits an insurer to avoid a household contents policy from inception and decline a claim?", "options": ["A minor error in valuation", "A premium instalment paid one day late", "A fraudulent non-disclosure", "Placing dual insurance"], "correctAnswer": "A fraudulent non-disclosure", "explanation": "Fraud allows the strongest remedies including avoidance ab initio." },
-    { "type": "mcq", "loId": "3.6", "concept": "Fraudulent claims remedy (proportions paraphrased)", "question": "An insurer has made three interim payments of £250,000 each on a large claim. Before the final £250,000 is paid, the adjuster discovers deliberate concealment by the insured. What is the maximum that can be recovered from the insured under fraud remedies?", "options": ["£250,000", "£500,000", "£750,000", "£1,000,000"], "correctAnswer": "£750,000", "explanation": "On fraud, the insurer may recover sums already paid on the claim." }
+    { "type": "mcq", "loId": "3.6", "concept": "Fraudulent claims remedy (proportions paraphrased)", "question": "An insurer has made three interim payments of £250,000 each on a large claim. Before the final £250,000 is paid, the adjuster discovers deliberate concealment by the insured. What is the maximum that can be recovered from the insured under fraud remedies?", "options": ["£250,000", "£500,000", "£750,000", "£1,000,000"], "correctAnswer": "£750,000", "explanation": "On fraud, the insurer may recover sums already paid on the claim." },
+    {
+      "type": "mcq",
+      "loId": "3.6",
+      "concept": "Information that doesn't need to be disclosed",
+      "question": "Which of the following does a proposer NOT need to disclose to an insurer?",
+      "options": [
+        "Information that lessens the risk.",
+        "Previous claims history.",
+        "Criminal convictions.",
+        "Details of the property to be insured."
+      ],
+      "correctAnswer": "Information that lessens the risk.",
+      "explanation": "There is no requirement to disclose factors that reduce the risk, making it better than a normal risk of its type."
+    }
   ],
   "flashcards": [
     { "id": "ch5_17", "loId": "3.6", "term": "Utmost Good Faith", "definition": "Both parties must disclose material information honestly and fully." },
     { "id": "ch5_18", "loId": "3.6", "term": "Material Information", "definition": "Would influence a prudent insurer’s acceptance, terms, or pricing." },
     { "id": "ch5_44", "loId": "3.6", "term": "Fair Presentation (Commercial)", "definition": "Clear, accessible disclosure of what the insured knows or ought to know." },
-    { "id": "ch5_205", "loId": "3.6", "term": "Waiver", "definition": "Insurer’s intentional relinquishment of a known right (e.g., not pursuing an unanswered question but issuing cover)." }
+    { "id": "ch5_205", "loId": "3.6", "term": "Waiver", "definition": "Insurer’s intentional relinquishment of a known right (e.g., not pursuing an unanswered question but issuing cover)." },
+    {
+      "id": "ch5_lo3_6_1",
+      "loId": "3.6",
+      "term": "Non-Disclosure Exemptions",
+      "definition": "Information that does not need to be disclosed includes matters of law, factors that lessen the risk, information the insurer ought to know, and information waived by the insurer."
+    }
   ]
 }

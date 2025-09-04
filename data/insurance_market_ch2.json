@@ -364,6 +364,20 @@
       ],
       "correctAnswer": "A Lloyd's Broker",
       "explanation": "Accredited Lloyd's brokers are specialists who represent the client and have expertise in placing risks within the Lloyd's market."
+    },
+    {
+      "type": "mcq",
+      "loId": "2.4",
+      "concept": "InsurTech",
+      "question": "The use of new technologies and digital tools to provide more innovative and efficient insurance products is known as:",
+      "options": [
+        "Bancassurance",
+        "InsurTech",
+        "Reinsurance",
+        "Aggregators"
+      ],
+      "correctAnswer": "InsurTech",
+      "explanation": "InsurTech is transforming various areas of the insurance industry, from underwriting to claims."
     }
   ],
   "flashcards": [
@@ -432,6 +446,12 @@
       "loId": "2.3",
       "term": "Lloyd's Managing Agent",
       "definition": "A company that manages one or more syndicates, responsible for employing underwriters, handling claims, and managing the syndicate's infrastructure."
+    },
+    {
+      "id": "ch2_lo2_4_1",
+      "loId": "2.4",
+      "term": "InsurTech",
+      "definition": "The use of new technologies and digital tools to provide innovative and efficient insurance services."
     }
   ]
 }

@@ -173,6 +173,20 @@
       ],
       "correctAnswer": "Good Faith",
       "explanation": "The relationship between an agent and their principal is one of trust, requiring the agent to act in utmost good faith."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.2",
+      "concept": "Fraudulent Claims",
+      "question": "Under the Insurance Act 2015, if an insured makes a fraudulent claim, the insurer has the right to:",
+      "options": [
+        "Terminate the contract from the time of the fraudulent act and keep the premium.",
+        "Terminate the contract and refund the premium.",
+        "Only refuse the fraudulent claim but the policy must continue.",
+        "Reduce the claim payment by 50%."
+      ],
+      "correctAnswer": "Terminate the contract from the time of the fraudulent act and keep the premium.",
+      "explanation": "The IA 2015 gives insurers the right to terminate the contract and retain the premium in the event of a fraudulent claim."
     }
   ],
   "flashcards": [
@@ -235,6 +249,12 @@
       "loId": "3.4",
       "term": "Duties of a Principal",
       "definition": "Key duties owed by a principal to their agent are Remuneration (payment, usually commission) and Indemnity for properly incurred expenses."
+    },
+    {
+      "id": "ch3_lo3_2_2",
+      "loId": "3.2",
+      "term": "Pro Rata Refund",
+      "definition": "If a policyholder cancels a policy they have paid for in advance, they may be entitled to a pro rata refund of the premium, which reflects the unused portion of the cover period."
     }
   ]
 }

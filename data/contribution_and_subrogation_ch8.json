@@ -158,6 +158,20 @@
       ],
       "correctAnswer": "£60,000",
       "explanation": "Contribution applies. Insurer X has 3/5 (£300k/£500k) of the total cover, so they pay 3/5 of the loss: (300,000 / 500,000) * 100,000 = £60,000."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.12",
+      "concept": "Salvage",
+      "question": "When an insurer pays for a total loss claim for a car, what is the insurer's right regarding the damaged vehicle?",
+      "options": [
+        "The insurer can take ownership of the salvaged vehicle.",
+        "The insurer must pay the policyholder for the salvaged vehicle.",
+        "The insurer has no rights to the salvaged vehicle.",
+        "The insurer must repair the vehicle, regardless of cost."
+      ],
+      "correctAnswer": "The insurer can take ownership of the salvaged vehicle.",
+      "explanation": "When an insurer pays a total loss claim, they are entitled to take ownership of the salvage (the remains of the property)."
     }
   ],
   "flashcards": [
@@ -167,6 +181,12 @@
     { "id": "ch8_4", "loId": "3.11", "term": "More Specific Insurance", "definition": "Specific policy responds before general policy where both cover the same risk." },
     { "id": "ch8_5", "loId": "3.12", "term": "Lister v Romford Ice", "definition": "Authority that subrogation can (in principle) apply against a negligent co-employee; often waived by modern policies." },
     { "id": "ch8_6", "loId": "3.12", "term": "Waiver / Hold Harmless", "definition": "Agreement not to pursue recovery; may bind insurer if permitted by policy terms/consented." },
-    { "id": "ch8_7", "loId": "3.12", "term": "Benefit Policies & Subrogation", "definition": "Subrogation typically does not apply to benefit policies (e.g., personal accident)." }
+    { "id": "ch8_7", "loId": "3.12", "term": "Benefit Policies & Subrogation", "definition": "Subrogation typically does not apply to benefit policies (e.g., personal accident)." },
+    {
+      "id": "ch8_lo3_12_1",
+      "loId": "3.12",
+      "term": "Salvage",
+      "definition": "The residual value of a damaged item after a total loss claim has been paid. The insurer is entitled to the salvage."
+    }
   ]
 }

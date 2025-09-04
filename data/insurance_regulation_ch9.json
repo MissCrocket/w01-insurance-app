@@ -191,6 +191,20 @@
       ],
       "correctAnswer": "Policyholder fraud",
       "explanation": "This is a type of policyholder fraud that occurs at the inception of the policy."
+    },
+    {
+      "type": "mcq",
+      "loId": "4.1",
+      "concept": "IAIS Insurance Core Principles (ICPs)",
+      "question": "The IAIS Insurance Core Principles (ICPs) were most recently updated in:",
+      "options": [
+        "November 2019",
+        "December 2024",
+        "May 2025",
+        "January 2023"
+      ],
+      "correctAnswer": "December 2024",
+      "explanation": "The IAIS introduced an updated set of ICPs in December 2024, incorporating changes related to valuation, capital adequacy, climate risk, and the Holistic Framework."
     }
   ],
   "flashcards": [
@@ -199,6 +213,12 @@
     { "id": 3, "loId": "4.2", "term": "Solvency Control Levels", "definition": "Thresholds triggering supervisory intervention to protect policyholders." },
     { "id": 4, "loId": "4.3", "term": "CDD", "definition": "Identify/verify customers & beneficial owners; monitor relationships on a risk basis." },
     { "id": 5, "loId": "4.4", "term": "Fraud Types", "definition": "Policyholder, intermediary, and internal; managed via prevention, detection, response." },
-    { "id": 6, "loId": "4.3", "term": "Money Laundering Stages", "definition": "Placement → Layering → Integration." }
+    { "id": 6, "loId": "4.3", "term": "Money Laundering Stages", "definition": "Placement → Layering → Integration." },
+    {
+      "id": "ch9_lo4_1_1",
+      "loId": "4.1",
+      "term": "IAIS ICPs Update",
+      "definition": "The IAIS Insurance Core Principles (ICPs) were updated in December 2024 to reflect changes in the insurance market and global financial system."
+    }
   ]
 }
