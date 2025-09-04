@@ -963,6 +963,24 @@ body {
   line-height: 1.25rem;
 }
 
+/* --- NEW --- */
+
+.result-item .explanation-card {
+  font-size: 1rem;
+}
+
+.result-item .explanation-card p {
+  color: #343a40;
+}
+
+@media (prefers-color-scheme: dark) {
+  .result-item .explanation-card p {
+    color: #dee2e6;
+  }
+}
+
+/* --- END NEW --- */
+
 .question-text {
   padding-right: 4rem;
 }
@@ -1077,10 +1095,23 @@ body {
   padding: 1rem;
 }
 
+/* --- NEW --- */
+
+.quiz-nav-panel {
+  display: none;
+}
+
+.quiz-nav-panel.is-visible {
+  display: block;
+}
+
+/* --- END NEW --- */
+
 @media (min-width: 1024px) {
   .quiz-nav-panel {
     order: 9999;
     grid-column: span 1 / span 1;
+    display: block;
   }
 }
 
@@ -1212,6 +1243,23 @@ body {
 }
 
 /* --- END STYLES --- */
+
+/* --- NEW --- */
+
+.results-filter-container {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 60px;
+  background-color: #1a1a1a;
+  padding: 1rem;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 1rem;
+}
+
+/* --- END NEW --- */
 
 .sr-only {
   position: absolute;
@@ -1645,6 +1693,11 @@ body {
   padding-bottom: 0.25rem !important;
 }
 
+.\!py-3 {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -1700,6 +1753,11 @@ body {
 .text-6xl {
   font-size: 3.75rem;
   line-height: 1;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .text-lg {

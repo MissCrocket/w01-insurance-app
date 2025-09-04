@@ -303,9 +303,33 @@ function renderTopics() {
     </div>
   `;
 
-  // Recommended Chapter
+  // Recommended Chapter & No Due Cards CTA
   let recommendedChapterHTML = '';
-  if (weaknesses.length > 0) {
+    if (dueCardsCount === 0) {
+        if (weaknesses.length > 0) {
+            const topWeakness = weaknesses[0];
+            const chapterTitle = chapterTitleMap[topWeakness.chapterId] || topWeakness.chapterId;
+            recommendedChapterHTML = `
+              <div class="mt-6 text-center">
+                <h3 class="text-lg font-semibold text-neutral-300 mb-2">No cards due! Let's tackle a weak area:</h3>
+                <button class="topic-card !bg-white/10 w-full max-w-md mx-auto actionable-weakness" data-chapter-id="${topWeakness.chapterId}">
+                  <div class="topic-card__title">Review: ${chapterTitle}</div>
+                  <div class="topic-card__meta">Your score in this chapter is ${Math.round(topWeakness.percentage)}%. Let's improve it!</div>
+                </button>
+                 <p class="text-neutral-400 mt-4">Or,</p>
+                 <button class="btn btn-secondary mt-2" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
+              </div>
+            `;
+        } else {
+             recommendedChapterHTML = `
+              <div class="mt-6 text-center">
+                <h3 class="text-lg font-semibold text-neutral-300 mb-2">You have no cards due for review!</h3>
+                <p class="text-neutral-400">Great work! Why not start a new topic or take a practice quiz?</p>
+                <button class="btn btn-secondary mt-4" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
+              </div>
+            `;
+        }
+    } else if (weaknesses.length > 0) {
     const topWeakness = weaknesses[0];
     const chapterTitle = chapterTitleMap[topWeakness.chapterId] || topWeakness.chapterId;
     recommendedChapterHTML = `
@@ -616,8 +640,8 @@ function renderLearning() {
       <div class="flex-shrink-0 mt-6 w-full max-w-2xl mx-auto">
         <div class="deep-dive-container">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
-              <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
+              <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-base font-semibold !py-3" data-prompt="simplify">✨ Explain Simply</button>
+              <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-base font-semibold !py-3" data-prompt="scenario">🏡 Real-World Scenario</button>
           </div>
           <div id="ai-response" class="mt-3 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
         </div>
@@ -875,7 +899,7 @@ function renderResults() {
       </div>
     </div>
     <div class="mt-8">
-      <div class="flex items-center justify-between">
+      <div class="results-filter-container">
         <h2 class="section-title text-white">Review Your Answers</h2>
         <div class="flex items-center gap-2 rounded-xl bg-black/20 p-1">
           <button class="btn !min-h-0 text-sm" data-filter="all" aria-pressed="${state.resultsFilter === 'all'}">All (${total})</button>
@@ -932,8 +956,8 @@ function renderResults() {
           <strong>Your answer:</strong> ${userChoice} ${isCorrect ? '✔' : '❌'}
         </p>
         ${!isCorrect ? `<p class="text-green-600 dark:text-green-500"><strong>Correct answer:</strong> ${correctChoice}</p>` : ''}
-        <div class="explanation-card !mt-3 text-sm">
-          <p class="text-neutral-700 dark:text-neutral-300"><strong>Explanation:</strong> ${q.explanation}</p>
+        <div class="explanation-card !mt-3">
+          <p><strong>Explanation:</strong> ${q.explanation}</p>
           ${loIdText}
         </div>
       </div>
@@ -1006,6 +1030,12 @@ function handleAppClick(event) {
     return;
   }
   
+  if (target.closest('#quick-practice-quiz')) {
+        const questions = buildQuiz({ chapters, type: 'quick_quiz', totalQuestions: 10 });
+        startQuiz(questions, { type: 'quick_quiz', config: { totalQuestions: 10 } });
+        return;
+    }
+    
   // --- [FEATURE] Quick Start Modal Logic ---
   if (target.closest('#close-welcome-modal')) {
     qs('#welcome-modal').classList.add('hidden');
