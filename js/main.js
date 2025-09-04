@@ -275,11 +275,6 @@ function renderTopics() {
   const dueCardsCount = progressService.getAllDueCards().length;
   const { weaknesses } = progressService.analyzePerformance();
 
-  const chapterMasteries = Object.values(progress.chapters).map(ch => ch.mastery);
-  const overallMastery = chapterMasteries.length > 0 ?
-    (chapterMasteries.reduce((a, b) => a + b, 0) / chapterMasteries.length) * 100 :
-    0;
-  const streak = progress.studyStreak || { current: 0, longest: 0 };
   const chapterTitleMap = chapters.reduce((acc, ch) => {
     acc[ch.id] = ch.title;
     return acc;
@@ -287,81 +282,64 @@ function renderTopics() {
 
   // --- HTML Generation ---
 
-  // Motivation Widgets
-  const motivationWidgetsHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
-        <div class="card text-center bg-white/5 border border-white/10">
-            <h2 class="text-lg font-semibold text-neutral-300">Overall Mastery</h2>
-            <p class="text-5xl font-bold text-amber-400 my-2">${Math.round(overallMastery)}%</p>
-            <p class="text-xs text-neutral-400">Based on Flashcards</p>
-        </div>
-        <div class="card text-center bg-white/5 border border-white/10">
-            <h2 class="text-lg font-semibold text-neutral-300">Study Streak</h2>
-            <p class="text-5xl font-bold text-amber-400 my-2">${streak.current} ${streak.current === 1 ? 'day' : 'days'}</p>
-            <p class="text-xs text-neutral-400">Longest: ${streak.longest}</p>
-        </div>
-    </div>
-  `;
+  let personalizedGreeting = `<p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
+      What would you like to do next?
+    </p>`;
 
-  // Recommended Chapter & No Due Cards CTA
-  let recommendedChapterHTML = '';
-    if (dueCardsCount === 0) {
-        if (weaknesses.length > 0) {
-            const topWeakness = weaknesses[0];
-            const chapterTitle = chapterTitleMap[topWeakness.chapterId] || topWeakness.chapterId;
-            recommendedChapterHTML = `
-              <div class="mt-6 text-center">
-                <h3 class="text-lg font-semibold text-neutral-300 mb-2">No cards due! Let's tackle a weak area:</h3>
-                <button class="topic-card !bg-white/10 w-full max-w-md mx-auto actionable-weakness" data-chapter-id="${topWeakness.chapterId}">
-                  <div class="topic-card__title">Review: ${chapterTitle}</div>
-                  <div class="topic-card__meta">Your score in this chapter is ${Math.round(topWeakness.percentage)}%. Let's improve it!</div>
-                </button>
-                 <p class="text-neutral-400 mt-4">Or,</p>
-                 <button class="btn btn-secondary mt-2" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
-              </div>
-            `;
-        } else {
-             recommendedChapterHTML = `
-              <div class="mt-6 text-center">
-                <h3 class="text-lg font-semibold text-neutral-300 mb-2">You have no cards due for review!</h3>
-                <p class="text-neutral-400">Great work! Why not start a new topic or take a practice quiz?</p>
-                <button class="btn btn-secondary mt-4" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
-              </div>
-            `;
-        }
-    } else if (weaknesses.length > 0) {
+  if (dueCardsCount > 0) {
+    let weaknessText = '';
+    if (weaknesses.length > 0) {
+      const topWeakness = weaknesses[0];
+      const chapterTitle = chapterTitleMap[topWeakness.chapterId] || topWeakness.chapterId;
+      weaknessText = ` Your weakest area is '${chapterTitle.replace(/Chapter \d+: /,'')}'`;
+    }
+    personalizedGreeting = `<p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
+      Welcome back. You have <strong>${dueCardsCount} card${dueCardsCount === 1 ? '' : 's'}</strong> due for review.${weaknessText}
+    </p>`;
+  }
+  
+  let recommendedActionHTML = '';
+  if (dueCardsCount > 0) {
+     recommendedActionHTML = `
+      <div class="mb-2 text-center">
+          <button id="study-due-cards" class="btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg !px-8 !py-4 w-full max-w-md">
+              📚 Study All Due Flashcards (${dueCardsCount})
+          </button>
+      </div>`;
+  } else if (weaknesses.length > 0) {
     const topWeakness = weaknesses[0];
     const chapterTitle = chapterTitleMap[topWeakness.chapterId] || topWeakness.chapterId;
-    recommendedChapterHTML = `
+    recommendedActionHTML = `
       <div class="mt-6 text-center">
-        <h3 class="text-lg font-semibold text-neutral-300 mb-2">Recommended for you:</h3>
+        <h3 class="text-lg font-semibold text-neutral-300 mb-2">No cards due! Let's tackle your weakest area:</h3>
         <button class="topic-card !bg-white/10 w-full max-w-md mx-auto actionable-weakness" data-chapter-id="${topWeakness.chapterId}">
           <div class="topic-card__title">Review: ${chapterTitle}</div>
           <div class="topic-card__meta">Your score in this chapter is ${Math.round(topWeakness.percentage)}%. Let's improve it!</div>
         </button>
+         <p class="text-neutral-400 mt-4">Or,</p>
+         <button class="btn btn-secondary mt-2" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
+      </div>
+    `;
+  } else {
+     recommendedActionHTML = `
+      <div class="mt-6 text-center">
+        <h3 class="text-lg font-semibold text-neutral-300 mb-2">You have no cards due for review!</h3>
+        <p class="text-neutral-400">Great work! Why not start a new topic or take a practice quiz?</p>
+        <button class="btn btn-secondary mt-4" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
       </div>
     `;
   }
+  
   
   // Main structure
   wrap.innerHTML = `
     <div class="text-center pt-8">
         <h1 class="text-3xl md:text-4xl font-bold text-white" tabindex="-1">Your All-in-One CII W01 Exam Prep</h1>
-        <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
-            What would you like to do next?
-        </p>
+        ${personalizedGreeting}
     </div>
     
     <div class="max-w-xl mx-auto mt-8">
-      ${motivationWidgetsHTML}
-
-      <div class="mb-2 text-center">
-          <button id="study-due-cards" class="btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg !px-8 !py-4 w-full max-w-md" ${dueCardsCount === 0 ? 'disabled' : ''}>
-              📚 Study All Due Flashcards (${dueCardsCount})
-          </button>
-      </div>
-      
-      ${recommendedChapterHTML}
+      ${recommendedActionHTML}
     </div>
     
     <div class="mt-12 text-center">
