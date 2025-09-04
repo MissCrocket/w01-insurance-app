@@ -51,6 +51,8 @@ const state = {
   resultsFilter: 'all', // 'all', 'incorrect', 'flagged'
   isQuizNavVisible: false, // For mobile quiz nav
   studyMode: false, // For "Try Again" feature
+  quizTimer: null, // Holds the interval ID for the quiz timer
+  quizEndTime: null, // Timestamp for when the quiz should end
 };
 
 function getChaptersFromGlobal() {
@@ -150,7 +152,33 @@ function buildQuiz(config) {
       .filter(c => customChapters.includes(c.id))
       .flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
     allQuestions.push(...sampleFromPool(customPool, Math.min(totalQuestions, customPool.length)));
-  } else if (type === 'mock' || type === 'quick_quiz') {
+  } else if (type === 'mock') {
+        const syllabusWeights = { '1': 20, '2': 22, '3': 42, '4': 14, '5': 2 };
+        const questionPools = {};
+
+        chapters.forEach(chapter => {
+            if (chapter.id === 'specimen_exam') return;
+            mcqOnly(chapter.questions).forEach(q => {
+                if (q.loId) {
+                    const lo = q.loId.split('.')[0];
+                    if (!questionPools[lo]) {
+                        questionPools[lo] = [];
+                    }
+                    questionPools[lo].push(tagQuestionsWithChapter([q], chapter.id)[0]);
+                }
+            });
+        });
+
+        Object.keys(syllabusWeights).forEach(lo => {
+            if (questionPools[lo]) {
+                const numQuestions = syllabusWeights[lo];
+                allQuestions.push(...sampleFromPool(questionPools[lo], numQuestions));
+            }
+        });
+        
+        allQuestions = sampleFromPool(allQuestions, allQuestions.length);
+
+  } else if (type === 'quick_quiz') {
     const allMcqs = chapters.filter(c => c.id !== 'specimen_exam').flatMap(c => tagQuestionsWithChapter(mcqOnly(c.questions), c.id));
     allQuestions.push(...sampleFromPool(allMcqs, totalQuestions));
   } else if (type === 'specimen') {
@@ -702,11 +730,17 @@ function renderQuiz() {
       <span class="sr-only">Toggle Question Grid</span>
     </button>
     ` : '<div></div>';
+    
+  let timerHTML = '';
+  if (state.quizType === 'mock') {
+      timerHTML = `<div id="timer" class="text-xl font-bold text-amber-400"></div>`;
+  }
 
   wrap.innerHTML = `
     <div class="toolbar flex justify-between items-center">
       <button class="btn btn-ghost" id="quit-quiz">&larr; Exit</button>
       <h1 class="screen-title text-xl font-bold text-white" tabindex="-1">Q ${state.currentIndex + 1}/${state.questions.length}</h1>
+      ${timerHTML}
       ${quizNavToggleHTML}
     </div>
     <div class="w-full bg-neutral-700 rounded-full h-2.5 mt-4">
@@ -866,11 +900,44 @@ function renderResults() {
   const incorrectCount = total - correct;
   const flaggedCount = state.flaggedQuestions.size;
 
+  let performanceBreakdownHTML = '';
+    if (state.quizType === 'mock') {
+        const performanceByLO = {};
+        state.questions.forEach((q, idx) => {
+            const lo = q.loId.split('.')[0];
+            if (!performanceByLO[lo]) {
+                performanceByLO[lo] = { correct: 0, total: 0 };
+            }
+            performanceByLO[lo].total++;
+            if (state.answers[idx]?.correct) {
+                performanceByLO[lo].correct++;
+            }
+        });
+
+        performanceBreakdownHTML = `
+            <div class="mt-8">
+                <h2 class="section-title text-neutral-800 dark:text-white">Performance by Learning Outcome</h2>
+                <div class="mt-4 space-y-2">
+        `;
+        for (const lo in performanceByLO) {
+            const { correct, total } = performanceByLO[lo];
+            const loPercentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+            performanceBreakdownHTML += `
+                <div class="flex justify-between">
+                    <span>Learning Outcome ${lo}</span>
+                    <span>${correct}/${total} (${loPercentage}%)</span>
+                </div>
+            `;
+        }
+        performanceBreakdownHTML += `</div></div>`;
+    }
+
   wrap.innerHTML = `
     <div class="card text-center">
       <h1 class="screen-title text-3xl text-neutral-800 dark:text-white" tabindex="-1">Quiz Complete!</h1>
       <p class="score text-6xl font-bold mt-4 text-brand">${percentage}%</p>
       <p class="text-xl muted mt-2">You scored <strong>${correct} / ${total}</strong></p>
+      ${performanceBreakdownHTML}
       <div class="results-actions mt-8 flex justify-center gap-4">
         <button class="btn btn-primary" id="retry">Retry Quiz</button>
         <button class="btn btn-ghost" id="back">Back to Topics</button>
@@ -1233,6 +1300,10 @@ function handleAppClick(event) {
     }
     return;
   } else if (target.id === 'quit-quiz') {
+    if (state.quizTimer) {
+        clearInterval(state.quizTimer);
+        state.quizTimer = null;
+    }
     // progressService.completeQuizAttempt(state.quizAttemptId); // Mark as abandoned - decided against saving incomplete
     Object.assign(state, {
       screen: SCREEN.TOPICS,
@@ -1330,6 +1401,10 @@ function handleAppClick(event) {
 }
 
 function handleQuizFinish() {
+  if (state.quizTimer) {
+    clearInterval(state.quizTimer);
+    state.quizTimer = null;
+  }
   progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
   const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : state.quizType === 'quick_quiz' ? 'Quick Quiz' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title;
   const { streakExtended, currentStreak } = progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
@@ -1362,8 +1437,35 @@ function startQuiz(questionList, quizDetails) {
     state.flaggedQuestions = new Set(flaggedIds);
   }
   
+  if (state.quizType === 'mock') {
+        state.quizEndTime = Date.now() + 120 * 60 * 1000;
+        state.quizTimer = setInterval(updateTimer, 1000);
+    }
+    
   progressService.saveLastActivity({ type: 'quiz', chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title, config: quizDetails.config, studyMode: state.studyMode });
   render();
+}
+
+function updateTimer() {
+    const timerEl = qs('#timer');
+    if (!timerEl) {
+        clearInterval(state.quizTimer);
+        state.quizTimer = null;
+        return;
+    }
+
+    const remaining = state.quizEndTime - Date.now();
+    if (remaining <= 0) {
+        clearInterval(state.quizTimer);
+        state.quizTimer = null;
+        handleQuizFinish();
+        showToast("Time's up! Your exam has been submitted.", 5000);
+        return;
+    }
+
+    const minutes = Math.floor((remaining / 1000) / 60);
+    const seconds = Math.floor((remaining / 1000) % 60);
+    timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
 function startDueFlashcardsSession() {

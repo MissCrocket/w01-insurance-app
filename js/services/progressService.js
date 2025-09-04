@@ -104,6 +104,7 @@ export function completeQuizAttempt(attemptId, questions, answers) {
         questionId: questions[idx].id,
         chapterId: questions[idx].chapterId,
         correct: ans?.correct || false,
+        loId: questions[idx].loId,
       })),
     };
     saveProgress(progress);

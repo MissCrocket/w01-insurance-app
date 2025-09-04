@@ -12,7 +12,6 @@
 
     <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="./manifest.json" />
-    <!-- [FIX] Corrected Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: public/; connect-src 'self' https://generativelanguage.googleapis.com; font-src 'self';">
     
 
@@ -33,7 +32,6 @@
           <h1 class="text-lg md:text-2xl font-bold">CII W01 Tutor</h1>
           <a href="./" class="mascot mascot-link" aria-label="Home">
             <div id="mascot-lottie" class="mascot__anim" aria-hidden="true"></div>
-            <!-- [FIX] Changed missing PNG to a valid SVG fallback -->
             <img src="public/dog-static.svg" class="mascot__fallback" alt="" aria-hidden="true">
           </a>
         </div>
@@ -44,19 +42,16 @@
       </div>
     </header>
     
-    <!-- [FEATURE] Container for the "Resume Last Activity" button -->
     <div id="resume-container" class="screen !py-0"></div>
 
     <main id="app" class="app-main">
       <section class="card">
         <h2 class="section-title">Loading…</h2>
         <p class="muted">Please wait while the app initializes.</p>
-        <!-- [ACCESSIBILITY] Replaced .visually-hidden with .sr-only -->
         <div id="aria-live" class="sr-only" aria-live="polite"></div>
       </section>
     </main>
 
-    <!-- [FEATURE] Welcome Modal updated to "Quick Start" chooser -->
     <div id="welcome-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
       <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
         <h2 id="welcome-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Welcome to your CII W01 Tutor!</h2>
