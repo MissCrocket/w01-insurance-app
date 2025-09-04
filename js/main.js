@@ -49,6 +49,7 @@ const state = {
   flaggedQuestions: new Set(), // Holds IDs of flagged questions for the current attempt
   // --- NEW for Results Filtering ---
   resultsFilter: 'all', // 'all', 'incorrect', 'flagged'
+  isQuizNavVisible: false, // For mobile quiz nav
 };
 
 function getChaptersFromGlobal() {
@@ -437,12 +438,12 @@ function renderProgress() {
         <div class="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-6">
             <div class="card text-center bg-white/5 border border-white/10">
                 <h2 class="text-lg font-semibold text-neutral-300">Mastery</h2>
-                <p class="text-5xl font-bold text-amber-400 my-2">${Math.round(overallMastery)}%</p>
+                <p class="text-6xl font-bold text-amber-400 my-2">${Math.round(overallMastery)}%</p>
                 <p class="text-xs text-neutral-400">Based on Flashcards</p>
             </div>
             <div class="card text-center bg-white/5 border border-white/10">
                 <h2 class="text-lg font-semibold text-neutral-300">Study Streak</h2>
-                <p class="text-5xl font-bold text-amber-400 my-2">${streak.current} ${streak.current === 1 ? 'day' : 'days'}</p>
+                <p class="text-6xl font-bold text-amber-400 my-2">${streak.current} ${streak.current === 1 ? 'day' : 'days'}</p>
                 <p class="text-xs text-neutral-400">Longest: ${streak.longest}</p>
             </div>
             <div class="col-span-2 lg:col-span-1 card bg-white/5 border border-white/10">
@@ -520,7 +521,6 @@ function activateChart() {
           y: {
               beginAtZero: true,
               grid: { display: false },
-              // [UI] Increased font size for readability
               ticks: { color: '#e9ecef', font: { size: 12 } }
           },
           x: {
@@ -610,22 +610,22 @@ function renderLearning() {
     `;
 
   const definitionSide = `
-        <div class="text-xl font-medium text-neutral-200 text-center">${card.definition}</div>
-        
-        <div class="w-full max-w-md mx-auto mt-8">
-            <div class="text-center text-sm text-amber-400 mb-2">Need a hint?</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
-                <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
-            </div>
+    <div class="flex flex-col h-full">
+      <div class="flex-grow text-xl font-medium text-neutral-200 text-center flex items-center justify-center">${card.definition}</div>
+      <div class="flex-shrink-0 mt-6 w-full max-w-2xl mx-auto">
+        <div class="deep-dive-container">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="simplify">✨ Explain Simply</button>
+              <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-sm !px-3 !py-1" data-prompt="scenario">🏡 Real-World Scenario</button>
+          </div>
+          <div id="ai-response" class="mt-3 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
         </div>
-
-        <div id="ai-response" class="w-full max-w-md mx-auto mt-3 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
-
-        <div class="w-full max-w-md mx-auto mt-4">
+        <div class="mt-4">
             <label for="flashcard-notes" class="text-sm text-neutral-400">My Notes:</label>
             <textarea id="flashcard-notes" class="w-full mt-1 p-2 rounded bg-neutral-800 border border-neutral-700 text-white focus:ring-amber-500 focus:border-amber-500" rows="3" placeholder="Add your personal notes here...">${noteText}</textarea>
         </div>
+      </div>
+    </div>
     `;
 
   let cardStatus = 'new';
@@ -648,20 +648,22 @@ function renderLearning() {
             <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
             <div>
                 <button id="manage-cards-btn" class="btn-ghost !p-2">Manage Cards</button>
-                <span class="ml-4">Cards remaining in this session: ${session.cards.length - session.currentIndex}</span>
+                <span class="ml-4">Cards remaining: ${session.cards.length - session.currentIndex}</span>
             </div>
         </div>
-        <div id="flashcard" class="card max-w-3xl mx-auto bg-brand-dark border-white/10 min-h-[300px] flex flex-col items-center justify-center p-8 border-2 ${statusClasses[cardStatus]}">
-            ${session.isFlipped ? chapterTitle : ''}
-            ${session.isFlipped ? definitionSide : termSide}
+        <div id="flashcard" class="card max-w-3xl mx-auto bg-brand-dark border-white/10 min-h-[500px] flex flex-col p-8 border-2 ${statusClasses[cardStatus]}">
+            <div class="flex-grow w-full flex flex-col items-center justify-center">
+              ${session.isFlipped ? chapterTitle : ''}
+              ${session.isFlipped ? definitionSide : termSide}
+            </div>
+            <div id="controls" class="flex-shrink-0 w-full mt-auto pt-6"></div>
         </div>
-        <div id="controls" class="mt-6 max-w-3xl mx-auto"></div>
     `;
 
   const controls = qs('#controls', wrap);
   if (session.isFlipped) {
     controls.innerHTML = `
-        <div class="text-center text-neutral-400 mb-4">How well did you know this?</div>
+        <div class="text-center text-neutral-400 mb-4">How well did you know this? (1-5)</div>
         <div class="grid grid-cols-5 gap-3">
             <button data-confidence="1" class="confidence-btn bg-gradient-to-br from-red-500 to-red-700 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Forgot">Forgot</button>
             <button data-confidence="2" class="confidence-btn bg-gradient-to-br from-orange-400 to-orange-600 text-white font-semibold py-3 px-2 rounded-xl transition transform hover:scale-105 active:scale-100" title="Hard">Hard</button>
@@ -678,7 +680,7 @@ function renderLearning() {
     });
 
   } else {
-    controls.innerHTML = `<button id="back-to-topics-secondary" class="btn-ghost mx-auto block">Back to Topics</button>`;
+     controls.innerHTML = ``;
   }
 
   return wrap;
@@ -691,12 +693,18 @@ function renderQuiz() {
   const progressPercent = ((state.currentIndex + 1) / state.questions.length) * 100;
 
   const quizNavHTML = FEATURE_FLAG_QUESTION_FLAGGING ? renderQuizNavigation() : '';
+  const quizNavToggleHTML = FEATURE_FLAG_QUESTION_FLAGGING ? `
+    <button class="btn btn-ghost !p-2 lg:hidden" id="toggle-quiz-nav">
+      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+      <span class="sr-only">Toggle Question Grid</span>
+    </button>
+    ` : '<div></div>';
 
   wrap.innerHTML = `
     <div class="toolbar flex justify-between items-center">
       <button class="btn btn-ghost" id="quit-quiz">&larr; Exit</button>
-      <h1 class="screen-title text-xl font-bold text-white" tabindex="-1">Question ${state.currentIndex + 1} of ${state.questions.length}</h1>
-      <div></div>
+      <h1 class="screen-title text-xl font-bold text-white" tabindex="-1">Q ${state.currentIndex + 1}/${state.questions.length}</h1>
+      ${quizNavToggleHTML}
     </div>
     <div class="w-full bg-neutral-700 rounded-full h-2.5 mt-4">
         <div class="bg-brand h-2.5 rounded-full" style="width: ${progressPercent}%"></div>
@@ -781,9 +789,14 @@ function renderQuiz() {
     const resultText = state.answers[state.currentIndex]?.correct ? 'Correct.' : 'Incorrect.';
     announce(resultText);
   }
-  return wrap;
+  
+  if (state.isQuizNavVisible) {
+    qs('.quiz-nav-panel', wrap)?.classList.add('is-visible');
+  }
 
+  return wrap;
 }
+
 
 function renderFlagButton(questionId) {
   const isFlagged = state.flaggedQuestions.has(questionId);
@@ -847,7 +860,7 @@ function renderResults() {
   wrap.innerHTML = `
     <div class="card text-center">
       <h1 class="screen-title text-3xl text-neutral-800 dark:text-white" tabindex="-1">Quiz Complete!</h1>
-      <p class="score text-5xl font-bold mt-4 text-brand">${percentage}%</p>
+      <p class="score text-6xl font-bold mt-4 text-brand">${percentage}%</p>
       <p class="text-xl muted mt-2">You scored <strong>${correct} / ${total}</strong></p>
       <div class="results-actions mt-8 flex justify-center gap-4">
         <button class="btn btn-primary" id="retry">Retry Quiz</button>
@@ -1086,6 +1099,13 @@ function handleAppClick(event) {
     render();
     return;
   }
+  
+  if (target.id === 'toggle-quiz-nav') {
+    state.isQuizNavVisible = !state.isQuizNavVisible;
+    render();
+    return;
+  }
+
 
   if (FEATURE_FLAG_QUESTION_FLAGGING && target.closest('.quiz-nav-item')) {
     const navItem = target.closest('.quiz-nav-item');
@@ -1310,6 +1330,7 @@ function startQuiz(questionList, quizDetails) {
   state.quizType = quizDetails.type;
   state.quizConfig = quizDetails.config;
   state.resultsFilter = 'all'; // Reset filter on new quiz start
+  state.isQuizNavVisible = false; // Ensure nav is hidden by default on mobile
 
   if (FEATURE_FLAG_QUESTION_FLAGGING) {
     state.quizAttemptId = `${quizDetails.type}-${quizDetails.config.chapterId || 'mock'}-${new Date().getTime()}`;
