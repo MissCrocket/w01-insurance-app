@@ -245,7 +245,7 @@ function renderResumeButton() {
     const lastActivity = progress.lastActivity;
 
     if (!lastActivity || !container) {
-        container.innerHTML = '';
+        if (container) container.innerHTML = '';
         return;
     }
 
@@ -265,35 +265,92 @@ function renderResumeButton() {
 
 function renderTopics() {
   const wrap = document.createElement("section");
-  wrap.className = "screen screen-topics center-screen-content";
-  const dueCardsCount = progressService.getAllDueCards().length;
+  wrap.className = "screen screen-topics";
 
+  // --- Data Fetching ---
+  const chapters = getChaptersFromGlobal();
+  const progress = progressService.getProgress();
+  const dueCardsCount = progressService.getAllDueCards().length;
+  const { weaknesses } = progressService.analyzePerformance();
+
+  const chapterMasteries = Object.values(progress.chapters).map(ch => ch.mastery);
+  const overallMastery = chapterMasteries.length > 0 ?
+    (chapterMasteries.reduce((a, b) => a + b, 0) / chapterMasteries.length) * 100 :
+    0;
+  const streak = progress.studyStreak || { current: 0, longest: 0 };
+  const chapterTitleMap = chapters.reduce((acc, ch) => {
+    acc[ch.id] = ch.title;
+    return acc;
+  }, {});
+
+  // --- HTML Generation ---
+
+  // Motivation Widgets
+  const motivationWidgetsHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
+        <div class="card text-center bg-white/5 border border-white/10">
+            <h2 class="text-lg font-semibold text-neutral-300">Overall Mastery</h2>
+            <p class="text-5xl font-bold text-amber-400 my-2">${Math.round(overallMastery)}%</p>
+            <p class="text-xs text-neutral-400">Based on Flashcards</p>
+        </div>
+        <div class="card text-center bg-white/5 border border-white/10">
+            <h2 class="text-lg font-semibold text-neutral-300">Study Streak</h2>
+            <p class="text-5xl font-bold text-amber-400 my-2">${streak.current} ${streak.current === 1 ? 'day' : 'days'}</p>
+            <p class="text-xs text-neutral-400">Longest: ${streak.longest}</p>
+        </div>
+    </div>
+  `;
+
+  // Recommended Chapter
+  let recommendedChapterHTML = '';
+  if (weaknesses.length > 0) {
+    const topWeakness = weaknesses[0];
+    const chapterTitle = chapterTitleMap[topWeakness.chapterId] || topWeakness.chapterId;
+    recommendedChapterHTML = `
+      <div class="mt-6 text-center">
+        <h3 class="text-lg font-semibold text-neutral-300 mb-2">Recommended for you:</h3>
+        <button class="topic-card !bg-white/10 w-full max-w-md mx-auto actionable-weakness" data-chapter-id="${topWeakness.chapterId}">
+          <div class="topic-card__title">Review: ${chapterTitle}</div>
+          <div class="topic-card__meta">Your score in this chapter is ${Math.round(topWeakness.percentage)}%. Let's improve it!</div>
+        </button>
+      </div>
+    `;
+  }
+  
+  // Main structure
   wrap.innerHTML = `
-    <div class="text-center py-8 md:py-12">
+    <div class="text-center pt-8">
         <h1 class="text-3xl md:text-4xl font-bold text-white" tabindex="-1">Your All-in-One CII W01 Exam Prep</h1>
         <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
-            Master key concepts with smart flashcards, test your knowledge with chapter quizzes, and simulate the real exam with a full mock test.
+            What would you like to do next?
         </p>
     </div>
     
-    <!-- [FEATURE] Central "Due Today" Queue Button -->
-    <div class="mb-8">
-        <button id="study-due-cards" class="btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg !px-8 !py-4" ${dueCardsCount === 0 ? 'disabled' : ''}>
-            📚 Study All Due Flashcards (${dueCardsCount})
-        </button>
+    <div class="max-w-xl mx-auto mt-8">
+      ${motivationWidgetsHTML}
+
+      <div class="mb-2 text-center">
+          <button id="study-due-cards" class="btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg !px-8 !py-4 w-full max-w-md" ${dueCardsCount === 0 ? 'disabled' : ''}>
+              📚 Study All Due Flashcards (${dueCardsCount})
+          </button>
+      </div>
+      
+      ${recommendedChapterHTML}
     </div>
     
-    <div class="mode-switch mx-auto">
-      <button class="btn" data-mode="${MODE.MODULE}" aria-pressed="${state.mode === MODE.MODULE}">Study by Chapter</button>
-      <button class="btn" data-mode="${MODE.MOCK}" aria-pressed="${state.mode === MODE.MOCK}">Mock Exam</button>
-      <button class="btn" data-mode="${MODE.SPECIMEN}" aria-pressed="${state.mode === MODE.SPECIMEN}">Specimen Exam</button>
+    <div class="mt-12 text-center">
+        <p class="text-neutral-400">Or, choose another option:</p>
+        <div class="mode-switch mx-auto">
+          <button class="btn" data-mode="${MODE.MODULE}" aria-pressed="${state.mode === MODE.MODULE}">Study by Chapter</button>
+          <button class="btn" data-mode="${MODE.MOCK}" aria-pressed="${state.mode === MODE.MOCK}">Mock Exam</button>
+          <button class="btn" data-mode="${MODE.SPECIMEN}" aria-pressed="${state.mode === MODE.SPECIMEN}">Specimen Exam</button>
+        </div>
     </div>
-    <div class="topics-grid" role="list"></div>
+    <div class="topics-grid mt-6" role="list"></div>
   `;
 
   const grid = qs(".topics-grid", wrap);
-  const chapters = getChaptersFromGlobal().filter(ch => ch.id !== 'specimen_exam');
-  const progress = progressService.getProgress();
+  const chaptersToDisplay = chapters.filter(ch => ch.id !== 'specimen_exam');
 
   if (state.mode === MODE.MOCK) {
     grid.style.display = 'none';
@@ -316,7 +373,7 @@ function renderTopics() {
     `;
     qs(".mode-switch", wrap).after(card);
   } else {
-    chapters.forEach((ch) => {
+    chaptersToDisplay.forEach((ch) => {
       const chapterProgress = progress.chapters[ch.id];
       const mastery = chapterProgress ? Math.round(chapterProgress.mastery * 100) : 0;
       const card = document.createElement("button");
@@ -338,6 +395,7 @@ function renderTopics() {
   }
   return wrap;
 }
+
 
 function renderProgress() {
   const wrap = document.createElement('section');
@@ -799,7 +857,6 @@ function renderResults() {
     <div class="mt-8">
       <div class="flex items-center justify-between">
         <h2 class="section-title text-white">Review Your Answers</h2>
-        <!-- [FEATURE] Filter buttons for results -->
         <div class="flex items-center gap-2 rounded-xl bg-black/20 p-1">
           <button class="btn !min-h-0 text-sm" data-filter="all" aria-pressed="${state.resultsFilter === 'all'}">All (${total})</button>
           <button class="btn !min-h-0 text-sm" data-filter="incorrect" aria-pressed="${state.resultsFilter === 'incorrect'}">Incorrect (${incorrectCount})</button>
