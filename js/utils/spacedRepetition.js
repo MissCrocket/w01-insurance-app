@@ -1,5 +1,10 @@
 // js/utils/spacedRepetition.js
 export function calculateNextReview(card, rating) {
+  // Defensive defaults to prevent errors with old data
+  card.interval = typeof card.interval === 'number' ? card.interval : 0;
+  card.easeFactor = typeof card.easeFactor === 'number' ? card.easeFactor : 2.5;
+  card.consecutiveCorrect = typeof card.consecutiveCorrect === 'number' ? card.consecutiveCorrect : 0;
+
   if (rating < 3) {
     card.interval = 1;
     card.consecutiveCorrect = 0;

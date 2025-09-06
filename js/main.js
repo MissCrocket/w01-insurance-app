@@ -680,7 +680,8 @@ function renderLearning() {
     <textarea id="flashcard-notes" class="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white placeholder-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60" rows="4" placeholder="Add your personal notes here...">${noteText}</textarea>
     <div id="notes-meta" class="flex justify-end items-center text-right text-xs text-neutral-500 mt-1 h-4 gap-3"></div>
 </div>
-    `;
+      </div>
+    </div>`;
 
   let cardStatus = 'new';
   if (cardProgress) {
@@ -696,12 +697,17 @@ function renderLearning() {
   };
 
   const chapterTitle = card.chapterTitle ? `<div class="text-xs text-amber-400">${card.chapterTitle.replace('Chapter X: ','')}</div>` : '';
+  
+  // Conditionally create the button HTML
+  const manageCardsBtnHTML = !session.isCrossChapter 
+    ? `<button id="manage-cards-btn" class="btn-ghost !p-2">Manage Cards</button>`
+    : '';
 
   wrap.innerHTML = `
         <div class="flex justify-between items-center text-sm text-neutral-400 mb-4">
             <button id="back-btn" class="btn-ghost !p-2">&larr; Topics</button>
             <div>
-                <button id="manage-cards-btn" class="btn-ghost !p-2">Manage Cards</button>
+                ${manageCardsBtnHTML}
                 <span class="ml-4">Cards remaining: ${session.cards.length - session.currentIndex}</span>
             </div>
         </div>
@@ -728,36 +734,36 @@ function renderLearning() {
         `;
 
     const notesInput = qs('#flashcard-notes', wrap);
-const saveStatusEl = qs('#save-status', wrap);
-const notesMetaEl = qs('#notes-meta', wrap);
-let saveTimeout;
+    const saveStatusEl = qs('#save-status', wrap);
+    const notesMetaEl = qs('#notes-meta', wrap);
+    let saveTimeout;
 
-const updateMeta = () => {
-    const text = notesInput.value;
-    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-    notesMetaEl.innerHTML = `
-        <span class="word-count">${wordCount} word${wordCount === 1 ? '' : 's'}</span>
-        <button id="clear-note-btn" class="btn-ghost !py-0 !px-2 !min-h-0 text-xs" title="Clear notes">Clear</button>
-        <button id="export-note-btn" class="btn-ghost !py-0 !px-2 !min-h-0 text-xs" title="Export as .txt">Export</button>
-    `;
-};
+    const updateMeta = () => {
+        const text = notesInput.value;
+        const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+        notesMetaEl.innerHTML = `
+            <span class="word-count">${wordCount} word${wordCount === 1 ? '' : 's'}</span>
+            <button id="clear-note-btn" class="btn-ghost !py-0 !px-2 !min-h-0 text-xs" title="Clear notes">Clear</button>
+            <button id="export-note-btn" class="btn-ghost !py-0 !px-2 !min-h-0 text-xs" title="Export as .txt">Export</button>
+        `;
+    };
 
-notesInput.addEventListener('input', () => {
-    clearTimeout(saveTimeout);
-    saveStatusEl.textContent = 'Saving...';
-    saveStatusEl.classList.remove('opacity-0');
+    notesInput.addEventListener('input', () => {
+        clearTimeout(saveTimeout);
+        saveStatusEl.textContent = 'Saving...';
+        saveStatusEl.classList.remove('opacity-0');
 
-    updateMeta();
+        updateMeta();
 
-    saveTimeout = setTimeout(() => {
-        progressService.saveFlashcardNote(chapterId, card.id, notesInput.value);
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        saveStatusEl.textContent = `Saved at ${time}`;
-        setTimeout(() => saveStatusEl.classList.add('opacity-0'), 2000);
-    }, 1000); // Autosave after 1 second of inactivity
-});
+        saveTimeout = setTimeout(() => {
+            progressService.saveFlashcardNote(chapterId, card.id, notesInput.value);
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            saveStatusEl.textContent = `Saved at ${time}`;
+            setTimeout(() => saveStatusEl.classList.add('opacity-0'), 2000);
+        }, 1000); // Autosave after 1 second of inactivity
+    });
 
-updateMeta(); // Initial word count
+    updateMeta(); // Initial word count
 
   } else {
      controls.innerHTML = ``;
