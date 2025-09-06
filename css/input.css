@@ -39,6 +39,9 @@
   .topic-card { @apply text-left p-6 rounded-2xl bg-white/5 border border-white/10 transition-colors hover:bg-white/10 min-h-[100px]; }
   .topic-card__title { @apply font-semibold text-lg text-white; }
   .topic-card__meta { @apply mt-1 text-sm text-neutral-400; }
+
+  /* --- [NEW] Style for Drag & Drop --- */
+  .card-list.drag-over { @apply bg-white/10 border-dashed border-2 border-amber-400 rounded-lg; }
   
   /* --- STYLES for Flagging Feature & Quiz Nav --- */
   .quiz-layout { @apply flex flex-col lg:grid lg:grid-cols-4 gap-6; }

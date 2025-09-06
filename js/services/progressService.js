@@ -266,10 +266,23 @@ export function updateFlashcardConfidence(chapterId, chapterTitle, cardId, ratin
 
 export function updateCardStatus(chapterId, cardId, newStatus) {
   const progress = getProgress();
-  if (progress.chapters[chapterId] && progress.chapters[chapterId].flashcards[cardId]) {
-    progress.chapters[chapterId].flashcards[cardId].status = newStatus;
-    saveProgress(progress);
+
+  // Ensure the chapter object exists
+  if (!progress.chapters[chapterId]) {
+    progress.chapters[chapterId] = {
+      mastery: 0,
+      flashcards: {},
+    };
   }
+
+  // Ensure the flashcard object exists
+  if (!progress.chapters[chapterId].flashcards[cardId]) {
+    progress.chapters[chapterId].flashcards[cardId] = {};
+  }
+
+  // Now we can safely update the status
+  progress.chapters[chapterId].flashcards[cardId].status = newStatus;
+  saveProgress(progress);
 }
 
 export function resetProgress() {

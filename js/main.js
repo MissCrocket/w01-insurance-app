@@ -1667,39 +1667,76 @@ document.addEventListener('keydown', (e) => {
 
 let draggedCard = null;
 
+// Fired when the user starts dragging a card
 document.addEventListener('dragstart', (e) => {
   if (e.target.dataset.cardId) {
+    // [NEW LOGIC] Check the status of the card's parent column
+    const parentColumn = e.target.closest('[data-status]');
+    if (parentColumn && parentColumn.dataset.status === 'new') {
+      e.preventDefault(); // Prevent dragging from the "New" column
+      return;
+    }
+    
     draggedCard = e.target;
-    e.target.style.opacity = '0.5';
+    // Add a visual effect to the card being dragged
+    setTimeout(() => {
+      e.target.style.opacity = '0.5';
+    }, 0);
   }
 });
 
+// Fired when the drag ends (whether it was successful or not)
 document.addEventListener('dragend', (e) => {
   if (e.target.dataset.cardId) {
+    // Reset the visual effect
     e.target.style.opacity = '1';
+    draggedCard = null;
   }
 });
 
+// Fired continuously as a dragged item is over a potential drop zone
 document.addEventListener('dragover', (e) => {
+  // Prevent the default browser behavior to allow dropping
   e.preventDefault();
-  const dropZone = e.target.closest('[data-status]');
-  if (dropZone) {
-    // can add visual feedback here
+  const column = e.target.closest('[data-status]');
+  if (column) {
+    const dropZone = column.querySelector('.card-list');
+    if (dropZone) {
+      // Add a class for visual feedback on the drop zone
+      dropZone.classList.add('drag-over');
+    }
   }
 });
 
+// Fired when a dragged item leaves a potential drop zone
+document.addEventListener('dragleave', (e) => {
+    const column = e.target.closest('[data-status]');
+    if(column) {
+        const dropZone = column.querySelector('.card-list');
+        if (dropZone) {
+          dropZone.classList.remove('drag-over');
+        }
+    }
+});
+
+// Fired when a dragged item is dropped on a valid drop zone
 document.addEventListener('drop', (e) => {
   e.preventDefault();
   if (draggedCard) {
-    const dropZone = e.target.closest('[data-status] .card-list');
-    if (dropZone) {
-      const newStatus = dropZone.parentElement.dataset.status;
+    const column = e.target.closest('[data-status]');
+    if (column) {
+      const dropZone = column.querySelector('.card-list');
+      dropZone.classList.remove('drag-over'); // Remove visual feedback
+      const newStatus = column.dataset.status;
       const cardId = draggedCard.dataset.cardId;
       const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
 
+      // Call the service to update the card's status in localStorage
       progressService.updateCardStatus(chapter.id, cardId, newStatus);
+      
+      // Move the card element in the DOM
       dropZone.appendChild(draggedCard);
-      draggedCard = null;
+      showToast(`Card moved to '${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}'`);
     }
   }
 });
