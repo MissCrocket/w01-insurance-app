@@ -51,7 +51,7 @@ const state = {
   studyMode: false,
   quizTimer: null,
   quizEndTime: null,
-  answerRevealedForCurrent: false, // New state for exam answer reveals
+  answerRevealedForCurrent: false,
 };
 
 function getChaptersFromGlobal() {
@@ -845,6 +845,9 @@ function renderQuiz() {
 
         if (state.questionState === Q_STATE.ANSWERED) {
             label.classList.add('is-disabled');
+            if (isExamMode && idx === userAnswer?.selectedIndex) {
+                label.classList.add('is-selected-exam'); 
+            }
             if (!isExamMode || state.answerRevealedForCurrent) {
                 const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
                 if (idx === correctIndex) {
@@ -857,32 +860,34 @@ function renderQuiz() {
         optionsEl.appendChild(label);
     });
 
+    let buttonsHTML = '';
+
     if (state.questionState === Q_STATE.ANSWERED) {
-        if (!isExamMode || state.answerRevealedForCurrent) {
-            const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
-            let explanationText = q.explanation || 'No explanation provided.';
-            if (!q.explanation && chapter) {
-                explanationText = 'No explanation provided. For more information, please see W01 ' + chapter.title + '.';
-            }
-            explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${explanationText}</p>${loIdText}`;
-            explanationEl.hidden = false;
+      if (!isExamMode || state.answerRevealedForCurrent) {
+        const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
+        let explanationText = q.explanation || 'No explanation provided.';
+        if (!q.explanation && chapter) {
+          explanationText = 'No explanation provided. For more information, please see W01 ' + chapter.title + '.';
         }
-
-        let buttonsHTML = '';
-        if (state.studyMode && !isCorrect && !isExamMode) {
-             buttonsHTML += `<button class="btn" id="try-again-btn">Try Again</button>`;
-        }
-        if (isExamMode && !state.answerRevealedForCurrent) {
-            buttonsHTML += `<button class="btn btn-ghost" id="reveal-answer-btn">Reveal Answer</button>`;
-        }
-        if (isLastQuestion) {
-            buttonsHTML += `<button class="btn btn-primary" id="finish-btn">Finish Quiz</button>`;
-        } else {
-            buttonsHTML += `<button class="btn" id="next-btn">Next Question &rarr;</button>`;
-        }
-        actionsContainer.innerHTML = buttonsHTML;
-
+        explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${explanationText}</p>${loIdText}`;
+        explanationEl.hidden = false;
+      }
+      
+      if (state.studyMode && !isCorrect && !isExamMode) {
+        buttonsHTML += `<button class="btn" id="try-again-btn">Try Again</button>`;
+      }
+      
+      if (isExamMode && !state.answerRevealedForCurrent) {
+        buttonsHTML += `<button class="btn btn-ghost" id="reveal-answer-btn">Reveal Answer</button>`;
+      }
     }
+    
+    if (isLastQuestion) {
+      buttonsHTML += `<button class="btn btn-primary" id="finish-btn">Finish Quiz</button>`;
+    } else {
+      buttonsHTML += `<button class="btn" id="next-btn">Next Question &rarr;</button>`;
+    }
+    actionsContainer.innerHTML = buttonsHTML;
 
     if (state.isQuizNavVisible) {
         qs('.quiz-nav-panel', wrap)?.classList.add('is-visible');
@@ -906,15 +911,20 @@ function renderQuizNavigation() {
     const isCurrent = idx === state.currentIndex;
     const isFlagged = state.flaggedQuestions.has(q.id);
     const answerInfo = state.answers[idx];
+    const isExamMode = state.quizType === 'mock' || state.quizType === 'specimen';
 
     let itemClass = 'quiz-nav-item';
     if (isCurrent) itemClass += ' is-current';
 
     if (answerInfo) {
-      if (answerInfo.correct) {
-        itemClass += ' is-answered-correct';
+      if (isExamMode) {
+        itemClass += ' is-answered';
       } else {
-        itemClass += ' is-answered-incorrect';
+        if (answerInfo.correct) {
+          itemClass += ' is-answered-correct';
+        } else {
+          itemClass += ' is-answered-incorrect';
+        }
       }
     }
 
@@ -1279,6 +1289,7 @@ if (target.id === 'export-note-btn') {
     if (index >= 0 && index < state.questions.length && index !== state.currentIndex) {
       state.currentIndex = index;
       state.questionState = state.answers[index] ? Q_STATE.ANSWERED : Q_STATE.UNANSWERED;
+      state.answerRevealedForCurrent = false; // Reset reveal state when jumping
       render();
     }
     return;
@@ -1376,7 +1387,7 @@ if (target.id === 'export-note-btn') {
   } else if (target.id === 'next-btn') {
     state.currentIndex++;
     state.questionState = Q_STATE.UNANSWERED;
-    state.answerRevealedForCurrent = false; // Reset for the next question in exam mode
+    state.answerRevealedForCurrent = false;
     render();
   } else if (target.id === 'finish-btn') {
     if (FEATURE_FLAG_QUESTION_FLAGGING && FLAGGING_CONFIG.enableWarningOnSubmit && state.flaggedQuestions.size > 0) {
