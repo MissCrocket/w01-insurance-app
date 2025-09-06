@@ -669,7 +669,7 @@ function renderLearning() {
         </div>
         <div class="mt-4">
             <label for="flashcard-notes" class="text-sm text-neutral-400">My Notes:</label>
-            <textarea id="flashcard-notes" class="w-full mt-1 p-2 rounded bg-neutral-800 border border-neutral-700 text-white focus:ring-amber-500 focus:border-amber-500" rows="3" placeholder="Add your personal notes here...">${noteText}</textarea>
+            <textarea id="flashcard-notes" class="my-notes-textarea" rows="3" placeholder="Add your personal notes here...">${noteText}</textarea>
         </div>
       </div>
     </div>
@@ -1540,7 +1540,7 @@ function startFlashcardSession(chapter) {
   render();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('chaptersLoaded', () => { // <--- THIS IS THE FIX
   state.root = qs("#app");
 
   document.body.addEventListener('click', (event) => {
@@ -1548,7 +1548,7 @@ document.addEventListener('DOMContentLoaded', () => {
       handleAppClick(event);
     }
   });
-  
+
   const progress = progressService.getProgress();
   if (!progress.hasSeenWelcome) {
       qs('#welcome-modal').classList.remove('hidden');
