@@ -339,7 +339,7 @@ function renderTopics() {
       Welcome back. You have <strong>${dueCardsCount} card${dueCardsCount === 1 ? '' : 's'}</strong> due for review.${weaknessText}
     </p>`;
   }
-  
+
   let recommendedActionHTML = '';
   if (dueCardsCount > 0) {
      recommendedActionHTML = `
@@ -362,21 +362,23 @@ function renderTopics() {
          <button class="btn btn-secondary mt-2" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
       </div>
     `;
+    
   } else {
      recommendedActionHTML = `
       <div class="mt-6 text-center">
         <h3 class="text-lg font-semibold text-neutral-300 mb-2">You have no cards due for review!</h3>
-        <p class="text-neutral-400">Great work! Why not start a new topic or take a practice quiz?</p>
+        <p class="text-neutral-400">Why not start a new topic or take a practice quiz?</p>
         <button class="btn btn-secondary mt-4" id="quick-practice-quiz">Take a 10-Question Practice Quiz</button>
       </div>
     `;
   }
-  
-  
+    
   // Main structure
+  // inside the renderTopics function in js/main.js
+  // ... (logic for personalizedGreeting and recommendedActionHTML) ...
   wrap.innerHTML = `
-    <div class="text-center pt-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-white" tabindex="-1">Your All-in-One CII W01 Exam Prep</h1>
+    <div class="text-center py-8 md:py-12">
+      <h1 class="text-3xl md:text-4xl font-bold text-white focus:outline-none" tabindex="-1">Your All-in-One CII W01 Exam Prep</h1>
         ${personalizedGreeting}
     </div>
     
@@ -385,14 +387,14 @@ function renderTopics() {
     </div>
     
     <div class="mt-12 text-center">
-        <p class="text-neutral-400">Or, choose another option:</p>
+        <p class="text-neutral-400 mb-4">Or, choose another option:</p>
         <div class="mode-switch mx-auto">
           <button class="btn" data-mode="${MODE.MODULE}" aria-pressed="${state.mode === MODE.MODULE}">Study by Chapter</button>
           <button class="btn" data-mode="${MODE.MOCK}" aria-pressed="${state.mode === MODE.MOCK}">Mock Exam</button>
           <button class="btn" data-mode="${MODE.SPECIMEN}" aria-pressed="${state.mode === MODE.SPECIMEN}">Specimen Exam</button>
         </div>
     </div>
-    <div class="topics-grid mt-6" role="list"></div>
+    <div class="topics-grid mt-8" role="list"></div>
   `;
 
   const grid = qs(".topics-grid", wrap);
