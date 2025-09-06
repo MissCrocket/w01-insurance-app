@@ -1,6 +1,6 @@
 // js/services/flashcardService.js
 import * as progressService from './progressService.js';
-import { showToast } from '../utils/ui.js';
+import { showToast } from '../utils/uiUtils.js';
 import { state } from '../main.js';
 
 function sampleFromPool(pool, n) {
