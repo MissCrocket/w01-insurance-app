@@ -1,5 +1,5 @@
 // js/views/results.js
-import { qs, qsa } from '../utils/ui.js';
+import { qs, qsa } from '../utils/uiUtils.js';
 import { state } from '../main.js';
 import { FEATURE_FLAG_QUESTION_FLAGGING } from '../config.js';
 

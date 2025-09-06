@@ -1,5 +1,5 @@
 // js/views/progress.js
-import { qs } from '../utils/ui.js';
+import { qs } from '../utils/uiUtils.js';
 import * as progressService from '../services/progressService.js';
 
 function getChaptersFromGlobal() {

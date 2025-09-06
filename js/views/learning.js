@@ -1,5 +1,5 @@
 // js/views/learning.js
-import { qs, qsa } from '../utils/ui.js';
+import { qs, qsa } from '../utils/uiUtils.js';
 import * as progressService from '../services/progressService.js';
 import { state } from '../main.js';
 
