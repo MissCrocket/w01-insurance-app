@@ -44,15 +44,14 @@ const state = {
     isFlipped: false,
     dueCards: 0,
   },
-  // --- NEW for Flagging Feature ---
-  quizAttemptId: null, // Unique ID for the current quiz attempt
-  flaggedQuestions: new Set(), // Holds IDs of flagged questions for the current attempt
-  // --- NEW for Results Filtering ---
-  resultsFilter: 'all', // 'all', 'incorrect', 'flagged'
-  isQuizNavVisible: false, // For mobile quiz nav
-  studyMode: false, // For "Try Again" feature
-  quizTimer: null, // Holds the interval ID for the quiz timer
-  quizEndTime: null, // Timestamp for when the quiz should end
+  quizAttemptId: null,
+  flaggedQuestions: new Set(),
+  resultsFilter: 'all',
+  isQuizNavVisible: false,
+  studyMode: false,
+  quizTimer: null,
+  quizEndTime: null,
+  answerRevealedForCurrent: false, // New state for exam answer reveals
 };
 
 function getChaptersFromGlobal() {
@@ -142,7 +141,6 @@ function buildQuiz(config) {
   } = config;
   let allQuestions = [];
 
-  // Helper to add chapterId to questions
   const tagQuestionsWithChapter = (questions, chapterId) => {
       return questions.map(q => ({...q, chapterId}));
   };
@@ -168,7 +166,6 @@ function buildQuiz(config) {
       '5': []
     };
 
-    // Populate question pools from all chapters except specimen_exam
     chapters.forEach(chapter => {
       if (chapter.id === 'specimen_exam') return;
       mcqOnly(chapter.questions).forEach(q => {
@@ -181,7 +178,6 @@ function buildQuiz(config) {
       });
     });
 
-    // Select questions based on syllabus weights
     Object.keys(syllabusWeights).forEach(lo => {
       if (questionPools[lo]) {
         const numQuestions = syllabusWeights[lo];
@@ -189,7 +185,6 @@ function buildQuiz(config) {
       }
     });
     
-    // Shuffle the final 100-question exam
     allQuestions = sampleFromPool(allQuestions, allQuestions.length);
 
   } else if (type === 'quick_quiz') {
@@ -200,7 +195,7 @@ function buildQuiz(config) {
       if (specimenChapter) {
         allQuestions.push(...tagQuestionsWithChapter(mcqOnly(specimenChapter.questions), 'specimen_exam'));
       }
-  } else { // module quiz
+  } else {
     const chapter = chapters.find(c => c.id === chapterId);
     if (chapter) {
       const poolAll = tagQuestionsWithChapter(mcqOnly(chapter?.questions), chapter.id);
@@ -236,7 +231,6 @@ function render() {
   const root = state.root || qs("#app");
   root.innerHTML = "";
 
-  // Render resume button outside the main app container so it persists
   renderResumeButton();
 
   let screenEl;
@@ -311,7 +305,6 @@ function renderTopics() {
   const wrap = document.createElement("section");
   wrap.className = "screen screen-topics";
 
-  // --- Data Fetching ---
   const chapters = getChaptersFromGlobal();
   const progress = progressService.getProgress();
   const dueCardsCount = progressService.getAllDueCards().length;
@@ -321,8 +314,6 @@ function renderTopics() {
     acc[ch.id] = ch.title;
     return acc;
   }, {});
-
-  // --- HTML Generation ---
 
   let personalizedGreeting = `<p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
       What would you like to do next?
@@ -373,9 +364,6 @@ function renderTopics() {
     `;
   }
     
-  // Main structure
-  // inside the renderTopics function in js/main.js
-  // ... (logic for personalizedGreeting and recommendedActionHTML) ...
   wrap.innerHTML = `
     <div class="text-center py-8 md:py-12">
       <h1 class="text-3xl md:text-4xl font-bold text-white focus:outline-none" tabindex="-1">Your All-in-One CII W01 Exam Prep</h1>
@@ -698,7 +686,6 @@ function renderLearning() {
 
   const chapterTitle = card.chapterTitle ? `<div class="text-xs text-amber-400">${card.chapterTitle.replace('Chapter X: ','')}</div>` : '';
   
-  // Conditionally create the button HTML
   const manageCardsBtnHTML = !session.isCrossChapter 
     ? `<button id="manage-cards-btn" class="btn-ghost !p-2">Manage Cards</button>`
     : '';
@@ -760,10 +747,10 @@ function renderLearning() {
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             saveStatusEl.textContent = `Saved at ${time}`;
             setTimeout(() => saveStatusEl.classList.add('opacity-0'), 2000);
-        }, 1000); // Autosave after 1 second of inactivity
+        }, 1000);
     });
 
-    updateMeta(); // Initial word count
+    updateMeta();
 
   } else {
      controls.innerHTML = ``;
@@ -773,25 +760,27 @@ function renderLearning() {
 }
 
 function renderQuiz() {
-  const wrap = document.createElement("section");
-  wrap.className = "screen screen-quiz";
-  const q = state.questions[state.currentIndex];
-  const progressPercent = ((state.currentIndex + 1) / state.questions.length) * 100;
+    const wrap = document.createElement("section");
+    wrap.className = "screen screen-quiz";
+    const q = state.questions[state.currentIndex];
+    const progressPercent = ((state.currentIndex + 1) / state.questions.length) * 100;
 
-  const quizNavHTML = FEATURE_FLAG_QUESTION_FLAGGING ? renderQuizNavigation() : '';
-  const quizNavToggleHTML = FEATURE_FLAG_QUESTION_FLAGGING ? `
+    const isExamMode = state.quizType === 'mock' || state.quizType === 'specimen';
+
+    const quizNavHTML = FEATURE_FLAG_QUESTION_FLAGGING ? renderQuizNavigation() : '';
+    const quizNavToggleHTML = FEATURE_FLAG_QUESTION_FLAGGING ? `
     <button class="btn btn-ghost !p-2 lg:hidden" id="toggle-quiz-nav">
       <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
       <span class="sr-only">Toggle Question Grid</span>
     </button>
     ` : '<div></div>';
     
-  let timerHTML = '';
-  if (state.quizType === 'mock' || state.quizType === 'specimen') {
-      timerHTML = `<div id="timer" class="text-xl font-bold text-amber-400"></div>`;
-  }
+    let timerHTML = '';
+    if (isExamMode) {
+        timerHTML = `<div id="timer" class="text-xl font-bold text-amber-400"></div>`;
+    }
 
-  wrap.innerHTML = `
+    wrap.innerHTML = `
     <div class="toolbar flex justify-between items-center">
       <button class="btn btn-ghost" id="quit-quiz">&larr; Exit</button>
       <h1 class="screen-title text-xl font-bold text-white" tabindex="-1">Q ${state.currentIndex + 1}/${state.questions.length}</h1>
@@ -817,96 +806,94 @@ function renderQuiz() {
               <div class="options mt-6 space-y-3" role="radiogroup" aria-label="Answer options"></div>
               <div id="explanation-container" class="explanation-card" hidden></div>
             </article>
-            <div class="quiz-actions mt-6 text-right">
-              <button class="btn" id="try-again-btn" hidden>Try Again</button>
-              <button class="btn" id="next-btn" hidden>Next Question &rarr;</button>
-              <button class="btn btn-primary" id="finish-btn" hidden>Finish Quiz</button>
-            </div>
+            <div class="quiz-actions mt-6 flex justify-end items-center gap-3"></div>
         </div>
         
         ${quizNavHTML}
     </div>
   `;
 
-  const noticeEl = qs("#pre-exam-notice", wrap);
-  if (state.quizType === 'mock' || state.quizType === 'specimen') {
-      noticeEl.innerHTML = `<p class="font-bold">This is a timed 2-hour exam simulation. The test will automatically submit when the timer runs out. Good luck!</p>`;
-  } else {
-      noticeEl.style.display = 'none';
-  }
-
-  const optionsEl = qs(".options", wrap);
-  const explanationEl = qs("#explanation-container", wrap);
-  const nextBtn = qs("#next-btn", wrap);
-  const finishBtn = qs("#finish-btn", wrap);
-  const tryAgainBtn = qs("#try-again-btn", wrap);
-  const isLastQuestion = state.currentIndex === state.questions.length - 1;
-  const chapter = getChaptersFromGlobal().find(c => c.id === q.chapterId);
-  const userAnswer = state.answers[state.currentIndex];
-  const isCorrect = userAnswer?.correct;
-
-  (q?.options || []).forEach((optText, idx) => {
-    const label = document.createElement("label");
-    label.className = "option-label";
-    label.dataset.index = idx;
-    const input = document.createElement("input");
-    input.type = "radio";
-    input.name = "answer";
-    input.value = idx;
-    input.className = "option-input sr-only";
-    const span = document.createElement("span");
-    span.className = "option-text";
-    span.textContent = optText;
-    label.appendChild(input);
-    label.appendChild(span);
-    if (state.questionState === Q_STATE.ANSWERED) {
-      label.classList.add('is-disabled');
-      const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
-      if (idx === correctIndex) {
-        label.classList.add('is-correct');
-      } else if (idx === userAnswer?.selectedIndex) {
-        label.classList.add('is-incorrect');
-      }
-    }
-    optionsEl.appendChild(label);
-  });
-
-  if (state.questionState === Q_STATE.ANSWERED) {
-    const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
-    let explanationText = q.explanation || 'No explanation provided.';
-    if (!q.explanation && chapter) {
-        explanationText = 'No explanation provided. For more information, please see W01 ' + chapter.title + '.';
-    }
-    explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${explanationText}</p>${loIdText}`;
-    explanationEl.hidden = false;
-    
-    if (state.studyMode && !isCorrect) {
-        tryAgainBtn.hidden = false;
-    } else if (isLastQuestion) {
-      finishBtn.hidden = false;
+    const noticeEl = qs("#pre-exam-notice", wrap);
+    if (isExamMode) {
+        noticeEl.innerHTML = `<p class="font-bold">This is a timed 2-hour exam simulation. The test will automatically submit when the timer runs out. Good luck!</p>`;
     } else {
-      nextBtn.hidden = false;
+        noticeEl.style.display = 'none';
     }
-  }
 
-  if (state.questionState === Q_STATE.UNANSWERED) {
-    announce("New question loaded.");
-  } else {
-    const resultText = isCorrect ? 'Correct.' : 'Incorrect.';
-    announce(resultText);
-  }
-  
-  if (state.isQuizNavVisible) {
-    qs('.quiz-nav-panel', wrap)?.classList.add('is-visible');
-  }
+    const optionsEl = qs(".options", wrap);
+    const explanationEl = qs("#explanation-container", wrap);
+    const actionsContainer = qs(".quiz-actions", wrap);
+    const isLastQuestion = state.currentIndex === state.questions.length - 1;
+    const chapter = getChaptersFromGlobal().find(c => c.id === q.chapterId);
+    const userAnswer = state.answers[state.currentIndex];
+    const isCorrect = userAnswer?.correct;
 
-  return wrap;
+    (q?.options || []).forEach((optText, idx) => {
+        const label = document.createElement("label");
+        label.className = "option-label";
+        label.dataset.index = idx;
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "answer";
+        input.value = idx;
+        input.className = "option-input sr-only";
+        const span = document.createElement("span");
+        span.className = "option-text";
+        span.textContent = optText;
+        label.appendChild(input);
+        label.appendChild(span);
+
+        if (state.questionState === Q_STATE.ANSWERED) {
+            label.classList.add('is-disabled');
+            if (!isExamMode || state.answerRevealedForCurrent) {
+                const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
+                if (idx === correctIndex) {
+                    label.classList.add('is-correct');
+                } else if (idx === userAnswer?.selectedIndex) {
+                    label.classList.add('is-incorrect');
+                }
+            }
+        }
+        optionsEl.appendChild(label);
+    });
+
+    if (state.questionState === Q_STATE.ANSWERED) {
+        if (!isExamMode || state.answerRevealedForCurrent) {
+            const loIdText = q.loId ? `<span class="text-xs text-neutral-500 dark:text-neutral-400 block mt-2">Syllabus LO: ${q.loId}</span>` : '';
+            let explanationText = q.explanation || 'No explanation provided.';
+            if (!q.explanation && chapter) {
+                explanationText = 'No explanation provided. For more information, please see W01 ' + chapter.title + '.';
+            }
+            explanationEl.innerHTML = `<p class="text-neutral-800 dark:text-white"><strong>Explanation:</strong> ${explanationText}</p>${loIdText}`;
+            explanationEl.hidden = false;
+        }
+
+        let buttonsHTML = '';
+        if (state.studyMode && !isCorrect && !isExamMode) {
+             buttonsHTML += `<button class="btn" id="try-again-btn">Try Again</button>`;
+        }
+        if (isExamMode && !state.answerRevealedForCurrent) {
+            buttonsHTML += `<button class="btn btn-ghost" id="reveal-answer-btn">Reveal Answer</button>`;
+        }
+        if (isLastQuestion) {
+            buttonsHTML += `<button class="btn btn-primary" id="finish-btn">Finish Quiz</button>`;
+        } else {
+            buttonsHTML += `<button class="btn" id="next-btn">Next Question &rarr;</button>`;
+        }
+        actionsContainer.innerHTML = buttonsHTML;
+
+    }
+
+    if (state.isQuizNavVisible) {
+        qs('.quiz-nav-panel', wrap)?.classList.add('is-visible');
+    }
+
+    return wrap;
 }
 
 
 function renderFlagButton(questionId) {
   const isFlagged = state.flaggedQuestions.has(questionId);
-  // [ACCESSIBILITY] aria-pressed is correctly toggled here via re-render
   return `
         <button type="button" class="flag-btn" id="flag-btn" data-question-id="${questionId}" aria-pressed="${isFlagged}" title="${isFlagged ? 'Remove flag (F)' : 'Mark for review (F)'}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm3 1a1 1 0 00-1 1v5h10l-3-4 3-4H7V4a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
@@ -918,7 +905,7 @@ function renderQuizNavigation() {
   const navItems = state.questions.map((q, idx) => {
     const isCurrent = idx === state.currentIndex;
     const isFlagged = state.flaggedQuestions.has(q.id);
-    const answerInfo = state.answers[idx]; // Get answer details
+    const answerInfo = state.answers[idx];
 
     let itemClass = 'quiz-nav-item';
     if (isCurrent) itemClass += ' is-current';
@@ -1019,7 +1006,6 @@ function renderResults() {
     </div>
   `;
 
-  // Apply active style to the current filter button
   const filterButtons = qsa('[data-filter]', wrap);
   filterButtons.forEach(btn => {
     if(btn.dataset.filter !== state.resultsFilter) {
@@ -1144,26 +1130,24 @@ function handleAppClick(event) {
         return;
     }
 
-    // Add this inside the handleAppClick function
 if (target.id === 'add-to-notes-btn') {
     const aiResponse = qs('#ai-response')?.textContent.trim();
     const notesInput = qs('#flashcard-notes');
     if (aiResponse && notesInput) {
         const separator = notesInput.value.trim() ? '\n\n---\n\n' : '';
         notesInput.value += `${separator}${aiResponse}`;
-        notesInput.dispatchEvent(new Event('input', { bubbles: true })); // Trigger autosave
-        notesInput.scrollTop = notesInput.scrollHeight; // Scroll to bottom
+        notesInput.dispatchEvent(new Event('input', { bubbles: true }));
+        notesInput.scrollTop = notesInput.scrollHeight;
         showToast('Explanation added to notes!');
     }
     return;
 }
     
-// Add this inside the handleAppClick function
 if (target.id === 'clear-note-btn') {
     const notesInput = qs('#flashcard-notes');
     if (notesInput) {
         notesInput.value = '';
-        notesInput.dispatchEvent(new Event('input', { bubbles: true })); // Trigger autosave
+        notesInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
     return;
 }
@@ -1185,7 +1169,6 @@ if (target.id === 'export-note-btn') {
     return;
 }
 
-  // --- [FEATURE] Quick Start Modal Logic ---
   if (target.closest('#close-welcome-modal')) {
     qs('#welcome-modal').classList.add('hidden');
     progressService.setHasSeenWelcome();
@@ -1211,9 +1194,7 @@ if (target.id === 'export-note-btn') {
     startQuiz(questions, { type: 'mock', config: { totalQuestions: 100 } });
     return;
   }
-  // --- End Quick Start Logic ---
 
-  // --- [FEATURE] Resume Activity ---
   if (target.closest('#resume-activity-btn')) {
     const lastActivity = progressService.getProgress().lastActivity;
     if (lastActivity) {
@@ -1229,7 +1210,6 @@ if (target.id === 'export-note-btn') {
     }
   }
 
-  // --- [FEATURE] Study All Due Cards Button ---
   if (target.closest('#study-due-cards')) {
       startDueFlashcardsSession();
       return;
@@ -1304,7 +1284,6 @@ if (target.id === 'export-note-btn') {
     return;
   }
 
-  // --- [FEATURE] Actionable Progress Screen ---
   if (target.closest('.actionable-weakness')) {
     const chapterId = target.closest('.actionable-weakness').dataset.chapterId;
     const chapter = chapters.find(c => c.id === chapterId);
@@ -1371,6 +1350,12 @@ if (target.id === 'export-note-btn') {
     });
   }
 
+  if (target.id === 'reveal-answer-btn') {
+    state.answerRevealedForCurrent = true;
+    render();
+    return;
+  }
+
   if (target.closest('.option-label') && state.questionState === Q_STATE.UNANSWERED) {
     const label = target.closest('.option-label');
     const chosenIndex = parseInt(label.dataset.index, 10);
@@ -1386,11 +1371,12 @@ if (target.id === 'export-note-btn') {
     render();
   } else if (target.id === 'try-again-btn') {
     state.questionState = Q_STATE.UNANSWERED;
-    state.answers[state.currentIndex] = null; // Clear the previous incorrect answer
+    state.answers[state.currentIndex] = null;
     render();
   } else if (target.id === 'next-btn') {
     state.currentIndex++;
     state.questionState = Q_STATE.UNANSWERED;
+    state.answerRevealedForCurrent = false; // Reset for the next question in exam mode
     render();
   } else if (target.id === 'finish-btn') {
     if (FEATURE_FLAG_QUESTION_FLAGGING && FLAGGING_CONFIG.enableWarningOnSubmit && state.flaggedQuestions.size > 0) {
@@ -1408,7 +1394,6 @@ if (target.id === 'export-note-btn') {
         clearInterval(state.quizTimer);
         state.quizTimer = null;
     }
-    // progressService.completeQuizAttempt(state.quizAttemptId); // Mark as abandoned - decided against saving incomplete
     Object.assign(state, {
       screen: SCREEN.TOPICS,
       questions: [],
@@ -1439,11 +1424,10 @@ if (target.id === 'export-note-btn') {
     return;
   }
 
-  // --- [FEATURE] Results Screen Filter Logic ---
   if(target.closest('[data-filter]')) {
     const filter = target.closest('[data-filter]').dataset.filter;
     state.resultsFilter = filter;
-    render(); // Re-render the results screen with the new filter
+    render();
     return;
   }
 
@@ -1476,7 +1460,7 @@ if (target.id === 'export-note-btn') {
       quizConfig: {},
       quizAttemptId: null,
       flaggedQuestions: new Set(),
-      resultsFilter: 'all', // Reset filter
+      resultsFilter: 'all',
     });
     render();
   }
@@ -1525,7 +1509,6 @@ function startQuiz(questionList, quizDetails) {
             const correctAnswerValue = q.options[q.correctIndex];
             const shuffledOptions = [...q.options];
 
-            // Fisher-Yates shuffle algorithm
             for (let i = shuffledOptions.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
@@ -1557,6 +1540,7 @@ function startQuiz(questionList, quizDetails) {
     state.studyMode = quizDetails.studyMode || false;
     state.resultsFilter = 'all';
     state.isQuizNavVisible = false;
+    state.answerRevealedForCurrent = false;
 
     if (FEATURE_FLAG_QUESTION_FLAGGING) {
         state.quizAttemptId = `${quizDetails.type}-${quizDetails.config.chapterId || 'mock'}-${new Date().getTime()}`;
@@ -1608,7 +1592,7 @@ function startDueFlashcardsSession() {
         return;
     }
     state.flashcardSession = {
-        cards: sampleFromPool(dueCards, 50), // Study up to 50 due cards at a time
+        cards: sampleFromPool(dueCards, 50),
         currentIndex: 0,
         isFlipped: false,
         isCrossChapter: true,
@@ -1649,7 +1633,7 @@ function startFlashcardSession(chapter) {
   render();
 }
 
-document.addEventListener('chaptersLoaded', () => { // <--- THIS IS THE FIX
+document.addEventListener('chaptersLoaded', () => {
   state.root = qs("#app");
 
   document.body.addEventListener('click', (event) => {
@@ -1696,48 +1680,39 @@ document.addEventListener('keydown', (e) => {
 
 let draggedCard = null;
 
-// Fired when the user starts dragging a card
 document.addEventListener('dragstart', (e) => {
   if (e.target.dataset.cardId) {
-    // [NEW LOGIC] Check the status of the card's parent column
     const parentColumn = e.target.closest('[data-status]');
     if (parentColumn && parentColumn.dataset.status === 'new') {
-      e.preventDefault(); // Prevent dragging from the "New" column
+      e.preventDefault();
       return;
     }
     
     draggedCard = e.target;
-    // Add a visual effect to the card being dragged
     setTimeout(() => {
       e.target.style.opacity = '0.5';
     }, 0);
   }
 });
 
-// Fired when the drag ends (whether it was successful or not)
 document.addEventListener('dragend', (e) => {
   if (e.target.dataset.cardId) {
-    // Reset the visual effect
     e.target.style.opacity = '1';
     draggedCard = null;
   }
 });
 
-// Fired continuously as a dragged item is over a potential drop zone
 document.addEventListener('dragover', (e) => {
-  // Prevent the default browser behavior to allow dropping
   e.preventDefault();
   const column = e.target.closest('[data-status]');
   if (column) {
     const dropZone = column.querySelector('.card-list');
     if (dropZone) {
-      // Add a class for visual feedback on the drop zone
       dropZone.classList.add('drag-over');
     }
   }
 });
 
-// Fired when a dragged item leaves a potential drop zone
 document.addEventListener('dragleave', (e) => {
     const column = e.target.closest('[data-status]');
     if(column) {
@@ -1748,22 +1723,19 @@ document.addEventListener('dragleave', (e) => {
     }
 });
 
-// Fired when a dragged item is dropped on a valid drop zone
 document.addEventListener('drop', (e) => {
   e.preventDefault();
   if (draggedCard) {
     const column = e.target.closest('[data-status]');
     if (column) {
       const dropZone = column.querySelector('.card-list');
-      dropZone.classList.remove('drag-over'); // Remove visual feedback
+      dropZone.classList.remove('drag-over');
       const newStatus = column.dataset.status;
       const cardId = draggedCard.dataset.cardId;
       const chapter = getChaptersFromGlobal().find(c => c.id === state.selectedChapterId);
 
-      // Call the service to update the card's status in localStorage
       progressService.updateCardStatus(chapter.id, cardId, newStatus);
       
-      // Move the card element in the DOM
       dropZone.appendChild(draggedCard);
       showToast(`Card moved to '${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}'`);
     }
