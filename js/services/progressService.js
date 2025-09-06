@@ -333,3 +333,9 @@ export function saveFlashcardNote(chapterId, cardId, noteText) {
   progress.chapters[chapterId].flashcards[cardId].note = noteText;
   saveProgress(progress);
 }
+
+export function clearLastActivity() {
+  const data = getProgress();
+  data.lastActivity = null;
+  saveProgress(data);
+}

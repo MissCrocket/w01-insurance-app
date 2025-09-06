@@ -148,14 +148,29 @@ export function renderQuiz() {
 
         if (state.questionState === 'answered') {
             label.classList.add('is-disabled');
-            if (isExamMode && idx === userAnswer?.selectedIndex) {
-                label.classList.add('is-selected-exam'); 
-            }
-            if (!isExamMode || state.answerRevealedForCurrent) {
-                const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
-                if (idx === correctIndex) {
+            const isUserSelection = (idx === userAnswer?.selectedIndex);
+            const correctIndex = q.correctIndex ?? q.options.indexOf(q.correctAnswer);
+            const isCorrectOption = (idx === correctIndex);
+
+            if (isExamMode) {
+                if (state.answerRevealedForCurrent) {
+                    // When answer is revealed in exam mode
+                    if (isCorrectOption) {
+                        label.classList.add('is-correct'); // Always show the correct answer in green
+                    } else if (isUserSelection && !isCorrectOption) {
+                        label.classList.add('is-incorrect'); // Show user's wrong answer in red
+                    }
+                } else {
+                    // Before revealing, just show the user's selection
+                    if (isUserSelection) {
+                        label.classList.add('is-selected-exam');
+                    }
+                }
+            } else {
+                // Original logic for study mode
+                if (isCorrectOption) {
                     label.classList.add('is-correct');
-                } else if (idx === userAnswer?.selectedIndex) {
+                } else if (isUserSelection) {
                     label.classList.add('is-incorrect');
                 }
             }

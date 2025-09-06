@@ -113,6 +113,9 @@ export function handleQuizFinish() {
   progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
   const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : state.quizType === 'quick_quiz' ? 'Quick Quiz' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title;
   const { streakExtended, currentStreak } = progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
+  
+  progressService.clearLastActivity(); // <-- ADD THIS LINE
+
   if (streakExtended) {
     showToast(`🔥 Streak extended to ${currentStreak} days! Keep it up!`);
   }

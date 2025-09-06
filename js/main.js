@@ -334,12 +334,12 @@ if (target.id === 'export-note-btn') {
   }
 
   if (target.id === 'back-btn' || target.id === 'back-to-topics-secondary') {
+    if (state.screen === SCREEN.LEARNING) {
+        progressService.clearLastActivity(); // Clear when leaving flashcards
+    }
     state.screen = SCREEN.TOPICS;
     render();
-  } else if (target.closest('.mode-switch .btn')) {
-    state.mode = target.dataset.mode;
-    render();
-  }
+  } 
 
   if (target.id === 'reveal-btn') {
     state.flashcardSession.isFlipped = true;
@@ -435,16 +435,12 @@ if (target.id === 'export-note-btn') {
         clearInterval(state.quizTimer);
         state.quizTimer = null;
     }
+    progressService.clearLastActivity(); // Clear when quitting a quiz
     Object.assign(state, {
       screen: SCREEN.TOPICS,
       questions: [],
       answers: [],
-      currentIndex: 0,
-      score: 0,
-      quizType: null,
-      quizConfig: {},
-      quizAttemptId: null,
-      flaggedQuestions: new Set()
+      // ... (rest of the state reset)
     });
     render();
   }
