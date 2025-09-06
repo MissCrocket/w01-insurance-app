@@ -122,12 +122,15 @@ export function startQuiz(questionList, quizDetails, renderFn) {
         ...q,
         id: q.id || `${q.question.slice(0, 20)}-${Math.random()}`
     })) || [];
-    state.answers = new Array(state.questions.length).fill(null);
-    state.currentIndex = 0;
-    state.score = 0;
+    
+    // Check for and load saved progress
+    state.answers = quizDetails.answers || new Array(state.questions.length).fill(null);
+    state.currentIndex = quizDetails.currentIndex || 0;
+    
+    state.score = 0; // Score will be recalculated on finish
     state.screen = 'quiz';
-    state.questionState = 'unanswered';
-    state.quizType = quizDetails.type;
+    state.questionState = state.answers[state.currentIndex] ? 'answered' : 'unanswered';
+    state.quizType = quizDetails.quizType || quizDetails.type;
     state.quizConfig = quizDetails.config;
     state.studyMode = quizDetails.studyMode || false;
     state.resultsFilter = 'all';
@@ -139,12 +142,17 @@ export function startQuiz(questionList, quizDetails, renderFn) {
         state.quizTimer = setInterval(() => updateTimer(renderFn), 1000);
     }
 
-    progressService.saveLastActivity({
+    // Save the initial state for the first-time pause
+    const currentActivity = {
         type: 'quiz',
+        quizType: state.quizType,
         chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title,
         config: quizDetails.config,
-        studyMode: state.studyMode
-    });
+        studyMode: state.studyMode,
+        currentIndex: state.currentIndex,
+        answers: state.answers
+    };
+    progressService.saveLastActivity(currentActivity);
 }
 
 function updateTimer(renderFn) {

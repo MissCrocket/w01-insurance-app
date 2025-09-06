@@ -85,7 +85,7 @@ export function renderQuiz() {
 
     wrap.innerHTML = `
     <div class="toolbar flex justify-between items-center">
-      <button class="btn btn-ghost" id="quit-quiz">&larr; Exit</button>
+      <button class="btn btn-ghost" id="quit-quiz">&larr; Pause & Exit</button>
       <h1 class="screen-title text-xl font-bold text-white" tabindex="-1">Q ${state.currentIndex + 1}/${state.questions.length}</h1>
       ${timerHTML}
       ${quizNavToggleHTML}

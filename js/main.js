@@ -118,11 +118,19 @@ function render() {
 
 function renderResumeButton() {
     const container = qs('#resume-container');
+    if (!container) return;
+
+    // Only show the resume button on the topics screen
+    if (state.screen !== SCREEN.TOPICS) {
+        container.innerHTML = '';
+        return;
+    }
+
     const progress = progressService.getProgress();
     const lastActivity = progress.lastActivity;
 
-    if (!lastActivity || !container) {
-        if (container) container.innerHTML = '';
+    if (!lastActivity) {
+        container.innerHTML = '';
         return;
     }
 
@@ -154,6 +162,16 @@ function handleAppClick(event) {
     return;
   }
   
+  if (target.closest('.mode-switch .btn')) {
+    const btn = target.closest('.mode-switch .btn');
+    const newMode = btn.dataset.mode;
+    if (state.mode !== newMode) {
+        state.mode = newMode;
+        render();
+    }
+    return;
+  }
+
   if (target.closest('#quick-practice-quiz')) {
         const questions = buildQuiz({ chapters, type: 'quick_quiz', totalQuestions: 10 });
         startQuiz(questions, { type: 'quick_quiz', config: { totalQuestions: 10 } }, render);
@@ -233,7 +251,12 @@ if (target.id === 'export-note-btn') {
     const lastActivity = progressService.getProgress().lastActivity;
     if (lastActivity) {
       if (lastActivity.type === 'quiz') {
-        const questions = buildQuiz({ chapters, ...lastActivity.config });
+        const buildConfig = {
+            chapters,
+            type: lastActivity.quizType,
+            ...lastActivity.config
+        };
+        const questions = buildQuiz(buildConfig);
         startQuiz(questions, lastActivity, render);
       } else if (lastActivity.type === 'flashcards') {
         const chapter = chapters.find(c => c.id === lastActivity.chapterId);
@@ -431,18 +454,20 @@ if (target.id === 'export-note-btn') {
     }
     return;
   } else if (target.id === 'quit-quiz') {
-    if (state.quizTimer) {
-        clearInterval(state.quizTimer);
-        state.quizTimer = null;
-    }
-    progressService.clearLastActivity(); // Clear when quitting a quiz
-    Object.assign(state, {
-      screen: SCREEN.TOPICS,
-      questions: [],
-      answers: [],
-      // ... (rest of the state reset)
-    });
-    render();
+      if (state.quizTimer) {
+          clearInterval(state.quizTimer);
+          state.quizTimer = null;
+      }
+      // Get the current progress and save it
+      const lastActivity = progressService.getProgress().lastActivity;
+      if (lastActivity && lastActivity.type === 'quiz') {
+          lastActivity.currentIndex = state.currentIndex;
+          lastActivity.answers = state.answers;
+          progressService.saveLastActivity(lastActivity);
+      }
+      state.screen = SCREEN.TOPICS;
+      render();
+      showToast('Quiz paused. You can resume from the home screen.', 3000);
   }
 
   if (target.id === 'submit-anyway-btn') {
