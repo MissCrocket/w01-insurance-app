@@ -1520,34 +1520,63 @@ function handleQuizFinish() {
 }
 
 function startQuiz(questionList, quizDetails) {
-  state.questions = questionList.map(q => ({ ...q,
-    id: q.id || `${q.question.slice(0, 20)}-${Math.random()}`
-  })) || [];
-  state.answers = new Array(state.questions.length).fill(null);
-  state.currentIndex = 0;
-  state.score = 0;
-  state.screen = SCREEN.QUIZ;
-  state.questionState = Q_STATE.UNANSWERED;
-  state.quizType = quizDetails.type;
-  state.quizConfig = quizDetails.config;
-  state.studyMode = quizDetails.studyMode || false;
-  state.resultsFilter = 'all'; // Reset filter on new quiz start
-  state.isQuizNavVisible = false; // Ensure nav is hidden by default on mobile
+    const shuffledQuestionList = questionList.map(q => {
+        if (q.type === 'mcq' && Array.isArray(q.options)) {
+            const correctAnswerValue = q.options[q.correctIndex];
+            const shuffledOptions = [...q.options];
 
-  if (FEATURE_FLAG_QUESTION_FLAGGING) {
-    state.quizAttemptId = `${quizDetails.type}-${quizDetails.config.chapterId || 'mock'}-${new Date().getTime()}`;
-    const attempt = progressService.getOrCreateQuizAttempt(state.quizAttemptId, state.questions);
-    const flaggedIds = attempt.questions.filter(q => q.flagged).map(q => q.id);
-    state.flaggedQuestions = new Set(flaggedIds);
-  }
-  
-  if (state.quizType === 'mock' || state.quizType === 'specimen') {
+            // Fisher-Yates shuffle algorithm
+            for (let i = shuffledOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+            }
+
+            const newCorrectIndex = shuffledOptions.findIndex(opt => opt === correctAnswerValue);
+
+            return {
+                ...q,
+                options: shuffledOptions,
+                correctIndex: newCorrectIndex,
+                correct: newCorrectIndex
+            };
+        }
+        return q;
+    });
+
+    state.questions = shuffledQuestionList.map(q => ({
+        ...q,
+        id: q.id || `${q.question.slice(0, 20)}-${Math.random()}`
+    })) || [];
+    state.answers = new Array(state.questions.length).fill(null);
+    state.currentIndex = 0;
+    state.score = 0;
+    state.screen = SCREEN.QUIZ;
+    state.questionState = Q_STATE.UNANSWERED;
+    state.quizType = quizDetails.type;
+    state.quizConfig = quizDetails.config;
+    state.studyMode = quizDetails.studyMode || false;
+    state.resultsFilter = 'all';
+    state.isQuizNavVisible = false;
+
+    if (FEATURE_FLAG_QUESTION_FLAGGING) {
+        state.quizAttemptId = `${quizDetails.type}-${quizDetails.config.chapterId || 'mock'}-${new Date().getTime()}`;
+        const attempt = progressService.getOrCreateQuizAttempt(state.quizAttemptId, state.questions);
+        const flaggedIds = attempt.questions.filter(q => q.flagged).map(q => q.id);
+        state.flaggedQuestions = new Set(flaggedIds);
+    }
+
+    if (state.quizType === 'mock' || state.quizType === 'specimen') {
         state.quizEndTime = Date.now() + 120 * 60 * 1000;
         state.quizTimer = setInterval(updateTimer, 1000);
     }
-    
-  progressService.saveLastActivity({ type: 'quiz', chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title, config: quizDetails.config, studyMode: state.studyMode });
-  render();
+
+    progressService.saveLastActivity({
+        type: 'quiz',
+        chapter: state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title,
+        config: quizDetails.config,
+        studyMode: state.studyMode
+    });
+    render();
 }
 
 function updateTimer() {
