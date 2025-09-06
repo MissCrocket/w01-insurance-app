@@ -1079,42 +1079,6 @@ h1:focus, h2:focus, h3:focus {
   color: rgb(206 212 218 / var(--tw-text-opacity, 1));
 }
 
-.my-notes-textarea {
-  margin-top: 0.25rem;
-  width: 100%;
-  border-radius: 0.25rem;
-  border-width: 1px;
-  --tw-border-opacity: 1;
-  border-color: rgb(73 80 87 / var(--tw-border-opacity, 1));
-  --tw-bg-opacity: 1;
-  background-color: rgb(52 58 64 / var(--tw-bg-opacity, 1));
-  padding: 0.5rem;
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-}
-
-.my-notes-textarea::-moz-placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(206 212 218 / var(--tw-placeholder-opacity, 1));
-}
-
-.my-notes-textarea::placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(206 212 218 / var(--tw-placeholder-opacity, 1));
-}
-
-.my-notes-textarea:focus {
-  --tw-border-opacity: 1;
-  border-color: rgb(245 158 11 / var(--tw-border-opacity, 1));
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(245 158 11 / var(--tw-ring-opacity, 1));
-}
-
-.my-notes-textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
 /* --- STYLES for Flagging Feature & Quiz Nav --- */
 
 .quiz-layout {

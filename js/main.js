@@ -616,6 +616,7 @@ async function getAiExplanation(term, definition, promptType, container) {
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br>');
     container.innerHTML = `<p class="text-amber-300">${formattedText}</p>`;
+    qs('#add-to-notes-btn')?.classList.remove('hidden');
     progressService.cacheAiExplanation(chapterId, cardId, promptType, formattedText);
   } catch (error) {
     console.error('Failed to fetch AI explanation:', error);
@@ -665,14 +666,20 @@ function renderLearning() {
               <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-base font-semibold !py-3" data-prompt="simplify">✨ Explain Simply</button>
               <button class="btn-ghost bg-black/20 hover:bg-black/40 text-amber-300 border-amber-400/30 text-base font-semibold !py-3" data-prompt="scenario">🏡 Real-World Scenario</button>
           </div>
-          <div id="ai-response" class="mt-3 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm"></div>
+          <div id="ai-response" class="mt-3 p-4 bg-black/20 rounded-lg min-h-[60px] text-sm relative"></div>
+<button id="add-to-notes-btn" class="absolute -bottom-2 right-2 btn-ghost !py-0 !px-2 !min-h-0 text-xs hidden" title="Add this explanation to your notes">➕ Add to Notes</button>
         </div>
-        <div class="mt-4">
-            <label for="flashcard-notes" class="text-sm text-neutral-400">My Notes:</label>
-            <textarea id="flashcard-notes" class="my-notes-textarea" rows="3" placeholder="Add your personal notes here...">${noteText}</textarea>
-        </div>
-      </div>
+        <div class="notes-container mt-4 pt-4 border-t border-white/10">
+    <div class="flex justify-between items-center mb-2">
+        <h3 class="flex items-center gap-2 text-base font-semibold text-neutral-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.885L17.5 5.5a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" /></svg>
+            My Notes
+        </h3>
+        <span id="save-status" class="text-xs text-neutral-500 transition-opacity duration-300 opacity-0"></span>
     </div>
+    <textarea id="flashcard-notes" class="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white placeholder-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60" rows="4" placeholder="Add your personal notes here...">${noteText}</textarea>
+    <div id="notes-meta" class="flex justify-end items-center text-right text-xs text-neutral-500 mt-1 h-4 gap-3"></div>
+</div>
     `;
 
   let cardStatus = 'new';
@@ -721,10 +728,36 @@ function renderLearning() {
         `;
 
     const notesInput = qs('#flashcard-notes', wrap);
-    notesInput.addEventListener('blur', () => {
-      progressService.saveFlashcardNote(chapterId, card.id, notesInput.value);
-      showToast('Note saved!');
-    });
+const saveStatusEl = qs('#save-status', wrap);
+const notesMetaEl = qs('#notes-meta', wrap);
+let saveTimeout;
+
+const updateMeta = () => {
+    const text = notesInput.value;
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    notesMetaEl.innerHTML = `
+        <span class="word-count">${wordCount} word${wordCount === 1 ? '' : 's'}</span>
+        <button id="clear-note-btn" class="btn-ghost !py-0 !px-2 !min-h-0 text-xs" title="Clear notes">Clear</button>
+        <button id="export-note-btn" class="btn-ghost !py-0 !px-2 !min-h-0 text-xs" title="Export as .txt">Export</button>
+    `;
+};
+
+notesInput.addEventListener('input', () => {
+    clearTimeout(saveTimeout);
+    saveStatusEl.textContent = 'Saving...';
+    saveStatusEl.classList.remove('opacity-0');
+
+    updateMeta();
+
+    saveTimeout = setTimeout(() => {
+        progressService.saveFlashcardNote(chapterId, card.id, notesInput.value);
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        saveStatusEl.textContent = `Saved at ${time}`;
+        setTimeout(() => saveStatusEl.classList.add('opacity-0'), 2000);
+    }, 1000); // Autosave after 1 second of inactivity
+});
+
+updateMeta(); // Initial word count
 
   } else {
      controls.innerHTML = ``;
@@ -1104,7 +1137,48 @@ function handleAppClick(event) {
         startQuiz(questions, { type: 'quick_quiz', config: { totalQuestions: 10 } });
         return;
     }
+
+    // Add this inside the handleAppClick function
+if (target.id === 'add-to-notes-btn') {
+    const aiResponse = qs('#ai-response')?.textContent.trim();
+    const notesInput = qs('#flashcard-notes');
+    if (aiResponse && notesInput) {
+        const separator = notesInput.value.trim() ? '\n\n---\n\n' : '';
+        notesInput.value += `${separator}${aiResponse}`;
+        notesInput.dispatchEvent(new Event('input', { bubbles: true })); // Trigger autosave
+        notesInput.scrollTop = notesInput.scrollHeight; // Scroll to bottom
+        showToast('Explanation added to notes!');
+    }
+    return;
+}
     
+// Add this inside the handleAppClick function
+if (target.id === 'clear-note-btn') {
+    const notesInput = qs('#flashcard-notes');
+    if (notesInput) {
+        notesInput.value = '';
+        notesInput.dispatchEvent(new Event('input', { bubbles: true })); // Trigger autosave
+    }
+    return;
+}
+
+if (target.id === 'export-note-btn') {
+    const notesInput = qs('#flashcard-notes');
+    const cardTerm = state.flashcardSession.cards[state.flashcardSession.currentIndex].term;
+    if (notesInput && notesInput.value) {
+        const blob = new Blob([notesInput.value], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `W01 Note - ${cardTerm}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    return;
+}
+
   // --- [FEATURE] Quick Start Modal Logic ---
   if (target.closest('#close-welcome-modal')) {
     qs('#welcome-modal').classList.add('hidden');
