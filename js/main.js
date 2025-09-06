@@ -5,7 +5,7 @@ import {
   FEATURE_FLAG_QUESTION_FLAGGING,
   FLAGGING_CONFIG
 } from './config.js';
-import { qs, qsa, announce, focusFirst, showToast } from './utils/ui.js';
+import { qs, qsa, announce, focusFirst, showToast } from './utils/uiUtils.js';
 import { renderTopics } from './views/topics.js';
 import { renderQuiz } from './views/quiz.js';
 import { renderResults } from './views/results.js';
