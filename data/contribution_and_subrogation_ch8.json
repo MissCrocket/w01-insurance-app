@@ -18,16 +18,16 @@
     {
       "type": "mcq",
       "loId": "3.11",
-      "concept": "Dual insurance",
-      "question": "Contribution arises where two or more policies:",
+      "concept": "Conditions for Contribution",
+      "question": "For the principle of contribution to apply, which of the following conditions is NOT required?",
       "options": [
-        "Cover different interests in the same subject-matter",
-        "Cover the same interest, same subject-matter, and same peril",
-        "Cover unrelated perils",
-        "Are issued by the same insurer"
+        "The policies must have identical sums insured.",
+        "The policies must cover a common insurable interest.",
+        "The policies must cover a common peril that caused the loss.",
+        "Each policy must be a contract of indemnity."
       ],
-      "correctAnswer": "Cover the same interest, same subject-matter, and same peril",
-      "explanation": "The classic triad: common interest, subject-matter, and peril."
+      "correctAnswer": "The policies must have identical sums insured.",
+      "explanation": "For contribution to apply, five conditions are needed: 1) Two or more policies of indemnity; 2) Common insurable interest; 3) Common peril; 4) Common subject-matter; 5) Each policy must be liable for the loss. The sums insured do not need to be identical."
     },
     {
       "type": "mcq",
@@ -186,10 +186,24 @@
       ],
       "correctAnswer": "The insurer can take ownership of the salvaged vehicle.",
       "explanation": "When an insurer pays a total loss claim, they are entitled to take ownership of the salvage (the remains of the property)."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.12",
+      "concept": "Case Law - Castellain v. Preston (1883)",
+      "question": "A property owner was paid by his insurer for fire damage, but then also received the full, undamaged sale price from the buyer. What principle, established in Castellain v. Preston, allows the insurer to recover the money they paid?",
+      "options": [
+        "Contribution",
+        "Proximate Cause",
+        "Insurable Interest",
+        "Subrogation"
+      ],
+      "correctAnswer": "Subrogation",
+      "explanation": "Castellain v. Preston is a key case for subrogation. It confirms that the insured cannot be more than indemnified. After paying the claim, the insurer is entitled to 'step into the shoes' of the insured and take over any rights they have to recover the loss from another source, preventing the insured from being paid twice."
     }
   ],
   "flashcards": [
-    { "id": "ch8_1", "loId": "3.11", "term": "Contribution – Conditions", "definition": "Requires common interest, common subject-matter, and common peril." },
+    { "id": "ch8_1", "loId": "3.11", "term": "Contribution – 5 Conditions", "definition": "For contribution to apply: 1) Two or more policies of indemnity must exist; 2) Common insurable interest; 3) Common peril; 4) Common subject-matter; 5) Each policy must be liable for the loss." },
     { "id": "ch8_2", "loId": "3.11", "term": "Rateable Proportion", "definition": "Insurers share losses in proportion to their sums insured, unless modified by wording." },
     { "id": "ch8_3", "loId": "3.11", "term": "Non-Contribution Clause", "definition": "A policy term that disapplies contribution for that policy." },
     { "id": "ch8_4", "loId": "3.11", "term": "More Specific Insurance", "definition": "Specific policy responds before general policy where both cover the same risk." },
@@ -201,6 +215,18 @@
       "loId": "3.12",
       "term": "Salvage",
       "definition": "The residual value of a damaged item after a total loss claim has been paid. The insurer is entitled to the salvage."
+    },
+    {
+      "id": "ch8_lo3_12_2",
+      "loId": "3.12",
+      "term": "Castellain v. Preston (1883)",
+      "definition": "The cornerstone case for subrogation, establishing that an insured cannot recover more than a full indemnity. It gives the insurer the right to benefit from any recovery the insured can make from a third party for the same loss."
+    },
+    {
+      "id": "ch8_lo3_11_1",
+      "loId": "3.11",
+      "term": "King and Queen Granaries Case",
+      "definition": "This case (North British & Mercantile v. Liverpool & London & Globe) established that for contribution to apply, the insurable interest must be common. A warehouse owner (bailee) and a grain owner had different interests, so their insurers could not contribute."
     }
   ]
 }

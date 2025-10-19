@@ -392,6 +392,90 @@
       ],
       "correctAnswer": "InsurTech",
       "explanation": "InsurTech is transforming various areas of the insurance industry, from underwriting to claims."
+    },
+	{
+      "type": "mcq",
+      "loId": "2.5",
+      "concept": "Loss Adjuster vs. Loss Assessor",
+      "question": "A policyholder suffers a complex fire claim at their factory and feels overwhelmed. They hire an expert to help prepare their claim and negotiate with the insurer on their behalf. This expert is a:",
+      "options": [
+        "Loss Adjuster",
+        "Loss Assessor",
+        "Claims Handler",
+        "Risk Manager"
+      ],
+      "correctAnswer": "Loss Assessor",
+      "explanation": "A Loss Assessor is appointed and paid by the policyholder to represent their interests during a claim. A Loss Adjuster is appointed and paid by the insurer."
+    },
+    {
+      "type": "mcq",
+      "loId": "2.3",
+      "concept": "Lloyd's Market Structure",
+      "question": "At Lloyd's, what is the role of a Members' Agent?",
+      "options": [
+        "To underwrite risks on behalf of a syndicate.",
+        "To manage the day-to-day operations of a syndicate.",
+        "To advise capital providers (Names) on syndicate selection and performance.",
+        "To process claims centrally for the entire market."
+      ],
+      "correctAnswer": "To advise capital providers (Names) on syndicate selection and performance.",
+      "explanation": "A Members' Agent acts on behalf of the capital providers, helping them invest in various syndicates, whereas a Managing Agent runs the syndicate itself."
+    },
+    {
+      "type": "mcq",
+      "loId": "2.3",
+      "concept": "Lloyd's Placing Process",
+      "question": "In the Lloyd's market, the process of a lead underwriter accepting a percentage of a risk on a slip is known as:",
+      "options": [
+        "Signing a treaty",
+        "Writing a line",
+        "Delegating authority",
+        "Issuing a cover note"
+      ],
+      "correctAnswer": "Writing a line",
+      "explanation": "When a lead underwriter agrees to take a certain percentage (a 'line') of the risk detailed on the Market Reform Contract (slip), this is referred to as 'writing a line'."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.8",
+      "concept": "Commercial Insurance Classes",
+      "question": "Which type of insurance policy protects a business against financial loss due to employee dishonesty or fraud?",
+      "options": [
+        "Business Interruption",
+        "Employers' Liability",
+        "Fidelity Guarantee",
+        "Contractors' All Risks"
+      ],
+      "correctAnswer": "Fidelity Guarantee",
+      "explanation": "Fidelity Guarantee is a form of Pecuniary insurance that covers losses arising from the fraudulent or dishonest acts of employees."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.8",
+      "concept": "Commercial Insurance Classes",
+      "question": "A construction company is building a new office block. Which type of policy would provide comprehensive cover for damage to the works, materials, and liability during the construction period?",
+      "options": [
+        "Business Interruption",
+        "Professional Indemnity",
+        "Contractors' All Risks",
+        "Aviation Insurance"
+      ],
+      "correctAnswer": "Contractors' All Risks",
+      "explanation": "Contractors' All Risks (CAR) is a specialist Engineering policy designed to cover the property and liability risks associated with a construction project."
+    },
+    {
+      "type": "mcq",
+      "loId": "2.3",
+      "concept": "Lloyd's Central Processing",
+      "question": "What is the primary role of Xchanging Ins-sure Services (XIS) in the Lloyd's market?",
+      "options": [
+        "To provide capital to syndicates.",
+        "To act as a central processing hub for policies and claims.",
+        "To regulate the conduct of Lloyd's brokers.",
+        "To underwrite specialist aviation risks."
+      ],
+      "correctAnswer": "To act as a central processing hub for policies and claims.",
+      "explanation": "Xchanging provides the critical back-office functions for the Lloyd's market, including checking and signing policies and processing premiums and claims."
     }
   ],
   "flashcards": [
@@ -423,13 +507,13 @@
       "id": 39,
       "loId": "2.5",
       "term": "Loss Adjuster",
-      "definition": "Investigates claims for insurers; recommends coverage and settlement."
+      "definition": "An independent expert appointed and paid by the insurer to investigate the circumstances of a claim, determine policy liability, and recommend a settlement amount."
     },
     {
       "id": 40,
       "loId": "2.5",
       "term": "Loss Assessor",
-      "definition": "Represents policyholders in preparing and negotiating claims."
+      "definition": "An expert appointed and paid by the policyholder to prepare, present, and negotiate a claim on their behalf."
     },
     {
       "id": 41,
@@ -466,6 +550,66 @@
       "loId": "2.4",
       "term": "InsurTech",
       "definition": "The use of new technologies and digital tools to provide innovative and efficient insurance services."
+    },
+	{
+      "id": "ch2_lo2_5_1",
+      "loId": "2.5",
+      "term": "Loss Adjuster vs. Loss Assessor",
+      "definition": "A Loss Adjuster works for the insurer. A Loss Assessor works for the policyholder."
+    },
+    {
+      "id": "ch2_lo2_3_3",
+      "loId": "2.3",
+      "term": "Members' Agent (Lloyd's)",
+      "definition": "Advises capital providers (Names) on syndicate selection, performance, and other investment-related matters in the Lloyd's market."
+    },
+    {
+      "id": "ch2_lo2_3_4",
+      "loId": "2.3",
+      "term": "Market Reform Contract (Slip)",
+      "definition": "The document prepared by a Lloyd's broker that details the risk to be insured. It is presented to underwriters, who 'write a line' (a percentage) on it to indicate their acceptance."
+    },
+    {
+      "id": "ch2_lo2_3_5",
+      "loId": "2.3",
+      "term": "Xchanging Ins-sure Services (XIS)",
+      "definition": "A central processing service for the Lloyd's market, handling the administration of policies, premiums, and claims."
+    },
+    {
+      "id": "ch2_lo1_8_1",
+      "loId": "1.8",
+      "term": "Pecuniary Insurance",
+      "definition": "Insurance that covers financial losses of an intangible nature, such as loss of revenue or value. Examples include Business Interruption and Fidelity Guarantee."
+    },
+    {
+      "id": "ch2_lo1_8_2",
+      "loId": "1.8",
+      "term": "Fidelity Guarantee",
+      "definition": "A type of pecuniary insurance that protects an employer against financial loss resulting from the dishonesty or fraud of its employees."
+    },
+    {
+      "id": "ch2_lo1_8_3",
+      "loId": "1.8",
+      "term": "Business Interruption",
+      "definition": "A type of pecuniary insurance that covers the loss of income a business suffers after a disaster. It covers the revenue that would have been earned, plus continuing costs."
+    },
+    {
+      "id": "ch2_lo1_8_4",
+      "loId": "1.8",
+      "term": "Engineering Insurance",
+      "definition": "A class of insurance that covers a range of risks related to construction, machinery, and equipment, such as Contractors' All Risks and Machinery Breakdown."
+    },
+    {
+      "id": "ch2_lo1_8_5",
+      "loId": "1.8",
+      "term": "Contractors' All Risks (CAR)",
+      "definition": "A type of engineering insurance that provides comprehensive cover for construction projects, including damage to the works and third-party liability."
+    },
+    {
+      "id": "ch2_lo1_8_6",
+      "loId": "1.8",
+      "term": "Aviation Insurance",
+      "definition": "A specialist class of insurance covering loss of or damage to the aircraft (hull) and legal liability to third parties and passengers."
     }
   ]
 }

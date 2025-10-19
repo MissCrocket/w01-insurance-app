@@ -70,7 +70,7 @@
         "Pays policyholder compensation"
       ],
       "correctAnswer": "Develops principles, standards and guidance for supervision",
-      "explanation": "IAIS provides international supervisory standards, not binding law."
+      "explanation": "The IAIS is the global standard-setting body for the insurance sector, issuing the Insurance Core Principles (ICPs) to promote globally consistent supervision."
     },
     {
       "type": "mcq",
@@ -112,21 +112,21 @@
         "Placement – Integration – Layering"
       ],
       "correctAnswer": "Placement – Layering – Integration",
-      "explanation": "Funds enter the system (placement), are obscured (layering), then returned as 'clean' (integration)."
+      "explanation": "Funds enter the system (Placement), are obscured through complex transactions (Layering), and are then reintroduced into the economy as 'clean' funds (Integration)."
     },
     {
       "type": "mcq",
       "loId": "4.4",
       "concept": "Fraud types",
-      "question": "Examples of insurance fraud can include:",
+      "question": "Exaggerating the value of items stolen in a burglary claim is an example of:",
       "options": [
-        "Only policyholder fraud",
-        "Policyholder, intermediary and internal (staff) fraud",
-        "Regulatory fraud only",
-        "Only staged motor accidents"
+        "Internal fraud",
+        "Policyholder/Claims fraud",
+        "Intermediary fraud",
+        "Regulatory fraud"
       ],
-      "correctAnswer": "Policyholder, intermediary and internal (staff) fraud",
-      "explanation": "Fraud categories are broad; controls include detection, investigation, and prevention frameworks."
+      "correctAnswer": "Policyholder/Claims fraud",
+      "explanation": "This is a common example of claims fraud, where the policyholder dishonestly inflates the value of a legitimate claim."
     },
     {
       "type": "mcq",
@@ -143,12 +143,13 @@
       "explanation": "These tools promote fair dealing and informed choices."
     },
     {
-      "type": "fill",
+      "type": "mcq",
       "loId": "4.3",
-      "concept": "Term recall",
-      "question": "The global AML/CTF standard-setting body is the ________.",
-      "correctAnswer": ["fatf", "financial action task force"],
-      "explanation": "FATF issues recommendations and mutual evaluations through a global network."
+      "concept": "FATF Role",
+      "question": "Which inter-governmental body sets the global standards for combating money laundering and terrorist financing?",
+      "options": ["IAIS", "FATF", "WTO", "IMF"],
+      "correctAnswer": "FATF",
+      "explanation": "The Financial Action Task Force (FATF) develops the international recommendations that form the basis of anti-money laundering (AML) and counter-terrorist financing (CTF) laws worldwide."
     },
     {
       "type": "mcq",
@@ -168,15 +169,15 @@
       "type": "mcq",
       "loId": "4.4",
       "concept": "Fraud Prevention",
-      "question": "Which of the following is a key measure for preventing internal fraud?",
+      "question": "A key warning sign of potential intermediary fraud for an insurer is:",
       "options": [
-        "Increasing sales commissions",
-        "Mandatory staff vacations and job rotation in sensitive roles",
-        "Reducing the number of internal audits",
-        "Allowing senior staff to override all controls"
+        "An intermediary with a low claims ratio.",
+        "An exceptionally high number of early policy cancellations from one intermediary.",
+        "An intermediary who only works with long-standing clients.",
+        "An intermediary who asks for standard commission rates."
       ],
-      "correctAnswer": "Mandatory staff vacations and job rotation in sensitive roles",
-      "explanation": "These measures make it more difficult for a single individual to conceal fraudulent activity over a long period."
+      "correctAnswer": "An exceptionally high number of early policy cancellations from one intermediary.",
+      "explanation": "A high lapse rate can be an indicator that an intermediary is 'churning' policies to generate new business commission, which is a form of fraud."
     },
     {
       "type": "mcq",
@@ -223,16 +224,20 @@
   ],
   "flashcards": [
     { "id": 1, "loId": "4.1", "term": "Prudential vs Conduct", "definition": "Prudential = financial soundness; Conduct = fair treatment of customers." },
-    { "id": 2, "loId": "4.1", "term": "IAIS", "definition": "International standard-setter for insurance supervision (principles, standards, guidance)." },
+    { "id": 2, "loId": "4.1", "term": "IAIS", "definition": "The International Association of Insurance Supervisors. It is the global standard-setting body that issues the Insurance Core Principles (ICPs) for effective supervision of the insurance sector." },
     { "id": 3, "loId": "4.2", "term": "Solvency Control Levels", "definition": "Thresholds triggering supervisory intervention to protect policyholders." },
     { "id": 4, "loId": "4.3", "term": "CDD", "definition": "Identify/verify customers & beneficial owners; monitor relationships on a risk basis." },
-    { "id": 5, "loId": "4.4", "term": "Fraud Types", "definition": "Policyholder, intermediary, and internal; managed via prevention, detection, response." },
-    { "id": 6, "loId": "4.3", "term": "Money Laundering Stages", "definition": "Placement → Layering → Integration." },
+    { "id": 5, "loId": "4.4", "term": "Fraud Types", "definition": "Typically classified into three main categories: Policyholder/Claims fraud, Intermediary fraud, and Internal fraud." },
+    { "id": 6, "loId": "4.3", "term": "Money Laundering Stages", "definition": "1. Placement: Introducing illicit funds into the financial system. 2. Layering: Obscuring the source of the funds through complex transactions. 3. Integration: Making the funds appear legitimate." },
     {
       "id": "ch9_lo4_1_1",
       "loId": "4.1",
       "term": "IAIS ICPs Update",
       "definition": "The IAIS Insurance Core Principles (ICPs) were updated in December 2024 to reflect changes in the insurance market and global financial system."
-    }
+    },
+    { "id": "ch9_lo4_3_1", "loId": "4.3", "term": "Financial Action Task Force (FATF)", "definition": "The global money laundering and terrorist financing watchdog that sets international standards and promotes policies to combat financial crime." },
+    { "id": "ch9_lo4_4_1", "loId": "4.4", "term": "Internal Fraud", "definition": "Fraud committed against an insurer by its own directors, managers, or staff. Examples include theft of assets or accepting bribes." },
+    { "id": "ch9_lo4_4_2", "loId": "4.4", "term": "Policyholder/Claims Fraud", "definition": "Fraud committed by a customer, such as misrepresenting facts on an application, deliberately causing a loss, exaggerating a legitimate claim, or staging an incident." },
+    { "id": "ch9_lo4_4_3", "loId": "4.4", "term": "Intermediary Fraud", "definition": "Fraud committed by an intermediary (broker/agent), such as withholding premiums paid by clients or colluding with clients to submit fraudulent claims." }
   ]
 }

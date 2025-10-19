@@ -365,6 +365,20 @@
       ],
       "correctAnswer": "Due to the principles of Gharar (excessive uncertainty) and Maysir (gambling).",
       "explanation": "Islamic finance principles prohibit excessive uncertainty and gambling, making speculative risks uninsurable."
+    },
+    {
+      "type": "mcq",
+      "loId": "1.2",
+      "concept": "Fundamental Risks",
+      "question": "Which of the following statements about fundamental risks is most accurate?",
+      "options": [
+        "All fundamental risks are completely uninsurable.",
+        "Fundamental risks only affect individuals and not large populations.",
+        "While many fundamental risks like war are uninsurable, specific policies like political risk insurance exist for certain fundamental risks.",
+        "Fundamental risks are always low in severity."
+      ],
+      "correctAnswer": "While many fundamental risks like war are uninsurable, specific policies like political risk insurance exist for certain fundamental risks.",
+      "explanation": "This statement accurately reflects the nuanced insurability of fundamental risks. While large-scale events like war or recession are generally excluded, the insurance market has developed products to cover specific aspects of these risks for businesses and individuals."
     }
   ],
   "flashcards": [
@@ -398,6 +412,30 @@
       "loId": "1.2",
       "term": "Gharar and Maysir",
       "definition": "Islamic finance principles prohibiting speculative risks. Gharar refers to excessive uncertainty, and Maysir refers to gambling."
+    },
+    {
+      "id": "ch1_lo1_4_1",
+      "loId": "1.4",
+      "term": "Physical Hazard Examples",
+      "definition": "Fire Insurance: Construction type, heating system. Theft Insurance: Security features, nature of stock. Motor Insurance: Vehicle type, age of driver, where it's kept."
+    },
+    {
+      "id": "ch1_lo1_4_2",
+      "loId": "1.4",
+      "term": "Moral Hazard Examples",
+      "definition": "Relates to human attitude. Examples include: previous insurance history (declined proposals, fraudulent claims), personal history (criminal convictions), or a general lack of care or poor management."
+    },
+    {
+      "id": "ch1_lo1_5_1",
+      "loId": "1.5",
+      "term": "Homogeneous Exposures & Law of Large Numbers",
+      "definition": "The law of large numbers allows insurers to predict losses, but it relies on having a large number of similar risks (homogeneous exposures). Without this similarity, predictions are less reliable."
+    },
+    {
+      "id": "ch1_lo1_2_2",
+      "loId": "1.2",
+      "term": "Insurable Fundamental Risks",
+      "definition": "While fundamental risks like war or recession are generally uninsurable, specific policies like political risk insurance (for businesses operating abroad) or mortgage payment protection insurance (for unemployment) can cover certain financial consequences arising from them."
     }
   ]
 }

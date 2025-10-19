@@ -18,16 +18,16 @@
     {
       "type": "mcq",
       "loId": "3.7",
-      "concept": "Definition",
-      "question": "In insurance, 'proximate cause' generally refers to the:",
+      "concept": "Definition of Proximate Cause",
+      "question": "Which of the following best defines the 'proximate cause' of a loss in insurance?",
       "options": [
-        "Last event in the chain of events",
-        "Dominant, effective cause of the loss",
-        "First event in the chain of events",
-        "Any insured peril mentioned in the policy"
+        "The first event in a sequence leading to the loss.",
+        "The last event in a sequence leading to the loss.",
+        "The dominant, active, and efficient cause that sets in motion an unbroken chain of events leading to the loss.",
+        "Any event that contributes to the loss, however remote."
       ],
-      "correctAnswer": "Dominant, effective cause of the loss",
-      "explanation": "Proximate cause is the dominant, efficient cause that sets the chain of events in motion and determines liability."
+      "correctAnswer": "The dominant, active, and efficient cause that sets in motion an unbroken chain of events leading to the loss.",
+      "explanation": "This is the correct legal definition. The proximate cause is not necessarily the first or last cause in time, but the one with the most decisive influence in producing the loss."
     },
     {
       "type": "mcq",
@@ -194,10 +194,11 @@
     }
   ],
   "flashcards": [
-    { "id": "ch6_1", "loId": "3.7", "term": "Proximate Cause", "definition": "The dominant, effective cause of a loss; determines if a policy responds." },
-    { "id": "ch6_2", "loId": "3.7", "term": "Insured vs Excepted Peril", "definition": "Insured peril may lead to payment; if an excepted/excluded peril is proximate, claim fails." },
+    { "id": "ch6_1", "loId": "3.7", "term": "Proximate Cause", "definition": "The dominant, active, and efficient cause that sets in motion an unbroken chain of events leading to a loss. It is not necessarily the first or last event." },
+    { "id": "ch6_2", "loId": "3.7", "term": "Insured vs Excepted Peril", "definition": "If an insured peril is proximate, the claim is payable. If an excepted/excluded peril is the proximate cause, the claim fails." },
     { "id": "ch6_3", "loId": "3.7", "term": "Concurrent Causes", "definition": "Two causes acting together; the dominant one governs liability unless wording alters the result." },
     { "id": "ch6_4", "loId": "3.7", "term": "Sole Cause Wording", "definition": "Requires the insured peril to be the only cause for cover to apply." },
-    { "id": "ch6_5", "loId": "3.7", "term": "Wide Exclusion Wording", "definition": "Excludes claims where an excluded peril contributes directly or indirectly." }
+    { "id": "ch6_5", "loId": "3.7", "term": "Wide Exclusion Wording", "definition": "Excludes claims where an excluded peril contributes directly or indirectly." },
+    { "id": "ch6_lo3_7_1", "loId": "3.7", "term": "Marsden v. City & County Insurance (1865)", "definition": "A key case illustrating that proximate cause requires an unbroken chain of events. A mob breaking a window during a riot was deemed a new, independent cause, not the fire that started the riot." }
   ]
 }

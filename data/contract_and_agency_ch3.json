@@ -98,16 +98,16 @@
     {
       "type": "mcq",
       "loId": "3.2",
-      "concept": "Termination",
-      "question": "Who typically has the right to cancel a household policy mid-term, subject to wording and law?",
+      "concept": "Termination of Agency",
+      "question": "Which of the following is NOT a standard ground for terminating an agency agreement as per a typical TOBA?",
       "options": [
-        "Only the policyholder",
-        "Only the insurer",
-        "Both the policyholder and the insurer",
-        "Neither party"
+        "The agent fails to meet an annual sales target.",
+        "Suspicion of fraud or dishonesty by the agent.",
+        "The agent enters bankruptcy or receivership.",
+        "The agent fails to remedy a breach of the agreement within an agreed timescale."
       ],
-      "correctAnswer": "Both the policyholder and the insurer",
-      "explanation": "Cancellation terms usually allow both parties to terminate with notice."
+      "correctAnswer": "The agent fails to meet an annual sales target.",
+      "explanation": "While poor performance can be a commercial issue, the principal grounds for termination in a TOBA are typically more severe, relating to breaches of contract, regulation, or solvency (e.g., fraud, bankruptcy, irredeemable breach)."
     },
     {
       "type": "mcq",
@@ -269,6 +269,12 @@
       "loId": "3.2",
       "term": "Pro Rata Refund",
       "definition": "If a policyholder cancels a policy they have paid for in advance, they may be entitled to a pro rata refund of the premium, which reflects the unused portion of the cover period."
+    },
+    {
+      "id": "ch3_lo3_2_3",
+      "loId": "3.2",
+      "term": "Termination of Agency (TOBA)",
+      "definition": "Principal grounds for termination specified in a Terms of Business Agreement (TOBA) include fraud, bankruptcy, regulatory status change, irredeemable breach, and failure to remedy a breach. The TOBA also outlines how outstanding expenses are handled."
     }
   ]
 }

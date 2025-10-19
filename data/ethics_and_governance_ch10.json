@@ -24,16 +24,16 @@
     {
       "type": "mcq",
       "loId": "5.1",
-      "concept": "CII Code",
-      "question": "Which is NOT one of the five central principles of the CII Code of Ethics?",
+      "concept": "CII Code of Ethics",
+      "question": "Which of the following is NOT one of the five core principles of the CII Code of Ethics?",
       "options": [
-        "Comply with the Code and all relevant laws and regulations",
         "Act with the highest ethical standards and integrity",
-        "Maximise sales at any cost",
-        "Act in the best interests of each client"
+        "Act in the best interests of each client",
+        "Prioritise company profit above all other considerations",
+        "Provide a high standard of service"
       ],
-      "correctAnswer": "Maximise sales at any cost",
-      "explanation": "The Code focuses on ethics, integrity, client interest, service, and fair treatment."
+      "correctAnswer": "Prioritise company profit above all other considerations",
+      "explanation": "The five core principles are: 1. Comply with laws/regulations. 2. Act with integrity. 3. Act in clients' best interests. 4. Provide high service. 5. Treat people fairly."
     },
     {
       "type": "mcq",
@@ -53,15 +53,15 @@
       "type": "mcq",
       "loId": "5.4",
       "concept": "Compliance vs audit",
-      "question": "Which pairing is most accurate?",
+      "question": "Within an insurer's internal control system, which function is responsible for providing independent assurance that risk management processes (including compliance) are working effectively?",
       "options": [
-        "Compliance = independent assurance; Audit = business oversight",
-        "Compliance = keeps the firm within laws/rules; Audit = provides independent assurance over controls",
-        "Compliance = customer service; Audit = underwriting",
-        "Compliance = HR; Audit = marketing"
+        "The Compliance Function",
+        "The Internal Audit Function",
+        "The Risk Management Committee",
+        "The Board of Directors"
       ],
-      "correctAnswer": "Compliance = keeps the firm within laws/rules; Audit = provides independent assurance over controls",
-      "explanation": "Compliance advises/monitors regulatory adherence; internal audit independently evaluates controls."
+      "correctAnswer": "The Internal Audit Function",
+      "explanation": "The internal audit function is separate from other functions and provides an independent check on the effectiveness of the company's controls. The compliance function sets policies and monitors adherence to rules."
     },
     {
       "type": "mcq",
@@ -90,13 +90,44 @@
       ],
       "correctAnswer": "An internal control system",
       "explanation": "This is a specific procedure within the internal control system designed to prevent fraud and error."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.2",
+      "concept": "Environmental, Social, and Governance (ESG)",
+      "question": "Why is it increasingly important for insurers to consider ESG factors?",
+      "options": [
+        "Because it is the only factor regulators look at.",
+        "To increase short-term profits from high-risk investments.",
+        "To build customer trust, enhance business resilience, and manage reputational risk.",
+        "To replace the need for a formal Code of Ethics."
+      ],
+      "correctAnswer": "To build customer trust, enhance business resilience, and manage reputational risk.",
+      "explanation": "Good ESG practices are linked to long-term financial performance, attracting investors, retaining customers, and managing risks like climate change and social inequality, which directly impact the insurance industry."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.4",
+      "concept": "Own Risk and Solvency Assessment (ORSA)",
+      "question": "What is the primary purpose of an insurer's Own Risk and Solvency Assessment (ORSA)?",
+      "options": [
+        "To set premium rates for new products.",
+        "To assess the adequacy of its risk management and its current and future solvency position.",
+        "To handle and log customer complaints.",
+        "To conduct pre-employment screening for senior managers."
+      ],
+      "correctAnswer": "To assess the adequacy of its risk management and its current and future solvency position.",
+      "explanation": "The ORSA is a key part of the risk management framework where the insurer self-assesses its overall risk profile and determines the capital needed to support it, ensuring it can meet its obligations."
     }
   ],
   "flashcards": [
-    { "id": "ch10_1", "loId": "5.1", "term": "CII Code – 5 Principles", "definition": "Comply with laws & Code; act with integrity; act in clients’ best interests; provide high service; treat people fairly." },
+    { "id": "ch10_1", "loId": "5.1", "term": "CII Code – 5 Principles", "definition": "1. Comply with the Code and all relevant laws/regulations. 2. Act with the highest ethical standards and integrity. 3. Act in the best interests of each client. 4. Provide a high standard of service. 5. Treat people fairly (non-discrimination)." },
     { "id": "ch10_2", "loId": "5.3", "term": "Fit & Proper", "definition": "Honesty, competence, financial soundness, suitability for the role." },
-    { "id": "ch10_3", "loId": "5.4", "term": "Compliance vs Audit", "definition": "Compliance = rules & monitoring; Internal Audit = independent assurance over controls." },
+    { "id": "ch10_3", "loId": "5.4", "term": "Compliance vs Internal Audit", "definition": "The Compliance function advises and monitors adherence to rules and policies. The Internal Audit function provides independent assurance that all internal controls, including compliance, are working effectively." },
     { "id": "ch10_4", "loId": "5.4", "term": "Complaints Handling", "definition": "Log → investigate → respond → escalate/redress where appropriate." },
-    { "id": "ch10_5", "loId": "5.2", "term": "Conflicts of Interest", "definition": "Disclose and manage/avoid per policy; prioritise client interests and fairness." }
+    { "id": "ch10_5", "loId": "5.2", "term": "Conflicts of Interest", "definition": "Disclose and manage/avoid per policy; prioritise client interests and fairness." },
+    { "id": "ch10_lo5_2_1", "loId": "5.2", "term": "Environmental, Social, and Governance (ESG)", "definition": "Criteria used to assess an organisation's impact and ethical practices. Environmental (e.g., climate change), Social (e.g., diversity, human rights), and Governance (e.g., management quality, ethics). Important for an insurer's reputation, resilience, and customer trust." },
+    { "id": "ch10_lo5_4_1", "loId": "5.4", "term": "Risk Management Framework", "definition": "The total structure, led by the board, that an insurer uses to identify, assess, monitor, and control all reasonably foreseeable risks. It is a core part of the internal control system." },
+    { "id": "ch10_lo5_4_2", "loId": "5.4", "term": "Own Risk and Solvency Assessment (ORSA)", "definition": "An insurer's internal process to regularly assess its risk profile, overall solvency needs, and the capital required to support those risks. It is a key component of the risk management framework." }
   ]
 }

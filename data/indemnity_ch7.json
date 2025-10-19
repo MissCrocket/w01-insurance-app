@@ -117,15 +117,15 @@
       "type": "mcq",
       "loId": "3.10",
       "concept": "Average (underinsurance)",
-      "question": "If a sum insured is 75% of the true value and the loss is £40,000, what will the settlement be if the policy is subject to average?",
+      "question": "A building valued at £200,000 is insured for £150,000. If a fire causes £40,000 of damage, how much will the insurer pay under a policy with a pro rata condition of average?",
       "options": [
+        "£40,000",
         "£30,000",
         "£35,000",
-        "£40,000",
         "£10,000"
       ],
       "correctAnswer": "£30,000",
-      "explanation": "The average condition reduces the claim in the same proportion as the underinsurance (0.75 × £40,000 = £30,000)."
+      "explanation": "The pro rata average condition applies because the property is underinsured. The claim payment is reduced proportionally using the formula: (Sum Insured / Value at Risk) x Loss. In this case: (£150,000 / £200,000) * £40,000 = 0.75 * £40,000 = £30,000."
     },
     {
       "type": "mcq",
@@ -177,6 +177,48 @@
       "options": ["Agreed value", "New-for-old", "First loss", "Strict indemnity"],
       "correctAnswer": "New-for-old",
       "explanation": "New-for-old is a common modification of indemnity, especially in household contents policies."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.9",
+      "concept": "Measuring Indemnity - Betterment",
+      "question": "A building's old, damaged roof is replaced with a new, more durable modern equivalent after a storm. If the insurer makes a deduction from the claim for the improvement, this is known as a deduction for:",
+      "options": [
+        "Average",
+        "Betterment",
+        "Depreciation",
+        "Excess"
+      ],
+      "correctAnswer": "Betterment",
+      "explanation": "Betterment occurs when a repair or replacement improves the property beyond its pre-loss condition. Insurers may make a deduction to reflect this improvement, ensuring the insured is only indemnified and does not profit."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.9",
+      "concept": "Reinstatement Memorandum",
+      "question": "A commercial property is insured under a 'reinstatement memorandum' clause. For the full reinstatement value to be paid, the sum insured must typically be at least what percentage of the actual reinstatement value at the time of the loss?",
+      "options": [
+        "100%",
+        "50%",
+        "85%",
+        "75%"
+      ],
+      "correctAnswer": "85%",
+      "explanation": "The reinstatement memorandum allows for a margin of error. As long as the sum insured is at least 85% of the full reinstatement value, the insurer will not apply average and will pay the full cost of reinstatement (up to the sum insured)."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.9",
+      "concept": "Day One Reinstatement",
+      "question": "What is a key feature of 'Day One Reinstatement' cover for a building?",
+      "options": [
+        "The sum insured is based on the building's value on the day of the loss.",
+        "It only applies if the loss occurs on the first day of the policy.",
+        "The policyholder states the reinstatement value at the start of the policy, and an inflation provision is automatically added.",
+        "It provides a 15% margin for error in the declared value without penalty."
+      ],
+      "correctAnswer": "The policyholder states the reinstatement value at the start of the policy, and an inflation provision is automatically added.",
+      "explanation": "'Day One Reinstatement' requires an accurate value on day one, and the insurer provides an automatic uplift (e.g., 50%) to protect against inflation during the policy period. Unlike the reinstatement memorandum, it does not have a margin for error."
     }
   ],
   "flashcards": [
@@ -185,9 +227,12 @@
     { "id": "ch7_3", "loId": "3.8", "term": "Benefit Policies", "definition": "Personal accident/sickness/critical illness etc. are not contracts of indemnity." },
     { "id": "ch7_4", "loId": "3.9", "term": "Agreed Value", "definition": "Pre-agreed settlement amount for specified property." },
     { "id": "ch7_5", "loId": "3.9", "term": "First-Loss Policy", "definition": "Insures for less than full value where total loss is unlikely; modest premium saving." },
-    { "id": "ch7_6", "loId": "3.10", "term": "Average (Underinsurance)", "definition": "Claim reduced in proportion to underinsurance." },
+    { "id": "ch7_6", "loId": "3.10", "term": "Pro Rata Condition of Average", "definition": "Applied in cases of underinsurance. It reduces the claim payment proportionally. The formula is: (Sum Insured / Value at Risk) x Loss. The policyholder is their own insurer for the shortfall." },
     { "id": "ch7_7", "loId": "3.10", "term": "Item Limits", "definition": "Caps on insurer liability for certain articles (e.g., jewellery) unless specified separately." },
     { "id": "ch7_8", "loId": "3.10", "term": "Excess/Deductible", "definition": "First part of each loss borne by the insured." },
-    { "id": "ch7_9", "loId": "3.8", "term": "Strict Indemnity", "definition": "Pays current market value with wear & tear deducted (contrast with new-for-old/reinstatement)." }
+    { "id": "ch7_9", "loId": "3.8", "term": "Strict Indemnity", "definition": "Pays current market value with wear & tear deducted (contrast with new-for-old/reinstatement)." },
+    { "id": "ch7_lo3_9_1", "loId": "3.9", "term": "Betterment", "definition": "A deduction made from a claim payment to account for the fact that a repair or replacement has improved the property beyond its pre-loss condition." },
+    { "id": "ch7_lo3_9_2", "loId": "3.9", "term": "Reinstatement Memorandum", "definition": "A property insurance clause where full reinstatement value is paid, provided the sum insured is at least 85% of the total value, allowing a margin for error." },
+    { "id": "ch7_lo3_9_3", "loId": "3.9", "term": "Day One Reinstatement", "definition": "A property insurance method where the value is declared on day one, and an inflation provision is added. It requires an accurate initial valuation." }
   ]
 }

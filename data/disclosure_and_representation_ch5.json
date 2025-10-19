@@ -38,6 +38,20 @@
       ],
       "correctAnswer": "Information that lessens the risk.",
       "explanation": "There is no requirement to disclose factors that reduce the risk, making it better than a normal risk of its type."
+    },
+    {
+      "type": "mcq",
+      "loId": "3.6",
+      "concept": "Case Law - Kettlewell v. Refuge Assurance (1909)",
+      "question": "An agent for an insurance company falsely told a policyholder that if she continued paying premiums for four more years, her policy would become 'free'. What did the court decide in Kettlewell v. Refuge Assurance?",
+      "options": [
+        "The policyholder had to continue paying premiums indefinitely.",
+        "The agent was personally liable for the future premiums.",
+        "The policyholder was entitled to void the policy and recover the premiums paid since the misrepresentation.",
+        "The insurer was forced to grant a 'free' policy as promised by the agent."
+      ],
+      "correctAnswer": "The policyholder was entitled to void the policy and recover the premiums paid since the misrepresentation.",
+      "explanation": "This case demonstrates the insurer's duty of good faith. Because the insurer's agent made a fraudulent misrepresentation, the policyholder had the right to rescind the contract and get her money back."
     }
   ],
   "flashcards": [
@@ -50,6 +64,12 @@
       "loId": "3.6",
       "term": "Non-Disclosure Exemptions",
       "definition": "Information that does not need to be disclosed includes matters of law, factors that lessen the risk, information the insurer ought to know, and information waived by the insurer."
+    },
+    {
+      "id": "ch5_lo3_6_2",
+      "loId": "3.6",
+      "term": "Kettlewell v. Refuge Assurance (1909)",
+      "definition": "A key case illustrating the insurer's duty of good faith. An insurer was held liable for the misrepresentation of its agent, allowing the policyholder to void the policy and recover premiums."
     }
   ]
 }
