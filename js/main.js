@@ -14,6 +14,7 @@ import { renderProgress } from './views/progress.js';
 import { renderManageCards } from './views/manage.js';
 import { buildQuiz, startQuiz, handleQuizFinish } from './services/quizService.js';
 import { startFlashcardSession, startDueFlashcardsSession } from './services/flashcardService.js';
+import { getAiExplanation } from './services/aiService.js'; // <-- ADD THIS IMPORT
 
 
 export const SCREEN = {

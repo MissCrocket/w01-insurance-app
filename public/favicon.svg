@@ -1,6 +1,37 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="512" height="512" rx="96" fill="#007BFF"/>
-<path d="M256 128C197.47 128 153.333 172.137 153.333 230.667C153.333 276.073 181.85 314.908 221.333 329.833V384H290.667V329.833C330.15 314.908 358.667 276.073 358.667 230.667C358.667 172.137 314.53 128 256 128ZM221.333 230.667C221.333 211.956 236.956 196.333 256 196.333C275.044 196.333 290.667 211.956 290.667 230.667C290.667 250.044 275.044 265.667 256 265.667C236.956 265.667 221.333 250.044 221.333 230.667Z" fill="white"/>
-<path d="M153.333 230.667C153.333 221.311 156.284 212.44 161.467 205.333L128 172C101.44 190.222 85.3333 221.311 85.3333 256C85.3333 290.689 101.44 321.778 128 340L161.467 306.667C156.284 299.56 153.333 290.689 153.333 281.333V230.667Z" fill="white" fill-opacity="0.8"/>
-<path d="M358.533 205.333C363.716 212.44 366.667 221.311 366.667 230.667V281.333C366.667 290.689 363.716 299.56 358.533 306.667L392 340C418.56 321.778 434.667 290.689 434.667 256C434.667 221.311 418.56 190.222 392 172L358.533 205.333Z" fill="white" fill-opacity="0.8"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" aria-labelledby="title desc" role="img">
+  <title>Study App Favicon - Brain</title>
+  <desc>Minimalist brain icon optimized for small sizes.</desc>
+  <defs>
+    <style>
+      .outline{fill:none;stroke:#9B1C6A;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+  <!-- Background is transparent on purpose for better theme compatibility -->
+  <!-- Brain base -->
+  <path d="M32 10
+           c-4.5 0-8 3.6-8 8
+           c-4.4 0-8 3.6-8 8
+           c0 4 2.4 7.2 5.7 8.2
+           c-1.4 1.5-2.3 3.6-2.3 5.8
+           c0 4.7 3.8 8.5 8.5 8.5
+           h4.3
+           v-38.5z"
+        fill="#FF7693" stroke="#9B1C6A" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M32 10
+           c4.5 0 8 3.6 8 8
+           c4.4 0 8 3.6 8 8
+           c0 4-2.4 7.2-5.7 8.2
+           c1.4 1.5 2.3 3.6 2.3 5.8
+           c0 4.7-3.8 8.5-8.5 8.5
+           h-4.3
+           v-38.5z"
+        fill="#FF5C85" stroke="#9B1C6A" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Central groove -->
+  <line x1="32" y1="12" x2="32" y2="52" class="outline"/>
+  <!-- Minimal folds (kept thick for 16px clarity) -->
+  <path d="M24 22c-3 0-5 2-5 4" class="outline"/>
+  <path d="M24 30c-3 0-5 2-5 4" class="outline"/>
+  <path d="M40 22c3 0 5 2 5 4" class="outline"/>
+  <path d="M40 30c3 0 5 2 5 4" class="outline"/>
 </svg>
