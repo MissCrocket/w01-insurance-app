@@ -83,18 +83,9 @@ export function handleQuizFinish() {
     state.quizTimer = null;
   }
   progressService.completeQuizAttempt(state.quizAttemptId, state.questions, state.answers);
-  
-  // FIX #1: Correctly determine chapter title for all quiz types
-  const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' 
-                     : state.quizType === 'specimen' ? 'Specimen Exam' 
-                     : state.quizType === 'quick_quiz' ? 'Quick Quiz' 
-                     : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title;
-                     
+  const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' : state.quizType === 'specimen' ? 'Specimen Exam' : state.quizType === 'quick_quiz' ? 'Quick Quiz' : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title;
   const { streakExtended, currentStreak } = progressService.logActivity({ type: 'quiz', chapter: chapterTitle, score: `${state.answers.filter(a => a?.correct).length}/${state.questions.length}` });
   
-  // FIX #2: Clear the last activity state so a completed quiz cannot be resumed
-  progressService.clearLastActivity();
-
   if (streakExtended) {
     showToast(`🔥 Streak extended to ${currentStreak} days! Keep it up!`);
   }
@@ -148,24 +139,6 @@ export function startQuiz(questionList, quizDetails, renderFn) {
         state.quizEndTime = Date.now() + 120 * 60 * 1000;
         state.quizTimer = setInterval(() => updateTimer(renderFn), 1000);
     }
-
-    // FIX #1 (applied here as well): Correctly determine chapter title for all quiz types
-    const chapterTitle = state.quizType === 'mock' ? 'Mock Exam' 
-                       : state.quizType === 'specimen' ? 'Specimen Exam' 
-                       : state.quizType === 'quick_quiz' ? 'Quick Quiz' 
-                       : getChaptersFromGlobal().find(c => c.id === state.quizConfig.chapterId)?.title;
-
-    // Save the initial state for the first-time pause
-    const currentActivity = {
-        type: 'quiz',
-        quizType: state.quizType,
-        chapter: chapterTitle,
-        config: quizDetails.config,
-        studyMode: state.studyMode,
-        currentIndex: state.currentIndex,
-        answers: state.answers
-    };
-    progressService.saveLastActivity(currentActivity);
 }
 
 function updateTimer(renderFn) {

@@ -16,7 +16,6 @@ const getInitialData = () => ({
     longest: 0,
     lastActivityDate: null,
   },
-  lastActivity: null, // [FEATURE] For "Resume Last Activity"
 });
 
 export function getProgress() {
@@ -29,9 +28,6 @@ export function getProgress() {
     }
     if (!parsed.hasOwnProperty('studyStreak')) {
       parsed.studyStreak = { current: 0, longest: 0, lastActivityDate: null };
-    }
-    if (!parsed.hasOwnProperty('lastActivity')) {
-        parsed.lastActivity = null;
     }
     return parsed;
   } catch (error) {
@@ -142,12 +138,6 @@ function updateStudyStreak() {
     return { progress, streakExtended };
 }
 
-export function saveLastActivity(activityItem) {
-    const data = getProgress();
-    data.lastActivity = activityItem;
-    saveProgress(data);
-}
-
 export function logActivity(activityItem) {
   let { progress, streakExtended } = updateStudyStreak();
 
@@ -157,9 +147,6 @@ export function logActivity(activityItem) {
   });
   progress.recentActivity = progress.recentActivity.slice(0, 10);
   
-  // Also save it as the last activity for the resume feature
-  saveLastActivity(activityItem);
-
   saveProgress(progress);
   return { streakExtended, currentStreak: progress.studyStreak.current };
 }
@@ -332,10 +319,4 @@ export function saveFlashcardNote(chapterId, cardId, noteText) {
   }
   progress.chapters[chapterId].flashcards[cardId].note = noteText;
   saveProgress(progress);
-}
-
-export function clearLastActivity() {
-  const data = getProgress();
-  data.lastActivity = null;
-  saveProgress(data);
 }

@@ -74,8 +74,6 @@ function render() {
   const root = state.root || qs("#app");
   root.innerHTML = "";
 
-  renderResumeButton();
-
   let screenEl;
   let pageTitle = "CII W01 Tutor";
   const chapters = getChaptersFromGlobal();
@@ -115,39 +113,6 @@ function render() {
   announce(`Screen changed to ${state.screen}`);
   focusFirst(screenEl);
 }
-
-function renderResumeButton() {
-    const container = qs('#resume-container');
-    if (!container) return;
-
-    // Only show the resume button on the topics screen
-    if (state.screen !== SCREEN.TOPICS) {
-        container.innerHTML = '';
-        return;
-    }
-
-    const progress = progressService.getProgress();
-    const lastActivity = progress.lastActivity;
-
-    if (!lastActivity) {
-        container.innerHTML = '';
-        return;
-    }
-
-    let text = 'Resume Last Activity';
-    if (lastActivity.type === 'quiz') {
-        text = `Resume Quiz: ${lastActivity.chapter}`;
-    } else if (lastActivity.type === 'flashcards') {
-        text = `Resume Flashcards: ${lastActivity.chapter}`;
-    }
-
-    container.innerHTML = `
-        <button id="resume-activity-btn" class="btn bg-amber-500 hover:bg-amber-600 w-full md:w-auto my-4">
-            ↩️ ${text}
-        </button>
-    `;
-}
-
 
 function handleAppClick(event) {
   const {
@@ -247,27 +212,6 @@ if (target.id === 'export-note-btn') {
     return;
   }
 
-  if (target.closest('#resume-activity-btn')) {
-    const lastActivity = progressService.getProgress().lastActivity;
-    if (lastActivity) {
-      if (lastActivity.type === 'quiz') {
-        const buildConfig = {
-            chapters,
-            type: lastActivity.quizType,
-            ...lastActivity.config
-        };
-        const questions = buildQuiz(buildConfig);
-        startQuiz(questions, lastActivity, render);
-      } else if (lastActivity.type === 'flashcards') {
-        const chapter = chapters.find(c => c.id === lastActivity.chapterId);
-        if (chapter) startFlashcardSession(chapter);
-      } else if (lastActivity.type === 'due-flashcards') {
-        startDueFlashcardsSession();
-      }
-      render();
-    }
-  }
-
   if (target.closest('#study-due-cards')) {
       startDueFlashcardsSession();
       render();
@@ -357,9 +301,6 @@ if (target.id === 'export-note-btn') {
   }
 
   if (target.id === 'back-btn' || target.id === 'back-to-topics-secondary') {
-    if (state.screen === SCREEN.LEARNING) {
-        progressService.clearLastActivity(); // Clear when leaving flashcards
-    }
     state.screen = SCREEN.TOPICS;
     render();
   } 
@@ -458,16 +399,9 @@ if (target.id === 'export-note-btn') {
           clearInterval(state.quizTimer);
           state.quizTimer = null;
       }
-      // Get the current progress and save it
-      const lastActivity = progressService.getProgress().lastActivity;
-      if (lastActivity && lastActivity.type === 'quiz') {
-          lastActivity.currentIndex = state.currentIndex;
-          lastActivity.answers = state.answers;
-          progressService.saveLastActivity(lastActivity);
-      }
       state.screen = SCREEN.TOPICS;
       render();
-      showToast('Quiz paused. You can resume from the home screen.', 3000);
+      showToast('Quiz aborted.', 3000);
   }
 
   if (target.id === 'submit-anyway-btn') {
@@ -556,7 +490,7 @@ document.addEventListener('chaptersLoaded', () => {
   state.root = qs("#app");
 
   document.body.addEventListener('click', (event) => {
-    if (event.target.closest('#app') || event.target.closest('header') || event.target.closest('.modal') || event.target.closest('#resume-container')) {
+    if (event.target.closest('#app') || event.target.closest('header') || event.target.closest('.modal')) {
       handleAppClick(event);
     }
   });
