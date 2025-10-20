@@ -12,7 +12,7 @@ function getChaptersFromGlobal() {
 export function renderManageCards() {
   const wrap = document.createElement('section');
   wrap.className = 'screen screen-manage';
-  const progress = progressService.getProgress();
+  const progress = progressService.getProgress(state.currentUser);
   const chapters = getChaptersFromGlobal();
   const chapter = chapters.find(c => c.id === state.selectedChapterId);
 

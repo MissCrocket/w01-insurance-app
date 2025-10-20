@@ -7,6 +7,7 @@ export function renderLearning() {
   const wrap = document.createElement("section");
   wrap.className = "screen screen-learning";
   const session = state.flashcardSession;
+  const currentUser = state.currentUser; // Get current user
   const card = session.cards[session.currentIndex];
 
   if (!card) {
@@ -21,7 +22,7 @@ export function renderLearning() {
     return wrap;
   }
 
-  const progress = progressService.getProgress();
+  const progress = progressService.getProgress(currentUser); // <-- Use currentUser
   const chapterId = card.chapterId || state.selectedChapterId;
   const chapterProgress = progress.chapters[chapterId] || {
     flashcards: {}
@@ -132,7 +133,7 @@ export function renderLearning() {
         updateMeta();
 
         saveTimeout = setTimeout(() => {
-            progressService.saveFlashcardNote(chapterId, card.id, notesInput.value);
+            progressService.saveFlashcardNote(currentUser, chapterId, card.id, notesInput.value);
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             saveStatusEl.textContent = `Saved at ${time}`;
             setTimeout(() => saveStatusEl.classList.add('opacity-0'), 2000);

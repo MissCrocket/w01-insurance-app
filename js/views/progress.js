@@ -1,6 +1,7 @@
 // js/views/progress.js
 import { qs } from '../utils/uiUtils.js';
 import * as progressService from '../services/progressService.js';
+import { state } from '../main.js'; // <-- ADD this import
 
 function getChaptersFromGlobal() {
   const central = window.CII_W01_TUTOR_DATA?.chapters;
@@ -11,7 +12,7 @@ function getChaptersFromGlobal() {
 function activateChart() {
   const ctx = document.getElementById('mastery-chart')?.getContext('2d');
   if (!ctx) return;
-  const progress = progressService.getProgress();
+  const progress = progressService.getProgress(state.currentUser);
   const allChapters = getChaptersFromGlobal().filter(c => c.id !== 'specimen_exam');
   const labels = allChapters.map(ch => ch.title.replace(/Chapter \d+: /g, ''));
   const data = allChapters.map(ch => {
@@ -57,8 +58,8 @@ function activateChart() {
 export function renderProgress() {
   const wrap = document.createElement('section');
   wrap.className = 'screen screen-progress';
-  const progress = progressService.getProgress();
-  const { strengths, weaknesses } = progressService.analyzePerformance();
+  const progress = progressService.getProgress(state.currentUser);
+  const { strengths, weaknesses } = progressService.analyzePerformance(state.currentUser);
   const allChaptersData = getChaptersFromGlobal();
 
   const chapterTitleMap = allChaptersData.reduce((acc, ch) => {
