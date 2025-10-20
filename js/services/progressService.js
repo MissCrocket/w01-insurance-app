@@ -17,8 +17,6 @@ const getInitialUserData = () => ({
     longest: 0,
     lastActivityDate: null,
   },
-  avatar: '👤', // Default avatar
-  theme: 'blue', // Default theme
 });
 
 const getInitialMasterData = () => ({
@@ -33,7 +31,6 @@ function migrateOldData(data) {
     console.log('Migrating old single-user data to new multi-user format...');
     const migratedData = getInitialMasterData();
     migratedData.users['Default User'] = {
-      ...getInitialUserData(),
       chapters: data.chapters || {},
       recentActivity: data.recentActivity || [],
       quizAttempts: data.quizAttempts || {},
@@ -100,8 +97,7 @@ function saveMasterData(masterData) {
 // --- User Management Functions ---
 export function getUsers() {
   const masterData = getMasterData();
-  // Return an array of user objects, not just keys
-  return Object.entries(masterData.users).map(([id, data]) => ({ id, ...data }));
+  return Object.keys(masterData.users);
 }
 
 export function getCurrentUser() {
@@ -116,7 +112,7 @@ export function setCurrentUser(userId) {
   return true;
 }
 
-export function addUser(userId, avatar, theme) {
+export function addUser(userId) {
   if (!userId || typeof userId !== 'string' || userId.trim() === '') {
     return false;
   }
@@ -125,10 +121,7 @@ export function addUser(userId, avatar, theme) {
   if (masterData.users[trimmedUserId]) {
     return false; // User already exists
   }
-  const newUser = getInitialUserData();
-  newUser.avatar = avatar;
-  newUser.theme = theme;
-  masterData.users[trimmedUserId] = newUser;
+  masterData.users[trimmedUserId] = getInitialUserData();
   saveMasterData(masterData);
   return true;
 }

@@ -24,7 +24,7 @@
     </head>
 
   <body class="app-shell">
-    <header class="sticky top-0 z-30 backdrop-blur bg-black/20">
+<header class="sticky top-0 z-30 backdrop-blur bg-black/20">
       <div class="screen flex items-center justify-between gap-4">
         <div class="flex items-center gap-2 flex-shrink-0">
           <h1 class="text-lg md:text-2xl font-bold">CII W01 Tutor</h1>
@@ -51,26 +51,37 @@
       </section>
     </main>
 
-    <div id="add-user-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="add-user-modal-title">
+    <div id="welcome-modal" class="modal fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
       <div class="card bg-white dark:bg-neutral-800 max-w-md w-full p-6 m-4" role="document">
-        <h2 id="add-user-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Add New User</h2>
-        <div class="mt-4">
-          <label for="new-user-name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Name</label>
-          <input type="text" id="new-user-name" class="mt-1 block w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-md shadow-sm py-2 px-3 text-base text-neutral-900 dark:text-white focus:outline-none focus:ring-brand focus:border-brand" placeholder="Enter name...">
-        </div>
-        <div class="mt-4">
-          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Avatar</label>
-          <div id="avatar-picker" class="mt-2 grid grid-cols-5 gap-2">
+        <h2 id="welcome-modal-title" class="text-xl font-bold text-neutral-900 dark:text-white">Welcome to your CII W01 Tutor!</h2>
+        <p class="muted mt-2">
+          How would you like to start your session today?
+        </p>
+        <div class="mt-6 flex flex-col gap-3">
+          <button id="quick-start-due" class="btn btn-primary w-full justify-start text-left !p-4">
+            <span class="text-2xl mr-4">📚</span>
+            <div>
+              <span class="font-bold">Study Due Flashcards</span><br>
+              <span class="text-sm font-normal">Review what you've learned.</span>
             </div>
-        </div>
-        <div class="mt-4">
-          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Theme</label>
-          <div id="theme-picker" class="mt-2 flex gap-2">
+          </button>
+          <button id="quick-start-quiz" class="btn btn-primary w-full justify-start text-left !p-4">
+            <span class="text-2xl mr-4">❓</span>
+            <div>
+              <span class="font-bold">10-Question Quiz</span><br>
+              <span class="text-sm font-normal">A quick check on mixed topics.</span>
             </div>
+          </button>
+          <button id="quick-start-mock" class="btn btn-primary w-full justify-start text-left !p-4">
+            <span class="text-2xl mr-4">⏱️</span>
+            <div>
+              <span class="font-bold">Timed Mock Exam</span><br>
+              <span class="text-sm font-normal">Simulate the real exam.</span>
+            </div>
+          </button>
         </div>
-        <div class="mt-6 flex justify-end gap-3">
-          <button id="cancel-add-user-btn" class="btn-ghost">Cancel</button>
-          <button id="confirm-add-user-btn" class="btn btn-primary">Add User</button>
+        <div class="mt-6 flex justify-end">
+            <button id="close-welcome-modal" class="btn-ghost">Maybe later</button>
         </div>
       </div>
     </div>
