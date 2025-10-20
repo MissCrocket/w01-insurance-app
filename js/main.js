@@ -8,12 +8,12 @@ import { renderResults } from './views/results.js';
 import { renderLearning } from './views/learning.js';
 import { renderProgress } from './views/progress.js';
 import { renderManageCards } from './views/manage.js';
-import { renderUserSelection } from './views/userSelection.js'; // <-- Import the new view
+import { renderUserSelection } from './views/userSelection.js';
 import { buildQuiz, startQuiz, handleQuizFinish } from './services/quizService.js';
 import { startFlashcardSession, startDueFlashcardsSession } from './services/flashcardService.js';
 import { getAiExplanation } from './services/aiService.js';
 
-
+// ... (SCREEN, MODE, Q_STATE, and state object are the same)
 export const SCREEN = {
     TOPICS: "topics",
     LEARNING: "learning",
@@ -70,6 +70,82 @@ function getChaptersFromGlobal() {
     if (Array.isArray(central) && central.length) return central;
     return [];
 }
+// --- NEW --- Add User Modal Logic
+const avatars = ['👤', '🧑‍🎓', '👩‍🏫', '👨‍💼', '👩‍🔬', '👨‍🚀', '🦸‍♀️', '🕵️‍♂️', '🦉', '🦊'];
+const themes = ['blue', 'green', 'orange', 'purple', 'red'];
+
+function populateAddUserModal() {
+  const avatarPicker = qs('#avatar-picker');
+  const themePicker = qs('#theme-picker');
+  if (!avatarPicker || !themePicker) return;
+
+  avatarPicker.innerHTML = avatars.map(avatar => `
+    <div class="avatar-option" data-avatar="${avatar}">${avatar}</div>
+  `).join('');
+
+  themePicker.innerHTML = themes.map(theme => `
+    <div class="theme-option theme-${theme}" data-theme="${theme}"></div>
+  `).join('');
+
+  // Add click listeners
+  qsa('.avatar-option').forEach(option => {
+    option.addEventListener('click', () => {
+      qsa('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+
+  qsa('.theme-option').forEach(option => {
+    option.addEventListener('click', () => {
+      qsa('.theme-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+
+  // Select defaults
+  qs('.avatar-option').classList.add('selected');
+  qs('.theme-option').classList.add('selected');
+}
+
+function openAddUserModal() {
+  const modal = qs('#add-user-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    populateAddUserModal();
+  }
+}
+
+function closeAddUserModal() {
+  const modal = qs('#add-user-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+function handleAddUser() {
+  const newUserName = qs('#new-user-name').value.trim();
+  const selectedAvatar = qs('.avatar-option.selected').dataset.avatar;
+  const selectedTheme = qs('.theme-option.selected').dataset.theme;
+
+  if (newUserName) {
+    if (progressService.addUser(newUserName, selectedAvatar, selectedTheme)) {
+      if (progressService.setCurrentUser(newUserName)) {
+        state.currentUser = newUserName;
+        render();
+      } else {
+        render(true);
+      }
+      closeAddUserModal();
+    } else {
+      alert(`User "${newUserName}" already exists or is invalid.`);
+    }
+  } else {
+    alert('Please enter a name for the new user.');
+  }
+}
+// --- END NEW ---
 
 /**
  * Main render function. Also handles updating the "Switch User" button visibility.
@@ -162,7 +238,22 @@ function render(forceUserSelection = false) {
 function handleAppClick(event) {
     const { target } = event;
     const chapters = getChaptersFromGlobal();
-    const currentUser = state.currentUser; // Get current user
+    const currentUser = state.currentUser;
+
+    if (target.id === 'open-add-user-modal-btn') {
+      openAddUserModal();
+      return;
+    }
+
+    if (target.id === 'cancel-add-user-btn') {
+      closeAddUserModal();
+      return;
+    }
+
+    if (target.id === 'confirm-add-user-btn') {
+      handleAddUser();
+      return;
+    }
 
     // --- Navigation and Mode Switching ---
     if (target.closest('.nav-link')) {
