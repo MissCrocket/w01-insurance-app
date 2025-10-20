@@ -14,9 +14,16 @@ export function renderTopics() {
   wrap.className = "screen screen-topics";
 
   const chapters = getChaptersFromGlobal();
-  const progress = progressService.getProgress();
-  const dueCardsCount = progressService.getAllDueCards().length;
-  const { weaknesses } = progressService.analyzePerformance();
+  // Ensure we have a user before proceeding
+  if (!state.currentUser) {
+    wrap.innerHTML = `<p>Error: No user selected.</p>`;
+    return wrap;
+  }
+  
+  // Update all calls to be user-aware
+  const progress = progressService.getProgress(state.currentUser);
+  const dueCardsCount = progressService.getAllDueCards(state.currentUser).length;
+  const { weaknesses } = progressService.analyzePerformance(state.currentUser);
 
   const chapterTitleMap = chapters.reduce((acc, ch) => {
     acc[ch.id] = ch.title;
@@ -24,7 +31,7 @@ export function renderTopics() {
   }, {});
 
   let personalizedGreeting = `<p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
-      What would you like to do next?
+      What would you like to do next, ${state.currentUser}?
     </p>`;
 
   if (dueCardsCount > 0) {
@@ -35,7 +42,7 @@ export function renderTopics() {
       weaknessText = ` Your weakest area is '${chapterTitle.replace(/Chapter \d+: /,'')}'`;
     }
     personalizedGreeting = `<p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-neutral-300">
-      Welcome back. You have <strong>${dueCardsCount} card${dueCardsCount === 1 ? '' : 's'}</strong> due for review.${weaknessText}
+      Welcome back, ${state.currentUser}. You have <strong>${dueCardsCount} card${dueCardsCount === 1 ? '' : 's'}</strong> due for review.${weaknessText}
     </p>`;
   }
 

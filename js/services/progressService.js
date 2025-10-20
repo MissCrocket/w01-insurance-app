@@ -1,12 +1,17 @@
 // js/services/progressService.js
-import { calculateNextReview } from '../utils/spacedRepetition.js';
-import { STORAGE_KEY } from '../config.js';
+import {
+  calculateNextReview
+} from '../utils/spacedRepetition.js';
+import {
+  STORAGE_KEY
+} from '../config.js';
 
-// --- Multi-User Data Structure ---
+// --- Multi-User Data Structure Definitions ---
 const getInitialUserData = () => ({
   chapters: {},
   recentActivity: [],
   quizAttempts: {},
+  hasSeenWelcome: false, // For onboarding per user
   studyStreak: {
     current: 0,
     longest: 0,
@@ -19,84 +24,63 @@ const getInitialMasterData = () => ({
   users: {},
 });
 
-// --- Data Migration Logic ---
-function migrateOldData(oldData) {
-  // Check if it looks like the old single-user format
-  if (oldData && oldData.chapters && !oldData.users) {
-    console.log('Migrating old single-user data...');
-    const newData = getInitialMasterData();
-    newData.users['Default User'] = {
-      chapters: oldData.chapters || {},
-      recentActivity: oldData.recentActivity || [],
-      quizAttempts: oldData.quizAttempts || {},
-      studyStreak: oldData.studyStreak || { current: 0, longest: 0, lastActivityDate: null },
-      // Copy any other potential top-level properties from the old format
-      hasSeenWelcome: oldData.hasSeenWelcome || false,
+// --- Data Migration & Initialization ---
+function migrateOldData(data) {
+  // Check if it's the old single-user format (has chapters but not users property)
+  if (data && data.chapters && !data.hasOwnProperty('users')) {
+    console.log('Migrating old single-user data to new multi-user format...');
+    const migratedData = getInitialMasterData();
+    migratedData.users['Default User'] = {
+      chapters: data.chapters || {},
+      recentActivity: data.recentActivity || [],
+      quizAttempts: data.quizAttempts || {},
+      studyStreak: data.studyStreak || { current: 0, longest: 0, lastActivityDate: null },
+      hasSeenWelcome: data.hasSeenWelcome || false,
     };
-    newData.currentUser = 'Default User'; // Automatically select the migrated user
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
-    return newData;
+    migratedData.currentUser = 'Default User'; // Set the migrated user as active
+    return migratedData;
   }
-  // Check if it's already the new format but missing default fields
-  if (oldData && oldData.users) {
-    let needsUpdate = false;
-    if (oldData.currentUser === undefined) {
-      oldData.currentUser = null;
-      needsUpdate = true;
-    }
-    Object.keys(oldData.users).forEach(userId => {
-        if (!oldData.users[userId].studyStreak) {
-            oldData.users[userId].studyStreak = { current: 0, longest: 0, lastActivityDate: null };
-            needsUpdate = true;
-        }
-        if (!oldData.users[userId].quizAttempts) {
-            oldData.users[userId].quizAttempts = {};
-            needsUpdate = true;
-        }
-        if (!oldData.users[userId].recentActivity) {
-            oldData.users[userId].recentActivity = [];
-            needsUpdate = true;
-        }
-         if (!oldData.users[userId].hasSeenWelcome) { // Also check welcome flag per user
-            oldData.users[userId].hasSeenWelcome = false;
-            needsUpdate = true;
-        }
-    });
-    if (needsUpdate) {
-        console.log('Updating existing multi-user data with default fields...');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(oldData));
-    }
-    return oldData;
-  }
-  return oldData; // Return as is if not old format or already new
+  return data; // Return original data if no migration is needed
 }
 
-// --- Core Data Access ---
+// --- Core Data Access (More Robust) ---
 function getMasterData() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    let parsed = data ? JSON.parse(data) : getInitialMasterData();
 
-    // Perform migration check
-    parsed = migrateOldData(parsed);
-
-    // Ensure it has the base structure even after potential migration issues
-    if (!parsed || !parsed.users) {
-        parsed = getInitialMasterData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); // Save the clean structure
+    // Case 1: localStorage is completely empty. Initialize fresh data.
+    if (data === null) {
+      const initialData = getInitialMasterData();
+      saveMasterData(initialData);
+      return initialData;
     }
 
-    // Ensure default properties exist
-    if (parsed.currentUser === undefined) parsed.currentUser = null;
-    if (!parsed.users) parsed.users = {};
+    let parsed = JSON.parse(data);
 
+    // Case 2: localStorage contains a "null" string or is otherwise empty after parsing.
+    if (parsed === null) {
+        const initialData = getInitialMasterData();
+        saveMasterData(initialData);
+        return initialData;
+    }
 
+    // Attempt to migrate data if it's in the old format.
+    const migratedData = migrateOldData(parsed);
+
+    // If the data was migrated, the object will be different. Save the new structure.
+    if (parsed !== migratedData) {
+      saveMasterData(migratedData);
+      return migratedData;
+    }
+    
+    // If no migration, return the parsed data as is.
     return parsed;
+
   } catch (error) {
-    console.error('Failed to get master data from localStorage:', error);
-    // Attempt to reset to a clean state if parsing fails badly
+    console.error('Failed to get or parse master data from localStorage. Resetting to a clean state.', error);
+    // Fallback: If parsing or any other operation fails, reset to a known good state.
     const cleanData = getInitialMasterData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanData));
+    saveMasterData(cleanData);
     return cleanData;
   }
 }
@@ -104,7 +88,8 @@ function getMasterData() {
 function saveMasterData(masterData) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(masterData));
-  } catch (error) {
+  } catch (error)
+  {
     console.error('Failed to save master data to localStorage:', error);
   }
 }
@@ -122,112 +107,78 @@ export function getCurrentUser() {
 
 export function setCurrentUser(userId) {
   const masterData = getMasterData();
-  if (userId === null || masterData.users[userId]) {
-    masterData.currentUser = userId;
-    saveMasterData(masterData);
-    return true;
-  }
-  console.error(`Attempted to set non-existent user "${userId}" as current.`);
-  return false;
+  masterData.currentUser = userId; // Can be null to "log out"
+  saveMasterData(masterData);
+  return true;
 }
 
 export function addUser(userId) {
   if (!userId || typeof userId !== 'string' || userId.trim() === '') {
-      console.error('Invalid user ID provided.');
-      return false;
+    return false;
   }
   const trimmedUserId = userId.trim();
   const masterData = getMasterData();
   if (masterData.users[trimmedUserId]) {
-    console.warn(`User "${trimmedUserId}" already exists.`);
-    return false; // Or maybe return true if selecting is desired?
+    return false; // User already exists
   }
   masterData.users[trimmedUserId] = getInitialUserData();
-  // Optionally set the new user as current immediately
-  // masterData.currentUser = trimmedUserId;
   saveMasterData(masterData);
-  console.log(`User "${trimmedUserId}" added.`);
   return true;
 }
 
 export function deleteUser(userId) {
     const masterData = getMasterData();
     if (!masterData.users[userId]) {
-        console.warn(`User "${userId}" does not exist.`);
         return false;
     }
     delete masterData.users[userId];
+    // If the deleted user was the current user, log them out.
     if (masterData.currentUser === userId) {
-        masterData.currentUser = null; // Clear current user if they were deleted
+        masterData.currentUser = null;
     }
     saveMasterData(masterData);
-    console.log(`User "${userId}" deleted.`);
     return true;
 }
 
-
 // --- User-Specific Progress Functions ---
 
-/**
- * Gets the progress data for a specific user.
- * @param {string} userId - The ID of the user.
- * @returns {object} The user's progress data, or an initial empty object if the user doesn't exist.
- */
 export function getProgress(userId) {
-    if (!userId) {
-        console.error("getProgress called without userId");
-        return getInitialUserData(); // Return default empty structure
-    }
-    const masterData = getMasterData();
-    // Return a copy to prevent accidental modification of the master data
-    return JSON.parse(JSON.stringify(masterData.users[userId] || getInitialUserData()));
+  if (!userId) {
+    // Return a default structure if no userId is provided, preventing errors.
+    return getInitialUserData();
+  }
+  const masterData = getMasterData();
+  // Return the specific user's data, or a default structure if that user doesn't exist.
+  return masterData.users[userId] || getInitialUserData();
 }
 
-
-/**
- * Saves the progress data for a specific user.
- * @param {string} userId - The ID of the user.
- * @param {object} userData - The progress data to save for the user.
- */
 function saveProgress(userId, userData) {
-    if (!userId) {
-        console.error("saveProgress called without userId");
-        return;
-    }
-    const masterData = getMasterData();
-    if (!masterData.users[userId]) {
-        console.error(`Attempted to save progress for non-existent user: ${userId}`);
-        // Optionally create the user here if desired, or just return
-        // masterData.users[userId] = getInitialUserData(); // Example: Create user on first save
-        return;
-    }
-    // Make sure we are not saving undefined or null
-    masterData.users[userId] = userData || getInitialUserData();
-    saveMasterData(masterData);
+  if (!userId) {
+    console.error("Attempted to save progress without a userId.");
+    return;
+  }
+  const masterData = getMasterData();
+  masterData.users[userId] = userData;
+  saveMasterData(masterData);
 }
 
+// --- All other service functions now use the new get/saveProgress pattern ---
 
 export function setHasSeenWelcome(userId) {
-    if (!userId) return;
-    const progress = getProgress(userId);
-    progress.hasSeenWelcome = true;
-    saveProgress(userId, progress);
+  if (!userId) return;
+  const progress = getProgress(userId);
+  progress.hasSeenWelcome = true;
+  saveProgress(userId, progress);
 }
 
 export function getOrCreateQuizAttempt(userId, attemptId, questions = []) {
   if (!userId) return null;
   const progress = getProgress(userId);
-  if (!progress.quizAttempts) {
-    progress.quizAttempts = {};
-  }
+  if (!progress.quizAttempts) progress.quizAttempts = {};
   if (!progress.quizAttempts[attemptId]) {
     progress.quizAttempts[attemptId] = {
       id: attemptId,
-      questions: questions.map(q => ({
-        id: q.id,
-        chapterId: q.chapterId,
-        flagged: false
-      })),
+      questions: questions.map(q => ({ id: q.id, chapterId: q.chapterId, flagged: false })),
       startTime: new Date().toISOString(),
       completed: false,
     };
@@ -250,39 +201,32 @@ export function updateFlagStatus(userId, attemptId, questionId, isFlagged) {
 }
 
 export function completeQuizAttempt(userId, attemptId, questions, answers) {
-    if (!userId) return;
-    const progress = getProgress(userId);
-    const attempt = progress.quizAttempts?.[attemptId];
-    if (attempt && !attempt.completed) {
-        attempt.completed = true;
-        attempt.endTime = new Date().toISOString();
-
-        const correct = answers.filter(a => a?.correct).length;
-        const total = questions.length;
-        attempt.results = {
-            score: correct,
-            total: total,
-            percentage: total > 0 ? Math.round((correct / total) * 100) : 0,
-            answers: answers.map((ans, idx) => ({
-                questionId: questions[idx].id,
-                chapterId: questions[idx].chapterId,
-                correct: ans?.correct || false,
-                loId: questions[idx].loId,
-            })),
-        };
-        saveProgress(userId, progress);
-    }
+  if (!userId) return;
+  const progress = getProgress(userId);
+  const attempt = progress.quizAttempts?.[attemptId];
+  if (attempt && !attempt.completed) {
+    attempt.completed = true;
+    attempt.endTime = new Date().toISOString();
+    const correct = answers.filter(a => a?.correct).length;
+    const total = questions.length;
+    attempt.results = {
+      score: correct,
+      total,
+      percentage: total > 0 ? Math.round((correct / total) * 100) : 0,
+      answers: answers.map((ans, idx) => ({
+        questionId: questions[idx].id,
+        chapterId: questions[idx].chapterId,
+        correct: ans?.correct || false,
+        loId: questions[idx].loId,
+      })),
+    };
+    saveProgress(userId, progress);
+  }
 }
-
 
 function updateStudyStreak(userId) {
     if (!userId) return { progress: getInitialUserData(), streakExtended: false };
     const progress = getProgress(userId);
-    // Ensure streak object exists
-    if (!progress.studyStreak) {
-        progress.studyStreak = { current: 0, longest: 0, lastActivityDate: null };
-    }
-
     let streakExtended = false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -291,7 +235,7 @@ function updateStudyStreak(userId) {
     if (lastDate) {
         lastDate.setHours(0, 0, 0, 0);
     }
-
+    
     if (!lastDate || today.getTime() > lastDate.getTime()) {
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
@@ -299,7 +243,6 @@ function updateStudyStreak(userId) {
         if (lastDate && lastDate.getTime() === yesterday.getTime()) {
             progress.studyStreak.current += 1;
         } else {
-            // Reset streak if the last activity wasn't yesterday or today
             progress.studyStreak.current = 1;
         }
 
@@ -309,71 +252,49 @@ function updateStudyStreak(userId) {
         progress.studyStreak.lastActivityDate = today.toISOString();
         streakExtended = true;
     }
-    // Note: We don't save here, the calling function (logActivity) will save.
+    
     return { progress, streakExtended };
 }
 
 export function logActivity(userId, activityItem) {
-    if (!userId) return { streakExtended: false, currentStreak: 0 };
-    let { progress, streakExtended } = updateStudyStreak(userId);
-
-    // Ensure recentActivity array exists
-    if (!progress.recentActivity) {
-        progress.recentActivity = [];
-    }
-
-    progress.recentActivity.unshift({
-        ...activityItem,
-        date: new Date().toISOString(),
-    });
-    progress.recentActivity = progress.recentActivity.slice(0, 10); // Keep only the last 10
-
-    saveProgress(userId, progress);
-    return { streakExtended, currentStreak: progress.studyStreak.current };
+  if (!userId) return { streakExtended: false, currentStreak: 0 };
+  let { progress, streakExtended } = updateStudyStreak(userId);
+  if (!progress.recentActivity) progress.recentActivity = [];
+  progress.recentActivity.unshift({ ...activityItem, date: new Date().toISOString() });
+  progress.recentActivity = progress.recentActivity.slice(0, 10);
+  saveProgress(userId, progress);
+  return { streakExtended, currentStreak: progress.studyStreak.current };
 }
 
 export function analyzePerformance(userId) {
     if (!userId) return { strengths: [], weaknesses: [] };
     const progress = getProgress(userId);
     const completedAttempts = Object.values(progress.quizAttempts || {}).filter(a => a.completed && a.results);
-    if (completedAttempts.length === 0) {
-        return { strengths: [], weaknesses: [] };
-    }
+    if (completedAttempts.length === 0) return { strengths: [], weaknesses: [] };
 
     const chapterStats = {};
-
     completedAttempts.forEach(attempt => {
-        attempt.results.answers.forEach(answer => {
+        (attempt.results.answers || []).forEach(answer => {
             const { chapterId, correct } = answer;
-            if (!chapterId || chapterId === 'specimen_exam' || chapterId === 'mock' || chapterId === 'quick_quiz') return; // Ignore non-specific chapters
-
+            if (!chapterId || ['specimen_exam', 'mock', 'quick_quiz'].includes(chapterId)) return;
             if (!chapterStats[chapterId]) {
                 chapterStats[chapterId] = { correct: 0, total: 0, chapterId };
             }
             chapterStats[chapterId].total++;
-            if (correct) {
-                chapterStats[chapterId].correct++;
-            }
+            if (correct) chapterStats[chapterId].correct++;
         });
     });
 
     const performance = Object.values(chapterStats)
-        .filter(stat => stat.total >= 5) // Only consider chapters with at least 5 attempts
-        .map(stat => ({
-            ...stat,
-            percentage: (stat.correct / stat.total) * 100,
-        }))
-        .sort((a, b) => b.percentage - a.percentage); // Sort descending by percentage
+        .filter(stat => stat.total >= 5)
+        .map(stat => ({ ...stat, percentage: (stat.correct / stat.total) * 100 }))
+        .sort((a, b) => b.percentage - a.percentage);
 
     const strengths = performance.slice(0, 3).filter(p => p.percentage >= 70);
-    // Sort ascending for weaknesses
-    const weaknesses = performance.slice().sort((a, b) => a.percentage - b.percentage).slice(0, 3).filter(p => p.percentage < 70);
-
+    const weaknesses = performance.slice().reverse().slice(0, 3).filter(p => p.percentage < 70);
     return { strengths, weaknesses };
 }
 
-
-// Modified to be user-specific
 export function getAllDueCards(userId) {
     if (!userId) return [];
     const progress = getProgress(userId);
@@ -382,17 +303,9 @@ export function getAllDueCards(userId) {
     const now = new Date().toISOString();
 
     allChaptersData.forEach(chapter => {
-        // Ensure chapter.id is valid before proceeding
-        if (!chapter || !chapter.id) return;
-
-        const chapterProgress = progress.chapters?.[chapter.id]; // Use optional chaining
-        if (chapter.flashcards && chapter.flashcards.length > 0) {
+        if (chapter.flashcards?.length > 0) {
             chapter.flashcards.forEach(card => {
-                 // Ensure card.id is valid
-                if (!card || !card.id) return;
-
-                const cardProgress = chapterProgress?.flashcards?.[card.id]; // Optional chaining
-                // Check if cardProgress exists and has nextReviewDate, or if it doesn't exist at all (new card)
+                const cardProgress = progress.chapters[chapter.id]?.flashcards?.[card.id];
                 if (!cardProgress || !cardProgress.nextReviewDate || cardProgress.nextReviewDate <= now) {
                     dueCards.push({ ...card, chapterId: chapter.id, chapterTitle: chapter.title });
                 }
@@ -403,121 +316,64 @@ export function getAllDueCards(userId) {
 }
 
 export function updateFlashcardConfidence(userId, chapterId, chapterTitle, cardId, rating) {
-    if (!userId) return;
-    const progress = getProgress(userId);
+  if (!userId) return;
+  const progress = getProgress(userId);
+  if (!progress.chapters[chapterId]) {
+    progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: chapterTitle };
+  }
+  let card = progress.chapters[chapterId].flashcards[cardId] || {
+    confidence: 0, lastReviewed: new Date().toISOString(), interval: 0,
+    easeFactor: 2.5, consecutiveCorrect: 0, status: 'new'
+  };
 
-    if (!progress.chapters[chapterId]) {
-        progress.chapters[chapterId] = {
-            mastery: 0,
-            flashcards: {},
-            title: chapterTitle // Store title for reference if needed
-        };
-    }
+  card = calculateNextReview(card, rating);
+  card.confidence = rating;
+  if (rating >= 4) card.status = 'mastered';
+  else if (rating >= 2) card.status = 'learning';
+  else card.status = 'new';
+  progress.chapters[chapterId].flashcards[cardId] = card;
 
-    let card = progress.chapters[chapterId].flashcards[cardId] || {
-        confidence: 0,
-        lastReviewed: null, // Set to null initially
-        interval: 0,
-        easeFactor: 2.5,
-        consecutiveCorrect: 0,
-        status: 'new' // Initialize status
-    };
-
-    card = calculateNextReview(card, rating);
-    card.confidence = rating; // Update confidence rating
-
-    // Update status based on rating
-    if (rating >= 4) { // Easy or Perfect
-        card.status = 'mastered';
-    } else if (rating >= 2) { // Hard or Good
-        card.status = 'learning';
-    } else { // Forgot
-        card.status = 'new'; // Treat as 'new' or 'needs review'
-    }
-
-
-    progress.chapters[chapterId].flashcards[cardId] = card;
-
-    // Recalculate chapter mastery
-    const chapterCards = progress.chapters[chapterId].flashcards;
-    const cardScores = Object.values(chapterCards).map(c => c.confidence || 0); // Default to 0 if no confidence score
-    // Mastery based on confidence (scale 1-5). Max score is 4 per card (5-1).
-    const totalScore = cardScores.reduce((sum, score) => sum + Math.max(0, score - 1), 0);
-    const maxPossibleScore = cardScores.length * 4;
-    progress.chapters[chapterId].mastery = maxPossibleScore > 0 ? totalScore / maxPossibleScore : 0;
-
-
-    saveProgress(userId, progress);
+  const chapterCards = progress.chapters[chapterId].flashcards;
+  const cardScores = Object.values(chapterCards).map(c => c.confidence);
+  const totalScore = cardScores.reduce((sum, score) => sum + (score - 1), 0);
+  const maxScore = cardScores.length * 4;
+  progress.chapters[chapterId].mastery = maxScore > 0 ? totalScore / maxScore : 0;
+  saveProgress(userId, progress);
 }
 
 export function updateCardStatus(userId, chapterId, cardId, newStatus) {
-    if (!userId) return;
-    const progress = getProgress(userId);
-
-    if (!progress.chapters[chapterId]) {
-        progress.chapters[chapterId] = { mastery: 0, flashcards: {} };
-    }
-    if (!progress.chapters[chapterId].flashcards[cardId]) {
-        progress.chapters[chapterId].flashcards[cardId] = {}; // Ensure card object exists
-    }
-
-    progress.chapters[chapterId].flashcards[cardId].status = newStatus;
-    saveProgress(userId, progress);
+  if (!userId) return;
+  const progress = getProgress(userId);
+  if (!progress.chapters[chapterId]) progress.chapters[chapterId] = { mastery: 0, flashcards: {} };
+  if (!progress.chapters[chapterId].flashcards[cardId]) progress.chapters[chapterId].flashcards[cardId] = {};
+  progress.chapters[chapterId].flashcards[cardId].status = newStatus;
+  saveProgress(userId, progress);
 }
-
 
 export function resetProgress(userId) {
-    if (!userId) {
-        console.warn("Attempted to reset progress without specifying a user.");
-        return; // Or maybe reset all users? Decided against it for safety.
-    }
-    const masterData = getMasterData();
-    if (masterData.users[userId]) {
-        masterData.users[userId] = getInitialUserData(); // Reset specific user data
-        saveMasterData(masterData);
-        console.log(`Progress reset for user: ${userId}`);
-    } else {
-        console.warn(`Attempted to reset progress for non-existent user: ${userId}`);
-    }
+  if (!userId) return;
+  const masterData = getMasterData();
+  if (masterData.users[userId]) {
+    masterData.users[userId] = getInitialUserData();
+    saveMasterData(masterData);
+  }
 }
-
-// Function to reset ALL users - use with caution!
-export function resetAllProgress() {
-    try {
-        const cleanData = getInitialMasterData();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanData));
-        console.log("All user progress has been reset.");
-    } catch (error) {
-        console.error('Failed to reset all progress in localStorage:', error);
-    }
-}
-
 
 export function cacheAiExplanation(userId, chapterId, cardId, promptType, explanation) {
-    if (!userId) return;
-    const progress = getProgress(userId);
-    if (!progress.chapters[chapterId]) {
-        progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: '' };
-    }
-    if (!progress.chapters[chapterId].flashcards[cardId]) {
-        progress.chapters[chapterId].flashcards[cardId] = {};
-    }
-    if (!progress.chapters[chapterId].flashcards[cardId].aiExplanations) {
-        progress.chapters[chapterId].flashcards[cardId].aiExplanations = {};
-    }
-    progress.chapters[chapterId].flashcards[cardId].aiExplanations[promptType] = explanation;
-    saveProgress(userId, progress);
+  if (!userId) return;
+  const progress = getProgress(userId);
+  if (!progress.chapters[chapterId]) progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: '' };
+  if (!progress.chapters[chapterId].flashcards[cardId]) progress.chapters[chapterId].flashcards[cardId] = {};
+  if (!progress.chapters[chapterId].flashcards[cardId].aiExplanations) progress.chapters[chapterId].flashcards[cardId].aiExplanations = {};
+  progress.chapters[chapterId].flashcards[cardId].aiExplanations[promptType] = explanation;
+  saveProgress(userId, progress);
 }
 
 export function saveFlashcardNote(userId, chapterId, cardId, noteText) {
-    if (!userId) return;
-    const progress = getProgress(userId);
-    if (!progress.chapters[chapterId]) {
-        progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: '' };
-    }
-    if (!progress.chapters[chapterId].flashcards[cardId]) {
-        progress.chapters[chapterId].flashcards[cardId] = {};
-    }
-    progress.chapters[chapterId].flashcards[cardId].note = noteText;
-    saveProgress(userId, progress);
+  if (!userId) return;
+  const progress = getProgress(userId);
+  if (!progress.chapters[chapterId]) progress.chapters[chapterId] = { mastery: 0, flashcards: {}, title: '' };
+  if (!progress.chapters[chapterId].flashcards[cardId]) progress.chapters[chapterId].flashcards[cardId] = {};
+  progress.chapters[chapterId].flashcards[cardId].note = noteText;
+  saveProgress(userId, progress);
 }

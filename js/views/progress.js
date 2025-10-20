@@ -1,7 +1,7 @@
 // js/views/progress.js
 import { qs } from '../utils/uiUtils.js';
 import * as progressService from '../services/progressService.js';
-import { state } from '../main.js'; // <-- ADD this import
+import { state } from '../main.js'; // <-- Import state
 
 function getChaptersFromGlobal() {
   const central = window.CII_W01_TUTOR_DATA?.chapters;
@@ -11,8 +11,9 @@ function getChaptersFromGlobal() {
 
 function activateChart() {
   const ctx = document.getElementById('mastery-chart')?.getContext('2d');
-  if (!ctx) return;
-  const progress = progressService.getProgress(state.currentUser);
+  if (!ctx || !state.currentUser) return; // <-- Add check for user
+
+  const progress = progressService.getProgress(state.currentUser); // <-- Pass state.currentUser
   const allChapters = getChaptersFromGlobal().filter(c => c.id !== 'specimen_exam');
   const labels = allChapters.map(ch => ch.title.replace(/Chapter \d+: /g, ''));
   const data = allChapters.map(ch => {
@@ -58,8 +59,14 @@ function activateChart() {
 export function renderProgress() {
   const wrap = document.createElement('section');
   wrap.className = 'screen screen-progress';
-  const progress = progressService.getProgress(state.currentUser);
-  const { strengths, weaknesses } = progressService.analyzePerformance(state.currentUser);
+  
+  if (!state.currentUser) {
+    wrap.innerHTML = `<p>Error: No user selected.</p>`;
+    return wrap;
+  }
+
+  const progress = progressService.getProgress(state.currentUser); // <-- Pass state.currentUser
+  const { strengths, weaknesses } = progressService.analyzePerformance(state.currentUser); // <-- Pass state.currentUser
   const allChaptersData = getChaptersFromGlobal();
 
   const chapterTitleMap = allChaptersData.reduce((acc, ch) => {
@@ -89,7 +96,7 @@ export function renderProgress() {
 
   wrap.innerHTML = `
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-white">My Progress</h1>
+        <h1 class="text-3xl font-bold text-white">My Progress for ${state.currentUser}</h1>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-6">
@@ -125,7 +132,7 @@ export function renderProgress() {
   `;
 
   const activityLog = qs('#activity-log', wrap);
-  if (progress.recentActivity.length > 0) {
+  if (progress.recentActivity && progress.recentActivity.length > 0) {
     progress.recentActivity.forEach(act => {
       const actEl = document.createElement('div');
       actEl.className = 'text-neutral-300 text-sm flex justify-between items-center';
