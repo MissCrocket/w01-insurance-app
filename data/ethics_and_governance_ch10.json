@@ -1,0 +1,133 @@
+{
+  "title": "Chapter 10: Ethics, Governance & Internal Controls",
+  "case_study": {
+    "title": "Case Study: The Pressure to Sell",
+    "scenario": "An insurance intermediary is under pressure to meet high sales targets. An elderly client, who has been with them for years, comes in to renew their household policy. The intermediary realises they could sell the client a new, more expensive policy that includes several features the client doesn't need, such as extensive cover for sports equipment. This would earn the intermediary a higher commission. The intermediary is also aware that their firm's internal audit department has recently flagged issues with advice given to vulnerable customers.",
+    "questions": [
+      {
+        "question": "Which principles of the CII Code of Ethics are at risk of being breached here?",
+        "answer": "Several principles are at risk. Primarily: 'Act in the best interests of each client' by recommending an unsuitable policy for personal gain. Also, 'Act with the highest ethical standards and integrity' by potentially taking unfair advantage of a long-standing, possibly vulnerable, client. Finally, 'Provide a high standard of service' is breached if the advice is not appropriate to the client's needs."
+      },
+      {
+        "question": "What roles should the firm's compliance and internal audit functions play in preventing situations like this?",
+        "answer": "The Compliance function should have clear policies and training in place regarding the fair treatment of customers, particularly those who may be vulnerable. They should monitor sales patterns for potential miss-selling. The Internal Audit function provides independent assurance that these controls are working effectively. The fact that internal audit has already flagged issues indicates a weakness in the control system that senior management must address."
+      }
+    ]
+  },
+  "los": [
+    { "id": "5.1", "description": "Explain the functions of the Chartered Insurance Institute (CII)." },
+    { "id": "5.2", "description": "Explain the importance of the fair treatment of customers and positive customer outcomes." },
+    { "id": "5.3", "description": "Understand the objectives of 'fit and proper' requirements and the risks of unsuitability." },
+    { "id": "5.4", "description": "Understand the importance of internal control systems." }
+  ],
+  "questions": [
+    {
+      "type": "mcq",
+      "loId": "5.1",
+      "concept": "CII Code of Ethics",
+      "question": "Which of the following is NOT one of the five core principles of the CII Code of Ethics?",
+      "options": [
+        "Act with the highest ethical standards and integrity",
+        "Act in the best interests of each client",
+        "Prioritise company profit above all other considerations",
+        "Provide a high standard of service"
+      ],
+      "correctAnswer": "Prioritise company profit above all other considerations",
+      "explanation": "The five core principles are: 1. Comply with laws/regulations. 2. Act with integrity. 3. Act in clients' best interests. 4. Provide high service. 5. Treat people fairly."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.3",
+      "concept": "Fit & proper",
+      "question": "A 'fit and proper' person in a regulated firm is best described as someone who:",
+      "options": [
+        "Has the most sales",
+        "Is honest, competent, financially sound, and suitable for the role",
+        "Avoids training",
+        "Never takes annual leave"
+      ],
+      "correctAnswer": "Is honest, competent, financially sound, and suitable for the role",
+      "explanation": "Fitness and propriety include honesty, competence, and financial soundness."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.4",
+      "concept": "Compliance vs audit",
+      "question": "Within an insurer's internal control system, which function is responsible for providing independent assurance that risk management processes (including compliance) are working effectively?",
+      "options": [
+        "The Compliance Function",
+        "The Internal Audit Function",
+        "The Risk Management Committee",
+        "The Board of Directors"
+      ],
+      "correctAnswer": "The Internal Audit Function",
+      "explanation": "The internal audit function is separate from other functions and provides an independent check on the effectiveness of the company's controls. The compliance function sets policies and monitors adherence to rules."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.2",
+      "concept": "Conflicts of interest",
+      "question": "When a conflict of interest arises, an appropriate first action is to:",
+      "options": [
+        "Proceed without change",
+        "Disclose the conflict and manage or avoid it according to policy",
+        "Change the policy wording",
+        "Delete records of the conflict"
+      ],
+      "correctAnswer": "Disclose the conflict and manage or avoid it according to policy",
+      "explanation": "Transparency and proper management are essential to treating customers fairly."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.4",
+      "concept": "Internal Control Systems",
+      "question": "An insurance company requires that all payments over £10,000 must be authorised by two senior managers. This is an example of:",
+      "options": [
+        "A compliance function",
+        "An internal control system",
+        "A risk management framework",
+        "An internal audit"
+      ],
+      "correctAnswer": "An internal control system",
+      "explanation": "This is a specific procedure within the internal control system designed to prevent fraud and error."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.2",
+      "concept": "Environmental, Social, and Governance (ESG)",
+      "question": "Why is it increasingly important for insurers to consider ESG factors?",
+      "options": [
+        "Because it is the only factor regulators look at.",
+        "To increase short-term profits from high-risk investments.",
+        "To build customer trust, enhance business resilience, and manage reputational risk.",
+        "To replace the need for a formal Code of Ethics."
+      ],
+      "correctAnswer": "To build customer trust, enhance business resilience, and manage reputational risk.",
+      "explanation": "Good ESG practices are linked to long-term financial performance, attracting investors, retaining customers, and managing risks like climate change and social inequality, which directly impact the insurance industry."
+    },
+    {
+      "type": "mcq",
+      "loId": "5.4",
+      "concept": "Own Risk and Solvency Assessment (ORSA)",
+      "question": "What is the primary purpose of an insurer's Own Risk and Solvency Assessment (ORSA)?",
+      "options": [
+        "To set premium rates for new products.",
+        "To assess the adequacy of its risk management and its current and future solvency position.",
+        "To handle and log customer complaints.",
+        "To conduct pre-employment screening for senior managers."
+      ],
+      "correctAnswer": "To assess the adequacy of its risk management and its current and future solvency position.",
+      "explanation": "The ORSA is a key part of the risk management framework where the insurer self-assesses its overall risk profile and determines the capital needed to support it, ensuring it can meet its obligations."
+    }
+  ],
+  "flashcards": [
+    { "id": "ch10_1", "loId": "5.1", "term": "CII Code – 5 Principles", "definition": "1. Comply with the Code and all relevant laws/regulations. 2. Act with the highest ethical standards and integrity. 3. Act in the best interests of each client. 4. Provide a high standard of service. 5. Treat people fairly (non-discrimination)." },
+    { "id": "ch10_2", "loId": "5.3", "term": "Fit & Proper", "definition": "Honesty, competence, financial soundness, suitability for the role." },
+    { "id": "ch10_3", "loId": "5.4", "term": "Compliance vs Internal Audit", "definition": "The Compliance function advises and monitors adherence to rules and policies. The Internal Audit function provides independent assurance that all internal controls, including compliance, are working effectively." },
+    { "id": "ch10_4", "loId": "5.4", "term": "Complaints Handling", "definition": "Log → investigate → respond → escalate/redress where appropriate." },
+    { "id": "ch10_5", "loId": "5.2", "term": "Conflicts of Interest", "definition": "Disclose and manage/avoid per policy; prioritise client interests and fairness." },
+    { "id": "ch10_lo5_2_1", "loId": "5.2", "term": "Environmental, Social, and Governance (ESG)", "definition": "Criteria used to assess an organisation's impact and ethical practices. Environmental (e.g., climate change), Social (e.g., diversity, human rights), and Governance (e.g., management quality, ethics). Important for an insurer's reputation, resilience, and customer trust." },
+    { "id": "ch10_lo5_4_1", "loId": "5.4", "term": "Risk Management Framework", "definition": "The total structure, led by the board, that an insurer uses to identify, assess, monitor, and control all reasonably foreseeable risks. It is a core part of the internal control system." },
+    { "id": "ch10_lo5_4_2", "loId": "5.4", "term": "Own Risk and Solvency Assessment (ORSA)", "definition": "An insurer's internal process to regularly assess its risk profile, overall solvency needs, and the capital required to support those risks. It is a key component of the risk management framework." }
+  ]
+}
